@@ -18,21 +18,38 @@ export const useMenuStore = defineStore('menu', {
   }),
 
   actions: {
-    async fetchMenu(location: string = 'primary') {
+    async fetchMenu(location: string = 'primary', slug?: string) {
       this.loading = true
       this.error = null
 
       try {
         const api = useApi()
+        const params: Record<string, string> = { location }
+        if (slug) {
+          params.slug = slug
+        }
+        
         const response = await api.get('/menus', {
-          params: { location }
+          params
         })
 
-        // FeathersJS devuelve { data: [...], total: N } para find()
-        const menuData = (response.data && typeof response.data === 'object' && 'data' in response.data)
-          ? response.data.data
-          : (Array.isArray(response.data) ? response.data : [])
+        console.log('Menu API response:', response)
         
+        // FeathersJS devuelve { data: [...], total: N } para find()
+        // $fetch ya parsea la respuesta, así que response.data es el objeto completo
+        let menuData = []
+        
+        if (response.data) {
+          if (typeof response.data === 'object' && 'data' in response.data) {
+            // Si response.data tiene una propiedad 'data', usarla
+            menuData = Array.isArray(response.data.data) ? response.data.data : []
+          } else if (Array.isArray(response.data)) {
+            // Si response.data es directamente un array
+            menuData = response.data
+          }
+        }
+        
+        console.log('Menu data extracted:', menuData)
         this.items = menuData || []
       } catch (error: any) {
         this.error = error.message || 'Error al cargar el menú'

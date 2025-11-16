@@ -10,7 +10,7 @@
           <!-- Logo End -->
 
           <!-- Main Menu Start -->
-          <div class="collapse navbar-collapse main-menu">
+          <div class="navbar-collapse main-menu show">
             <div class="nav-menu-wrapper">
               <ul class="navbar-nav mr-auto" id="menu">
                 <li 
@@ -62,10 +62,18 @@ const settings = computed(() => settingsStore.settings)
 
 onMounted(async () => {
   // Cargar menú y configuración
-  await Promise.all([
-    menuStore.fetchMenu('primary'),
-    settingsStore.fetchSettings()
-  ])
+  try {
+    await Promise.all([
+      menuStore.fetchMenu('primary'),
+      settingsStore.fetchSettings()
+    ])
+    
+    console.log('Menu items loaded:', menuStore.items)
+    console.log('Menu loading:', menuStore.loading)
+    console.log('Menu error:', menuStore.error)
+  } catch (error) {
+    console.error('Error loading menu or settings:', error)
+  }
 
   // Manejar scroll para sticky header
   if (typeof window !== 'undefined') {

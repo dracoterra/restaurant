@@ -52,7 +52,7 @@ export const useInsightsStore = defineStore('insights', {
       this.error = null
 
       try {
-        const { api } = useApi()
+        const api = useApi()
         const response = await api.get<InsightsResponse>('/insights', {
           params: {
             $skip: params.skip || this.skip,
@@ -78,7 +78,7 @@ export const useInsightsStore = defineStore('insights', {
       this.error = null
 
       try {
-        const { api } = useApi()
+        const api = useApi()
         const response = await api.get<Insight>(`/insights/${slug}`)
         this.currentInsight = response.data
         return response.data
