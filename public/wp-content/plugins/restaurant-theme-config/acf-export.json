@@ -50,6 +50,57 @@
         "default_value": "+ years of experience"
       },
       {
+        "key": "field_about_features",
+        "label": "About Features",
+        "name": "about_features",
+        "type": "repeater",
+        "layout": "table",
+        "button_label": "Add Feature",
+        "sub_fields": [
+          {
+            "key": "field_feature_text",
+            "label": "Feature Text",
+            "name": "feature_text",
+            "type": "text",
+            "parent_repeater": "field_about_features"
+          }
+        ]
+      },
+      {
+        "key": "field_about_details",
+        "label": "About Details",
+        "name": "about_details",
+        "type": "repeater",
+        "layout": "block",
+        "button_label": "Add Detail",
+        "sub_fields": [
+          {
+            "key": "field_detail_icon",
+            "label": "Icon",
+            "name": "icon",
+            "type": "image",
+            "return_format": "array",
+            "preview_size": "thumbnail",
+            "parent_repeater": "field_about_details"
+          },
+          {
+            "key": "field_detail_title",
+            "label": "Title",
+            "name": "title",
+            "type": "text",
+            "parent_repeater": "field_about_details"
+          },
+          {
+            "key": "field_detail_description",
+            "label": "Description",
+            "name": "description",
+            "type": "textarea",
+            "rows": 3,
+            "parent_repeater": "field_about_details"
+          }
+        ]
+      },
+      {
         "key": "field_mission_title",
         "label": "Mission - Title",
         "name": "mission_title",
@@ -292,6 +343,48 @@
         "label": "Services - Description",
         "name": "services_description",
         "type": "textarea"
+      },
+      {
+        "key": "field_services_items",
+        "label": "Services Items",
+        "name": "services_items",
+        "type": "repeater",
+        "layout": "block",
+        "button_label": "Add Service",
+        "sub_fields": [
+          {
+            "key": "field_service_icon",
+            "label": "Icon",
+            "name": "icon",
+            "type": "image",
+            "return_format": "array",
+            "preview_size": "thumbnail",
+            "parent_repeater": "field_services_items"
+          },
+          {
+            "key": "field_service_title",
+            "label": "Title",
+            "name": "title",
+            "type": "text",
+            "parent_repeater": "field_services_items"
+          },
+          {
+            "key": "field_service_description",
+            "label": "Description",
+            "name": "description",
+            "type": "textarea",
+            "rows": 3,
+            "parent_repeater": "field_services_items"
+          },
+          {
+            "key": "field_service_link",
+            "label": "Link",
+            "name": "link",
+            "type": "text",
+            "default_value": "#",
+            "parent_repeater": "field_services_items"
+          }
+        ]
       }
     ],
     "location": [

@@ -193,6 +193,21 @@ class PagesService {
                   }
                   experienceYears
                   experienceText
+                  aboutFeatures {
+                    featureText
+                  }
+                  aboutDetails {
+                    icon {
+                      sourceUrl
+                      altText
+                      mediaDetails {
+                        width
+                        height
+                      }
+                    }
+                    title
+                    description
+                  }
                   missionTitle
                   missionHeading
                   missionContent
@@ -255,6 +270,19 @@ class PagesService {
                   servicesSubtitle
                   servicesTitle
                   servicesDescription
+                  servicesItems {
+                    icon {
+                      sourceUrl
+                      altText
+                      mediaDetails {
+                        width
+                        height
+                      }
+                    }
+                    title
+                    description
+                    link
+                  }
                 }
                 menuPageSections {
                   menuSubtitle
@@ -305,6 +333,50 @@ class PagesService {
           }
         } catch (metaError) {
           logger.warn('No se pudieron obtener meta fields:', metaError.message);
+        }
+      }
+      
+      // Si no hay campos ACF de repeater, intentar leer desde meta fields
+      if (!transformedPage.acf.aboutPageSections?.aboutFeatures && pageSlug === 'about') {
+        try {
+          const metaFields = await this.fetchPageMetaFields(data.page.databaseId);
+          if (metaFields && metaFields.about_features) {
+            const features = typeof metaFields.about_features === 'string' 
+              ? JSON.parse(metaFields.about_features) 
+              : metaFields.about_features;
+            if (!transformedPage.acf.aboutPageSections) {
+              transformedPage.acf.aboutPageSections = {};
+            }
+            transformedPage.acf.aboutPageSections.aboutFeatures = Array.isArray(features) ? features : [];
+          }
+          if (metaFields && metaFields.about_details) {
+            const details = typeof metaFields.about_details === 'string' 
+              ? JSON.parse(metaFields.about_details) 
+              : metaFields.about_details;
+            if (!transformedPage.acf.aboutPageSections) {
+              transformedPage.acf.aboutPageSections = {};
+            }
+            transformedPage.acf.aboutPageSections.aboutDetails = Array.isArray(details) ? details : [];
+          }
+        } catch (metaError) {
+          logger.warn('No se pudieron obtener meta fields de repeater:', metaError.message);
+        }
+      }
+      
+      if (!transformedPage.acf.servicesPageSections?.servicesItems && pageSlug === 'services') {
+        try {
+          const metaFields = await this.fetchPageMetaFields(data.page.databaseId);
+          if (metaFields && metaFields.services_items) {
+            const items = typeof metaFields.services_items === 'string' 
+              ? JSON.parse(metaFields.services_items) 
+              : metaFields.services_items;
+            if (!transformedPage.acf.servicesPageSections) {
+              transformedPage.acf.servicesPageSections = {};
+            }
+            transformedPage.acf.servicesPageSections.servicesItems = Array.isArray(items) ? items : [];
+          }
+        } catch (metaError) {
+          logger.warn('No se pudieron obtener meta fields de services items:', metaError.message);
         }
       }
 
@@ -361,8 +433,31 @@ class PagesService {
     const transformed = {};
     
     for (const [key, value] of Object.entries(section)) {
+      // Handle arrays (repeater fields)
+      if (Array.isArray(value)) {
+        transformed[key] = value.map(item => {
+          if (typeof item === 'object' && item !== null) {
+            const transformedItem = {};
+            for (const [itemKey, itemValue] of Object.entries(item)) {
+              // Transform image fields within repeater items
+              if (itemValue && typeof itemValue === 'object' && itemValue.sourceUrl) {
+                transformedItem[itemKey] = {
+                  url: itemValue.sourceUrl,
+                  alt: itemValue.altText || '',
+                  width: itemValue.mediaDetails?.width || null,
+                  height: itemValue.mediaDetails?.height || null
+                };
+              } else {
+                transformedItem[itemKey] = itemValue;
+              }
+            }
+            return transformedItem;
+          }
+          return item;
+        });
+      }
       // Transform image fields
-      if (value && typeof value === 'object' && value.sourceUrl) {
+      else if (value && typeof value === 'object' && value.sourceUrl) {
         transformed[key] = {
           url: value.sourceUrl,
           alt: value.altText || '',
