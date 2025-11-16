@@ -1,5 +1,3 @@
-# restaurant
-
 # Restaurant Project
 
 Aplicación web completa con Backend (FeathersJS), Frontend (Nuxt 4) y CMS (WordPress).
@@ -10,7 +8,8 @@ Aplicación web completa con Backend (FeathersJS), Frontend (Nuxt 4) y CMS (Word
 app/
 ├── public/          # WordPress (CMS)
 ├── backend/         # FeathersJS Backend
-└── frontend/        # Nuxt 4 Frontend
+├── frontend/        # Nuxt 4 Frontend
+└── docs/            # Documentación del proyecto
 ```
 
 ## Arquitectura
@@ -114,6 +113,10 @@ cd frontend
 npm run build
 npm run preview
 ```
+
+## Documentación
+
+Toda la documentación histórica y técnica del proyecto se encuentra en la carpeta `docs/`. Consulta `docs/README.md` para ver el índice completo.
 
 ## Notas
 
