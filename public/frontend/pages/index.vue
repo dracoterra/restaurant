@@ -52,7 +52,7 @@ const insightsStore = useInsightsStore()
 const dayjs = useDayjs()
 
 const formatDate = (date: string) => {
-  return dayjs(date).format('DD MMMM YYYY')
+  return dayjs(date).format('DD [de] MMMM YYYY')
 }
 
 onMounted(() => {

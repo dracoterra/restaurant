@@ -6,9 +6,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/ui',
     '@nuxt/image',
-    '@pinia/nuxt',
-    '@nuxtjs/dayjs',
-    '@nuxtjs/jsonld'
+    '@pinia/nuxt'
   ],
 
   css: ['~/assets/css/main.css'],
@@ -24,11 +22,6 @@ export default defineNuxtConfig({
     provider: 'ipx'
   },
 
-  dayjs: {
-    locales: ['es', 'en'],
-    defaultLocale: 'es',
-    plugins: ['relativeTime', 'utc', 'timezone']
-  },
 
   app: {
     head: {

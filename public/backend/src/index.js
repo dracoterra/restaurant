@@ -30,15 +30,18 @@ app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Host the public folder
-app.use('/', express.static('public'));
+// Enable REST services
+app.configure(express.rest());
 
-// Configure services and real-time features
+// Configure services and real-time features (BEFORE static and 404 handler)
 app.configure(services);
 app.configure(channels);
 
 // Configure middleware
 app.configure(middleware);
+
+// Host the public folder (AFTER services)
+app.use('/', express.static('public'));
 
 // Configure a middleware for 404s and the error handler
 app.use(express.notFound());

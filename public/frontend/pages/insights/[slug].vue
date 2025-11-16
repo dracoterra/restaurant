@@ -69,7 +69,7 @@ const slug = route.params.slug as string
 const insight = computed(() => insightsStore.currentInsight)
 
 const formatDate = (date: string) => {
-  return dayjs(date).format('DD MMMM YYYY, HH:mm')
+  return dayjs(date).format('DD [de] MMMM YYYY, HH:mm')
 }
 
 onMounted(async () => {
