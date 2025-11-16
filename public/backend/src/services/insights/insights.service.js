@@ -1,6 +1,8 @@
 const { GraphQLClient } = require('graphql-request');
 const axios = require('axios');
 const logger = require('../../logger');
+const retry = require('../../utils/retry');
+const timeout = require('../../utils/timeout');
 
 class InsightsService {
   constructor(options) {
@@ -74,20 +76,58 @@ class InsightsService {
         search: search || ''
       };
 
-      const data = await this.graphQLClient.request(graphqlQuery, variables);
+      // Aplicar timeout y retry a las peticiones GraphQL
+      const data = await retry(
+        () => timeout(
+          this.graphQLClient.request(graphqlQuery, variables),
+          10000, // 10 segundos timeout
+          'Timeout al conectar con WordPress GraphQL'
+        ),
+        {
+          retries: 2,
+          delay: 1000,
+          onRetry: (error, attempt, waitTime) => {
+            logger.warn(`Reintentando petición GraphQL (intento ${attempt}/${2 + 1}) después de ${waitTime}ms:`, error.message);
+          }
+        }
+      );
       
       const posts = data.posts.edges.map(edge => this.transformPost(edge.node));
       
+      // Calcular total aproximado basado en pageInfo
+      // Si hay más páginas, indicamos que hay más resultados
+      // En producción, se podría hacer una query de conteo separada
+      let total = posts.length;
+      if (data.posts.pageInfo.hasNextPage) {
+        // Si hay más páginas, el total es al menos el límite actual
+        // Esto es una aproximación - para el total exacto se necesitaría otra query
+        total = $limit; // Mínimo, pero hay más
+      }
+      
       return {
         data: posts,
-        total: posts.length,
+        total: total,
         limit: $limit,
         skip: $skip,
         pageInfo: data.posts.pageInfo
       };
     } catch (error) {
       logger.error('Error fetching insights:', error);
-      throw error;
+      
+      // Transformar errores GraphQL a formato estándar
+      if (error.response) {
+        const graphqlError = new Error(error.response.errors?.[0]?.message || 'Error fetching insights from WordPress');
+        graphqlError.statusCode = error.response.status || 500;
+        throw graphqlError;
+      }
+      
+      if (error.message) {
+        const standardError = new Error(error.message);
+        standardError.statusCode = 500;
+        throw standardError;
+      }
+      
+      throw new Error('Error desconocido al obtener insights');
     }
   }
 
@@ -139,7 +179,21 @@ class InsightsService {
         }
       `;
 
-      const data = await this.graphQLClient.request(graphqlQuery, { slug: id });
+      // Aplicar timeout y retry a las peticiones GraphQL
+      const data = await retry(
+        () => timeout(
+          this.graphQLClient.request(graphqlQuery, { slug: id }),
+          10000, // 10 segundos timeout
+          'Timeout al conectar con WordPress GraphQL'
+        ),
+        {
+          retries: 2,
+          delay: 1000,
+          onRetry: (error, attempt, waitTime) => {
+            logger.warn(`Reintentando petición GraphQL (intento ${attempt}/${2 + 1}) después de ${waitTime}ms:`, error.message);
+          }
+        }
+      );
       
       if (!data.postBy) {
         throw new Error('Post not found');
@@ -148,7 +202,21 @@ class InsightsService {
       return this.transformPost(data.postBy);
     } catch (error) {
       logger.error('Error fetching insight:', error);
-      throw error;
+      
+      // Transformar errores GraphQL a formato estándar
+      if (error.response) {
+        const graphqlError = new Error(error.response.errors?.[0]?.message || 'Error fetching insight from WordPress');
+        graphqlError.statusCode = error.response.status || 404;
+        throw graphqlError;
+      }
+      
+      if (error.message) {
+        const standardError = new Error(error.message);
+        standardError.statusCode = 404;
+        throw standardError;
+      }
+      
+      throw new Error('Error desconocido al obtener insight');
     }
   }
 

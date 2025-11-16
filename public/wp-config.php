@@ -73,8 +73,10 @@ $table_prefix = 'wp_';
 
 /* Add any custom values between this line and the "stop editing" line. */
 
-// Enable WordPress REST API
-define( 'REST_REQUEST', true );
+// Enable WordPress REST API (WordPress lo define automáticamente, solo lo definimos si no existe)
+if ( ! defined( 'REST_REQUEST' ) ) {
+	define( 'REST_REQUEST', true );
+}
 
 // Enable debugging for development
 if ( ! defined( 'WP_DEBUG' ) ) {
