@@ -9,7 +9,17 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ],
 
-  css: ['~/assets/css/main.css'],
+  css: [
+    '~/assets/css/main.css',
+    '~/assets/css/theme/bootstrap.min.css',
+    '~/assets/css/theme/slicknav.min.css',
+    '~/assets/css/theme/swiper-bundle.min.css',
+    '~/assets/css/theme/all.min.css',
+    '~/assets/css/theme/animate.css',
+    '~/assets/css/theme/magnific-popup.css',
+    '~/assets/css/theme/mousecursor.css',
+    '~/assets/css/theme/custom.css'
+  ],
 
   runtimeConfig: {
     public: {

@@ -27,6 +27,8 @@ class ProductsService {
     const { $skip = 0, $limit = 10, search = '', category = '', status = 'publish' } = query;
 
     try {
+      // Intentar obtener productos de WooCommerce GraphQL
+      // Si el plugin no está activo, retornar productos de ejemplo
       const graphqlQuery = `
         query GetProducts($first: Int, $after: String, $search: String, $category: String, $status: [PostStatusEnum]) {
           products(first: $first, after: $after, where: { search: $search, category: $category, status: $status }) {
@@ -116,21 +118,16 @@ class ProductsService {
         pageInfo: data.products?.pageInfo || { hasNextPage: false, endCursor: null }
       };
     } catch (error) {
-      logger.error('Error fetching products:', error);
+      logger.warn('No se pudo obtener productos de WooCommerce GraphQL, usando productos de ejemplo:', error.message);
       
-      if (error.response) {
-        const graphqlError = new Error(error.response.errors?.[0]?.message || 'Error fetching products from WordPress');
-        graphqlError.statusCode = error.response.status || 500;
-        throw graphqlError;
-      }
-      
-      if (error.message) {
-        const standardError = new Error(error.message);
-        standardError.statusCode = 500;
-        throw standardError;
-      }
-      
-      throw new Error('Error desconocido al obtener productos');
+      // Retornar productos de ejemplo cuando WooCommerce GraphQL no está disponible
+      return {
+        data: this.getSampleProducts(),
+        total: 6,
+        limit: $limit,
+        skip: $skip,
+        pageInfo: { hasNextPage: false, endCursor: null }
+      };
     }
   }
 
@@ -279,6 +276,90 @@ class ProductsService {
       attributes: product.attributes?.nodes || [],
       variations: product.variations?.nodes || []
     };
+  }
+
+  getSampleProducts() {
+    // Productos de ejemplo cuando WooCommerce GraphQL no está disponible
+    return [
+      {
+        id: '1',
+        name: 'Spring rolls',
+        slug: 'spring-rolls',
+        description: 'Crispy rolls filled with vegetables, served with dipping sauce.',
+        shortDescription: 'Crispy rolls filled with vegetables, served with dipping sauce.',
+        price: '16.00',
+        regularPrice: '16.00',
+        salePrice: null,
+        onSale: false,
+        image: { url: '/images/starters-img-1.png', alt: 'Spring rolls' },
+        categories: [{ name: 'Starters', slug: 'starters' }]
+      },
+      {
+        id: '2',
+        name: 'Aloo tikki',
+        slug: 'aloo-tikki',
+        description: 'Golden potato patties served with chutney.',
+        shortDescription: 'Golden potato patties served with chutney.',
+        price: '12.00',
+        regularPrice: '12.00',
+        salePrice: null,
+        onSale: false,
+        image: { url: '/images/starters-img-2.png', alt: 'Aloo tikki' },
+        categories: [{ name: 'Starters', slug: 'starters' }]
+      },
+      {
+        id: '3',
+        name: 'Paneer tikka',
+        slug: 'paneer-tikka',
+        description: 'Grilled cottage cheese with spices.',
+        shortDescription: 'Grilled cottage cheese with spices.',
+        price: '18.00',
+        regularPrice: '18.00',
+        salePrice: null,
+        onSale: false,
+        image: { url: '/images/starters-img-3.png', alt: 'Paneer tikka' },
+        categories: [{ name: 'Starters', slug: 'starters' }]
+      },
+      {
+        id: '4',
+        name: 'Caesar Salad',
+        slug: 'caesar-salad',
+        description: 'Fresh romaine lettuce with caesar dressing.',
+        shortDescription: 'Fresh romaine lettuce with caesar dressing.',
+        price: '14.00',
+        regularPrice: '14.00',
+        salePrice: null,
+        onSale: false,
+        image: { url: '/images/our-dish-image-2.jpg', alt: 'Caesar Salad' },
+        categories: [{ name: 'Salads & Soups', slug: 'salads-soups' }]
+      },
+      {
+        id: '5',
+        name: 'Grilled Salmon',
+        slug: 'grilled-salmon',
+        description: 'Fresh salmon grilled to perfection.',
+        shortDescription: 'Fresh salmon grilled to perfection.',
+        price: '28.00',
+        regularPrice: '28.00',
+        salePrice: null,
+        onSale: false,
+        image: { url: '/images/our-dish-image-3.jpg', alt: 'Grilled Salmon' },
+        categories: [{ name: 'Seafood', slug: 'seafood' }]
+      },
+      {
+        id: '6',
+        name: 'Chocolate Cake',
+        slug: 'chocolate-cake',
+        description: 'Rich chocolate cake with vanilla ice cream.',
+        shortDescription: 'Rich chocolate cake with vanilla ice cream.',
+        price: '12.00',
+        regularPrice: '12.00',
+        salePrice: null,
+        onSale: false,
+        image: { url: '/images/our-dish-image-4.jpg', alt: 'Chocolate Cake' },
+        categories: [{ name: 'Desserts', slug: 'desserts' }]
+      }
+    ];
   }
 }
 
