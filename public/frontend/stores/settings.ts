@@ -41,8 +41,13 @@ export const useSettingsStore = defineStore('settings', {
         const api = useApi()
         const response = await api.get('/settings')
         
-        if (response.data.data) {
-          this.settings = { ...this.settings, ...response.data.data }
+        // FeathersJS devuelve { data: {...}, total: 1 } para find()
+        const settingsData = (response.data && typeof response.data === 'object' && 'data' in response.data)
+          ? response.data.data
+          : response.data
+        
+        if (settingsData) {
+          this.settings = { ...this.settings, ...settingsData }
         }
       } catch (error: any) {
         this.error = error.message || 'Error al cargar configuración'

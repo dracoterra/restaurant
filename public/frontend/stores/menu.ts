@@ -28,7 +28,12 @@ export const useMenuStore = defineStore('menu', {
           params: { location }
         })
 
-        this.items = response.data.data || []
+        // FeathersJS devuelve { data: [...], total: N } para find()
+        const menuData = (response.data && typeof response.data === 'object' && 'data' in response.data)
+          ? response.data.data
+          : (Array.isArray(response.data) ? response.data : [])
+        
+        this.items = menuData || []
       } catch (error: any) {
         this.error = error.message || 'Error al cargar el menú'
         console.error('Error fetching menu:', error)

@@ -1,4 +1,5 @@
 const { GraphQLClient } = require('graphql-request');
+const axios = require('axios');
 const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
@@ -279,7 +280,35 @@ class PagesService {
         throw new Error('Página no encontrada');
       }
 
-      return this.transformPage(data.page);
+      // Transformar página
+      let transformedPage = this.transformPage(data.page);
+      
+      // Si no hay campos ACF, intentar leer desde meta fields de WordPress REST API
+      const pageSlug = data.page.slug || id;
+      
+      if (!transformedPage.acf.homePageSections && (pageSlug === 'home' || pageSlug === 'front')) {
+        try {
+          const metaFields = await this.fetchPageMetaFields(data.page.databaseId);
+          if (metaFields) {
+            transformedPage.acf.homePageSections = this.transformMetaFieldsToACF(metaFields, 'home');
+          }
+        } catch (metaError) {
+          logger.warn('No se pudieron obtener meta fields:', metaError.message);
+        }
+      }
+      
+      if (!transformedPage.acf.servicesPageSections && pageSlug === 'services') {
+        try {
+          const metaFields = await this.fetchPageMetaFields(data.page.databaseId);
+          if (metaFields) {
+            transformedPage.acf.servicesPageSections = this.transformMetaFieldsToACF(metaFields, 'services');
+          }
+        } catch (metaError) {
+          logger.warn('No se pudieron obtener meta fields:', metaError.message);
+        }
+      }
+
+      return transformedPage;
     } catch (error) {
       logger.error('Error al obtener página de WordPress:', error);
       throw new Error(`Error al obtener página: ${error.message}`);
@@ -346,6 +375,83 @@ class PagesService {
     }
     
     return transformed;
+  }
+
+  /**
+   * Obtener meta fields de una página desde WordPress REST API
+   */
+  async fetchPageMetaFields(pageId) {
+    try {
+      const wpRestUrl = process.env.WP_REST_URL || 'http://restaurant.local/wp-json/wp/v2';
+      const url = `${wpRestUrl}/pages/${pageId}?context=edit`;
+      
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': this.authHeader
+        }
+      });
+      
+      return response.data.meta || {};
+    } catch (error) {
+      logger.error('Error al obtener meta fields:', error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Transformar meta fields a formato ACF
+   */
+  transformMetaFieldsToACF(metaFields, pageType) {
+    // Helper para obtener valor de meta field (puede ser string serializado o array)
+    const getMetaValue = (key, fallback = '') => {
+      if (metaFields[key]) {
+        // Si es un string que parece serializado, intentar deserializar
+        if (typeof metaFields[key] === 'string' && (metaFields[key].startsWith('a:') || metaFields[key].startsWith('O:'))) {
+          try {
+            const unserialized = JSON.parse(metaFields[key]);
+            return unserialized;
+          } catch (e) {
+            // Si no es JSON, devolver el string
+            return metaFields[key];
+          }
+        }
+        return metaFields[key];
+      }
+      return fallback;
+    };
+    
+    if (pageType === 'home') {
+      // Intentar leer desde campos individuales primero, luego desde arrays
+      const heroSection = getMetaValue('_restaurant_hero_section') || {};
+      const aboutSection = getMetaValue('_restaurant_about_section') || {};
+      const dishesSection = getMetaValue('_restaurant_dishes_section') || {};
+      
+      return {
+        heroSubtitle: getMetaValue('heroSubtitle') || (typeof heroSection === 'object' ? heroSection.subtitle : '') || '',
+        heroTitle: getMetaValue('heroTitle') || (typeof heroSection === 'object' ? heroSection.title : '') || '',
+        heroDescription: getMetaValue('heroDescription') || (typeof heroSection === 'object' ? heroSection.description : '') || '',
+        heroMainImage: (getMetaValue('heroMainImage') || (typeof heroSection === 'object' ? heroSection.main_image : '')) ? {
+          url: getMetaValue('heroMainImage') || (typeof heroSection === 'object' ? heroSection.main_image : ''),
+          alt: '',
+          width: null,
+          height: null
+        } : null,
+        aboutSubtitle: getMetaValue('aboutSubtitle') || (typeof aboutSection === 'object' ? aboutSection.subtitle : '') || '',
+        aboutTitle: getMetaValue('aboutTitle') || (typeof aboutSection === 'object' ? aboutSection.title : '') || '',
+        aboutDescription: getMetaValue('aboutDescription') || (typeof aboutSection === 'object' ? aboutSection.description : '') || '',
+        dishesSubtitle: getMetaValue('dishesSubtitle') || (typeof dishesSection === 'object' ? dishesSection.subtitle : '') || '',
+        dishesTitle: getMetaValue('dishesTitle') || (typeof dishesSection === 'object' ? dishesSection.title : '') || ''
+      };
+    } else if (pageType === 'services') {
+      const servicesSection = getMetaValue('_restaurant_services_section') || {};
+      
+      return {
+        servicesSubtitle: getMetaValue('servicesSubtitle') || (typeof servicesSection === 'object' ? servicesSection.subtitle : '') || '',
+        servicesTitle: getMetaValue('servicesTitle') || (typeof servicesSection === 'object' ? servicesSection.title : '') || '',
+        servicesDescription: getMetaValue('servicesDescription') || (typeof servicesSection === 'object' ? servicesSection.description : '') || ''
+      };
+    }
+    return {};
   }
 }
 

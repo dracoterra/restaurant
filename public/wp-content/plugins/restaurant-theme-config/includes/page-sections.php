@@ -98,9 +98,29 @@ class Restaurant_Page_Sections {
     public function render_home_sections($post) {
         wp_nonce_field('restaurant_save_sections', 'restaurant_sections_nonce');
         
-        $hero = get_post_meta($post->ID, '_restaurant_hero_section', true);
-        $about = get_post_meta($post->ID, '_restaurant_about_section', true);
-        $dishes = get_post_meta($post->ID, '_restaurant_dishes_section', true);
+        // Leer datos guardados o usar valores por defecto
+        $hero_meta = get_post_meta($post->ID, '_restaurant_hero_section', true);
+        $about_meta = get_post_meta($post->ID, '_restaurant_about_section', true);
+        $dishes_meta = get_post_meta($post->ID, '_restaurant_dishes_section', true);
+        
+        // Si no hay datos guardados, intentar leer campos individuales
+        $hero = $hero_meta ?: array(
+            'subtitle' => get_post_meta($post->ID, 'heroSubtitle', true) ?: 'art of fine dining',
+            'title' => get_post_meta($post->ID, 'heroTitle', true) ?: 'Dining redefined with every bite',
+            'description' => get_post_meta($post->ID, 'heroDescription', true) ?: '',
+            'main_image' => get_post_meta($post->ID, 'heroMainImage', true) ?: '/images/hero-img.jpg'
+        );
+        
+        $about = $about_meta ?: array(
+            'subtitle' => get_post_meta($post->ID, 'aboutSubtitle', true) ?: 'about us',
+            'title' => get_post_meta($post->ID, 'aboutTitle', true) ?: 'Our Commitment to Authenticity & excellence',
+            'description' => get_post_meta($post->ID, 'aboutDescription', true) ?: ''
+        );
+        
+        $dishes = $dishes_meta ?: array(
+            'subtitle' => get_post_meta($post->ID, 'dishesSubtitle', true) ?: 'our main dishes',
+            'title' => get_post_meta($post->ID, 'dishesTitle', true) ?: 'Satisfy your cravings with our signature mains'
+        );
         
         include plugin_dir_path(__FILE__) . '../templates/home-sections.php';
     }
@@ -136,7 +156,15 @@ class Restaurant_Page_Sections {
     public function render_services_sections($post) {
         wp_nonce_field('restaurant_save_sections', 'restaurant_sections_nonce');
         
-        $services = get_post_meta($post->ID, '_restaurant_services_section', true);
+        // Leer datos guardados o usar valores por defecto
+        $services_meta = get_post_meta($post->ID, '_restaurant_services_section', true);
+        
+        // Si no hay datos guardados, intentar leer campos individuales
+        $services = $services_meta ?: array(
+            'subtitle' => get_post_meta($post->ID, 'servicesSubtitle', true) ?: 'our services',
+            'title' => get_post_meta($post->ID, 'servicesTitle', true) ?: 'What we offer',
+            'description' => get_post_meta($post->ID, 'servicesDescription', true) ?: 'We provide exceptional dining experiences with a range of services designed to make your visit memorable.'
+        );
         
         include plugin_dir_path(__FILE__) . '../templates/services-sections.php';
     }
@@ -172,14 +200,38 @@ class Restaurant_Page_Sections {
         
         // Home
         if ($slug === 'home' || $post_id === get_option('page_on_front')) {
+            // Guardar Hero Section
             if (isset($_POST['restaurant_hero_section'])) {
-                update_post_meta($post_id, '_restaurant_hero_section', $_POST['restaurant_hero_section']);
+                $hero = $_POST['restaurant_hero_section'];
+                update_post_meta($post_id, '_restaurant_hero_section', $hero);
+                // Guardar campos individuales para ACF
+                if (is_array($hero)) {
+                    update_post_meta($post_id, 'heroSubtitle', $hero['subtitle'] ?? '');
+                    update_post_meta($post_id, 'heroTitle', $hero['title'] ?? '');
+                    update_post_meta($post_id, 'heroDescription', $hero['description'] ?? '');
+                    update_post_meta($post_id, 'heroMainImage', $hero['main_image'] ?? '');
+                }
             }
+            // Guardar About Section
             if (isset($_POST['restaurant_about_section'])) {
-                update_post_meta($post_id, '_restaurant_about_section', $_POST['restaurant_about_section']);
+                $about = $_POST['restaurant_about_section'];
+                update_post_meta($post_id, '_restaurant_about_section', $about);
+                // Guardar campos individuales para ACF
+                if (is_array($about)) {
+                    update_post_meta($post_id, 'aboutSubtitle', $about['subtitle'] ?? '');
+                    update_post_meta($post_id, 'aboutTitle', $about['title'] ?? '');
+                    update_post_meta($post_id, 'aboutDescription', $about['description'] ?? '');
+                }
             }
+            // Guardar Dishes Section
             if (isset($_POST['restaurant_dishes_section'])) {
-                update_post_meta($post_id, '_restaurant_dishes_section', $_POST['restaurant_dishes_section']);
+                $dishes = $_POST['restaurant_dishes_section'];
+                update_post_meta($post_id, '_restaurant_dishes_section', $dishes);
+                // Guardar campos individuales para ACF
+                if (is_array($dishes)) {
+                    update_post_meta($post_id, 'dishesSubtitle', $dishes['subtitle'] ?? '');
+                    update_post_meta($post_id, 'dishesTitle', $dishes['title'] ?? '');
+                }
             }
         }
         
@@ -209,7 +261,14 @@ class Restaurant_Page_Sections {
         // Services
         if ($slug === 'services') {
             if (isset($_POST['restaurant_services_section'])) {
-                update_post_meta($post_id, '_restaurant_services_section', $_POST['restaurant_services_section']);
+                $services = $_POST['restaurant_services_section'];
+                update_post_meta($post_id, '_restaurant_services_section', $services);
+                // Guardar campos individuales para ACF
+                if (is_array($services)) {
+                    update_post_meta($post_id, 'servicesSubtitle', $services['subtitle'] ?? '');
+                    update_post_meta($post_id, 'servicesTitle', $services['title'] ?? '');
+                    update_post_meta($post_id, 'servicesDescription', $services['description'] ?? '');
+                }
             }
         }
         

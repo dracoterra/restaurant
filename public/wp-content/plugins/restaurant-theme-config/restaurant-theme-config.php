@@ -334,6 +334,85 @@ new Restaurant_Theme_Config();
 // Incluir campos de secciones de páginas
 require_once plugin_dir_path(__FILE__) . 'includes/page-sections.php';
 
+// Exponer meta fields en REST API
+add_action('rest_api_init', function() {
+    // Registrar meta fields para páginas
+    $meta_fields = array(
+        'heroSubtitle',
+        'heroTitle',
+        'heroDescription',
+        'heroMainImage',
+        'aboutSubtitle',
+        'aboutTitle',
+        'aboutDescription',
+        'dishesSubtitle',
+        'dishesTitle',
+        'servicesSubtitle',
+        'servicesTitle',
+        'servicesDescription',
+        '_restaurant_hero_section',
+        '_restaurant_about_section',
+        '_restaurant_dishes_section',
+        '_restaurant_services_section'
+    );
+    
+    foreach ($meta_fields as $meta_field) {
+        register_rest_field('page', $meta_field, array(
+            'get_callback' => function($post_object) use ($meta_field) {
+                $value = get_post_meta($post_object['id'], $meta_field, true);
+                // Si es un array serializado de PHP, deserializarlo
+                if (is_string($value) && (substr($value, 0, 2) === 'a:' || substr($value, 0, 2) === 'O:')) {
+                    $unserialized = @unserialize($value);
+                    if ($unserialized !== false) {
+                        return $unserialized;
+                    }
+                }
+                // Si es un array, devolverlo directamente
+                if (is_array($value)) {
+                    return $value;
+                }
+                return $value;
+            },
+            'update_callback' => null,
+            'schema' => null
+        ));
+    }
+    
+    // También exponer todos los meta fields en el objeto 'meta'
+    register_rest_field('page', 'meta', array(
+        'get_callback' => function($post_object) {
+            $all_meta = get_post_meta($post_object['id']);
+            $meta_array = array();
+            
+            foreach ($all_meta as $key => $values) {
+                // Solo incluir nuestros campos personalizados
+                if (strpos($key, 'hero') !== false || 
+                    strpos($key, 'about') !== false || 
+                    strpos($key, 'dishes') !== false || 
+                    strpos($key, 'services') !== false ||
+                    strpos($key, '_restaurant_') !== false) {
+                    $value = get_post_meta($post_object['id'], $key, true);
+                    // Deserializar si es necesario
+                    if (is_string($value) && (substr($value, 0, 2) === 'a:' || substr($value, 0, 2) === 'O:')) {
+                        $unserialized = @unserialize($value);
+                        if ($unserialized !== false) {
+                            $meta_array[$key] = $unserialized;
+                        } else {
+                            $meta_array[$key] = $value;
+                        }
+                    } else {
+                        $meta_array[$key] = $value;
+                    }
+                }
+            }
+            
+            return $meta_array;
+        },
+        'update_callback' => null,
+        'schema' => null
+    ));
+});
+
 // Incluir creador de campos ACF
 require_once plugin_dir_path(__FILE__) . 'includes/create-acf-fields.php';
 
