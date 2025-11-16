@@ -1,60 +1,84 @@
 <template>
   <div>
-    <!-- Page Header Start -->
-    <SectionsPageHeader title="About us" />
-    <!-- Page Header End -->
+    <!-- Loading State -->
+    <div v-if="pagesStore.loading" class="container py-5 text-center">
+      <p>Cargando contenido...</p>
+    </div>
 
-    <!-- About Us Section Start -->
-    <div class="about-us">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-6 order-lg-1 order-2">
-            <!-- About Us Image Start -->
-            <div class="about-us-image">
-              <!-- About Us Img Start -->
-              <div class="about-us-img">
-                <figure class="image-anime">
-                  <img src="/images/about-us-image.jpg" alt="About Us">
-                </figure>
-              </div>
-              <!-- About Us Img End -->
+    <!-- Error State -->
+    <div v-else-if="pagesStore.error" class="container py-5 text-center">
+      <p class="text-danger">Error: {{ pagesStore.error }}</p>
+    </div>
 
-              <!-- Company Experience Box Start -->
-              <div class="company-experience">
-                <div class="icon-box">
-                  <img src="/images/icon-company-experience.svg" alt="Experience">
+    <!-- Content -->
+    <div v-else>
+      <!-- Page Header Start -->
+      <SectionsPageHeader :title="acf?.aboutContentSubtitle || 'About us'" />
+      <!-- Page Header End -->
+
+      <!-- About Us Section Start -->
+      <div class="about-us">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-6 order-lg-1 order-2">
+              <!-- About Us Image Start -->
+              <div class="about-us-image">
+                <!-- About Us Img Start -->
+                <div class="about-us-img">
+                  <figure class="image-anime">
+                    <img 
+                      :src="acf?.aboutMainImage?.url || '/images/about-us-image.jpg'" 
+                      :alt="acf?.aboutMainImage?.alt || 'About Us'"
+                    >
+                  </figure>
                 </div>
-                <div class="company-experience-content">
-                  <h3><span class="counter">30</span>+ years of experience</h3>
-                </div>
-              </div>
-              <!-- Company Experience Box End -->
+                <!-- About Us Img End -->
 
-              <!-- About Author Image Start -->
-              <div class="about-author-img">
-                <figure class="image-anime">
-                  <img src="/images/about-us-img-2.jpg" alt="About Author">
-                </figure>
+                <!-- Company Experience Box Start -->
+                <div class="company-experience" v-if="acf?.experienceYears || acf?.experienceText">
+                  <div class="icon-box">
+                    <img src="/images/icon-company-experience.svg" alt="Experience">
+                  </div>
+                  <div class="company-experience-content">
+                    <h3>
+                      <span class="counter">{{ acf?.experienceYears || 30 }}</span>
+                      {{ acf?.experienceText || '+ years of experience' }}
+                    </h3>
+                  </div>
+                </div>
+                <!-- Company Experience Box End -->
+
+                <!-- About Author Image Start -->
+                <div class="about-author-img" v-if="acf?.aboutSecondaryImage">
+                  <figure class="image-anime">
+                    <img 
+                      :src="acf.aboutSecondaryImage.url" 
+                      :alt="acf.aboutSecondaryImage.alt || 'About Author'"
+                    >
+                  </figure>
+                </div>
+                <!-- About Author Image End -->
               </div>
-              <!-- About Author Image End -->
+              <!-- About Us Image End -->
             </div>
-            <!-- About Us Image End -->
-          </div>
 
-          <div class="col-lg-6 order-lg-2 order-1">
-            <!-- About Us Content Start -->
-            <div class="about-us-content">
-              <!-- Section Title Start -->
-              <div class="section-title">
-                <h3 class="wow fadeInUp">about us</h3>
-                <h2 class="text-anime-style-2" data-cursor="-opaque">
-                  Our Commitment to Authenticity & <span>excellence</span>
-                </h2>
-                <p class="wow fadeInUp" data-wow-delay="0.2s">
-                  Every dish we create is a celebration of connection, crafted with passion and inspired by diverse flavors. Join us in an inviting space where every bite sparks joy and every moment becomes a cherished memory.
-                </p>
-              </div>
-              <!-- Section Title End -->
+            <div class="col-lg-6 order-lg-2 order-1">
+              <!-- About Us Content Start -->
+              <div class="about-us-content">
+                <!-- Section Title Start -->
+                <div class="section-title">
+                  <h3 class="wow fadeInUp">{{ acf?.aboutContentSubtitle || 'about us' }}</h3>
+                  <h2 class="text-anime-style-2" data-cursor="-opaque">
+                    {{ acf?.aboutContentTitle || 'Our Commitment to Authenticity & excellence' }}
+                  </h2>
+                  <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.aboutContentDescription">
+                    {{ acf.aboutContentDescription }}
+                  </p>
+                  <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
+                    Every dish we create is a celebration of connection, crafted with passion and inspired by diverse flavors. Join us in an inviting space where every bite sparks joy and every moment becomes a cherished memory.
+                  </p>
+                </div>
+                <!-- Section Title End -->
 
               <!-- About Content List Start -->
               <div class="about-content-list wow fadeInUp" data-wow-delay="0.4s">
@@ -187,22 +211,28 @@
                     <div class="col-lg-6">
                       <div class="approch-tab-content">
                         <div class="section-title">
-                          <h3 class="wow fadeInUp">our mission</h3>
-                          <h2 class="text-anime-style-2" data-cursor="-opaque">creating moments around flavor</h2>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s">
+                          <h3 class="wow fadeInUp">{{ acf?.missionTitle || 'our mission' }}</h3>
+                          <h2 class="text-anime-style-2" data-cursor="-opaque">
+                            {{ acf?.missionHeading || 'creating moments around flavor' }}
+                          </h2>
+                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.missionContent" v-html="acf.missionContent"></p>
+                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
                             At SpicyHunt, our vision is to redefine the dining experience by bringing people together over authentic, flavorful meals crafted with love and passion. We aim to be a beacon of culinary excellence, where every dish tells a story of tradition, innovation, and uncompromising quality.
                           </p>
                         </div>
-                        <div class="approch-tab-content-list wow fadeInUp" data-wow-delay="0.4s">
-                          <ul>
-                            <li>Delivering unforgettable flavors with every dish we serve.</li>
-                            <li>Creating a welcoming space where food connects hearts.</li>
-                            <li>Committed to quality, innovation, and exceptional service.</li>
-                          </ul>
-                        </div>
                       </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-6" v-if="acf?.missionImage">
+                      <div class="approch-tab-image">
+                        <figure class="image-anime">
+                          <img 
+                            :src="acf.missionImage.url" 
+                            :alt="acf.missionImage.alt || 'Mission'"
+                          >
+                        </figure>
+                      </div>
+                    </div>
+                    <div class="col-lg-6" v-else>
                       <div class="approch-tab-image">
                         <figure class="image-anime">
                           <img src="/images/approch-tab-img-1.jpg" alt="Mission">
@@ -218,22 +248,28 @@
                     <div class="col-lg-6">
                       <div class="approch-tab-content">
                         <div class="section-title">
-                          <h3 class="wow fadeInUp">our vision</h3>
-                          <h2 class="text-anime-style-2" data-cursor="-opaque">shaping the future of dining</h2>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s">
+                          <h3 class="wow fadeInUp">{{ acf?.visionTitle || 'our vision' }}</h3>
+                          <h2 class="text-anime-style-2" data-cursor="-opaque">
+                            {{ acf?.visionHeading || 'shaping the future of dining' }}
+                          </h2>
+                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.visionContent" v-html="acf.visionContent"></p>
+                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
                             We envision a world where every meal is an opportunity to connect, celebrate, and create lasting memories. Our goal is to become the most trusted name in culinary excellence, known for our commitment to quality, sustainability, and the art of fine dining.
                           </p>
                         </div>
-                        <div class="approch-tab-content-list wow fadeInUp" data-wow-delay="0.4s">
-                          <ul>
-                            <li>Leading innovation in culinary experiences.</li>
-                            <li>Building a community around exceptional food.</li>
-                            <li>Setting new standards for restaurant excellence.</li>
-                          </ul>
-                        </div>
                       </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-6" v-if="acf?.visionImage">
+                      <div class="approch-tab-image">
+                        <figure class="image-anime">
+                          <img 
+                            :src="acf.visionImage.url" 
+                            :alt="acf.visionImage.alt || 'Vision'"
+                          >
+                        </figure>
+                      </div>
+                    </div>
+                    <div class="col-lg-6" v-else>
                       <div class="approch-tab-image">
                         <figure class="image-anime">
                           <img src="/images/approch-tab-img-2.jpg" alt="Vision">
@@ -249,22 +285,28 @@
                     <div class="col-lg-6">
                       <div class="approch-tab-content">
                         <div class="section-title">
-                          <h3 class="wow fadeInUp">our value</h3>
-                          <h2 class="text-anime-style-2" data-cursor="-opaque">what drives us forward</h2>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s">
+                          <h3 class="wow fadeInUp">{{ acf?.valueTitle || 'our value' }}</h3>
+                          <h2 class="text-anime-style-2" data-cursor="-opaque">
+                            {{ acf?.valueHeading || 'what drives us forward' }}
+                          </h2>
+                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.valueContent" v-html="acf.valueContent"></p>
+                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
                             Our values are the foundation of everything we do. We believe in authenticity, respect for ingredients, and creating experiences that matter. Every decision we make is guided by our commitment to excellence and our passion for bringing people together through food.
                           </p>
                         </div>
-                        <div class="approch-tab-content-list wow fadeInUp" data-wow-delay="0.4s">
-                          <ul>
-                            <li>Authenticity in every dish we create.</li>
-                            <li>Respect for ingredients and traditions.</li>
-                            <li>Excellence in service and experience.</li>
-                          </ul>
-                        </div>
                       </div>
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-6" v-if="acf?.valueImage">
+                      <div class="approch-tab-image">
+                        <figure class="image-anime">
+                          <img 
+                            :src="acf.valueImage.url" 
+                            :alt="acf.valueImage.alt || 'Value'"
+                          >
+                        </figure>
+                      </div>
+                    </div>
+                    <div class="col-lg-6" v-else>
                       <div class="approch-tab-image">
                         <figure class="image-anime">
                           <img src="/images/approch-tab-img-3.jpg" alt="Value">
@@ -286,26 +328,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { usePagesStore, type Page } from '~/stores/pages'
 
 // Meta tags
-useHead({
-  title: 'About Us - Restaurant',
-  meta: [
-    { name: 'description', content: 'Learn about our commitment to authenticity and excellence' }
-  ]
-})
-
+const pagesStore = usePagesStore()
+const page = ref<Page | null>(null)
 const activeTab = ref('mission')
 
-onMounted(() => {
-  // Inicializar animaciones
-  if (process.client) {
-    setTimeout(() => {
-      if ((window as any).WOW) {
-        new (window as any).WOW().init()
-      }
-    }, 500)
+// Computed para obtener campos ACF
+const acf = computed(() => page.value?.acf?.aboutPageSections)
+
+onMounted(async () => {
+  try {
+    // Obtener página por slug
+    page.value = await pagesStore.fetchPageBySlug('about')
+    
+    // Actualizar meta tags si hay SEO
+    if (page.value?.seo?.title) {
+      useHead({
+        title: page.value.seo.title,
+        meta: [
+          { name: 'description', content: page.value.seo.metaDesc || page.value.excerpt }
+        ]
+      })
+    } else {
+      useHead({
+        title: 'About Us - Restaurant',
+        meta: [
+          { name: 'description', content: 'Learn about our commitment to authenticity and excellence' }
+        ]
+      })
+    }
+    
+    // Inicializar animaciones
+    if (process.client) {
+      setTimeout(() => {
+        if ((window as any).WOW) {
+          new (window as any).WOW().init()
+        }
+      }, 500)
+    }
+  } catch (error) {
+    console.error('Error loading page:', error)
   }
 })
 </script>

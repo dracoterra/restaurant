@@ -21,6 +21,86 @@ export interface Page {
     metaDesc?: string
     canonical?: string
   }
+  acf?: {
+    aboutPageSections?: {
+      aboutContentSubtitle?: string
+      aboutContentTitle?: string
+      aboutContentDescription?: string
+      aboutMainImage?: {
+        url: string
+        alt: string
+        width: number | null
+        height: number | null
+      }
+      aboutSecondaryImage?: {
+        url: string
+        alt: string
+        width: number | null
+        height: number | null
+      }
+      experienceYears?: number
+      experienceText?: string
+      missionTitle?: string
+      missionHeading?: string
+      missionContent?: string
+      missionImage?: {
+        url: string
+        alt: string
+        width: number | null
+        height: number | null
+      }
+      visionTitle?: string
+      visionHeading?: string
+      visionContent?: string
+      visionImage?: {
+        url: string
+        alt: string
+        width: number | null
+        height: number | null
+      }
+      valueTitle?: string
+      valueHeading?: string
+      valueContent?: string
+      valueImage?: {
+        url: string
+        alt: string
+        width: number | null
+        height: number | null
+      }
+    }
+    homePageSections?: {
+      heroSubtitle?: string
+      heroTitle?: string
+      heroDescription?: string
+      heroMainImage?: {
+        url: string
+        alt: string
+        width: number | null
+        height: number | null
+      }
+      aboutSubtitle?: string
+      aboutTitle?: string
+      aboutDescription?: string
+      dishesSubtitle?: string
+      dishesTitle?: string
+    }
+    contactPageSections?: {
+      contactSubtitle?: string
+      contactTitle?: string
+      contactDescription?: string
+      mapEmbed?: string
+    }
+    servicesPageSections?: {
+      servicesSubtitle?: string
+      servicesTitle?: string
+      servicesDescription?: string
+    }
+    menuPageSections?: {
+      menuSubtitle?: string
+      menuTitle?: string
+      menuDescription?: string
+    }
+  }
 }
 
 export interface PagesResponse {

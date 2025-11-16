@@ -60,6 +60,26 @@ class PagesService {
                   metaDesc
                   canonical
                 }
+                aboutPageSections {
+                  aboutContentSubtitle
+                  aboutContentTitle
+                }
+                homePageSections {
+                  heroSubtitle
+                  heroTitle
+                }
+                contactPageSections {
+                  contactSubtitle
+                  contactTitle
+                }
+                servicesPageSections {
+                  servicesSubtitle
+                  servicesTitle
+                }
+                menuPageSections {
+                  menuSubtitle
+                  menuTitle
+                }
               }
             }
           }
@@ -105,7 +125,7 @@ class PagesService {
 
   async get(id, params) {
     try {
-      // Get page by slug
+      // Get page by slug with ACF fields
       const graphqlQuery = `
         query GetPageBySlug($slug: ID!) {
           page(id: $slug, idType: SLUG) {
@@ -131,6 +151,96 @@ class PagesService {
               title
               metaDesc
               canonical
+            }
+            aboutPageSections {
+              aboutContentSubtitle
+              aboutContentTitle
+              aboutContentDescription
+              aboutMainImage {
+                sourceUrl
+                altText
+                mediaDetails {
+                  width
+                  height
+                }
+              }
+              aboutSecondaryImage {
+                sourceUrl
+                altText
+                mediaDetails {
+                  width
+                  height
+                }
+              }
+              experienceYears
+              experienceText
+              missionTitle
+              missionHeading
+              missionContent
+              missionImage {
+                sourceUrl
+                altText
+                mediaDetails {
+                  width
+                  height
+                }
+              }
+              visionTitle
+              visionHeading
+              visionContent
+              visionImage {
+                sourceUrl
+                altText
+                mediaDetails {
+                  width
+                  height
+                }
+              }
+              valueTitle
+              valueHeading
+              valueContent
+              valueImage {
+                sourceUrl
+                altText
+                mediaDetails {
+                  width
+                  height
+                }
+              }
+            }
+            homePageSections {
+              heroSubtitle
+              heroTitle
+              heroDescription
+              heroMainImage {
+                sourceUrl
+                altText
+                mediaDetails {
+                  width
+                  height
+                }
+              }
+              aboutSubtitle
+              aboutTitle
+              aboutDescription
+              dishesSubtitle
+              dishesTitle
+            }
+            contactPageSections {
+              contactSubtitle
+              contactTitle
+              contactDescription
+              mapEmbed
+            }
+            servicesPageSections {
+              servicesSubtitle
+              servicesTitle
+              servicesDescription
+            }
+            menuPageSections {
+              menuSubtitle
+              menuTitle
+              menuDescription
             }
           }
         }
@@ -163,7 +273,7 @@ class PagesService {
   }
 
   transformPage(page) {
-    return {
+    const transformed = {
       id: page.id,
       databaseId: page.databaseId,
       title: page.title,
@@ -178,8 +288,50 @@ class PagesService {
         width: page.featuredImage.node.mediaDetails?.width || null,
         height: page.featuredImage.node.mediaDetails?.height || null
       } : null,
-      seo: page.seo || {}
+      seo: page.seo || {},
+      acf: {}
     };
+
+    // Transform ACF fields
+    if (page.aboutPageSections) {
+      transformed.acf.aboutPageSections = this.transformACFSection(page.aboutPageSections);
+    }
+    if (page.homePageSections) {
+      transformed.acf.homePageSections = this.transformACFSection(page.homePageSections);
+    }
+    if (page.contactPageSections) {
+      transformed.acf.contactPageSections = this.transformACFSection(page.contactPageSections);
+    }
+    if (page.servicesPageSections) {
+      transformed.acf.servicesPageSections = this.transformACFSection(page.servicesPageSections);
+    }
+    if (page.menuPageSections) {
+      transformed.acf.menuPageSections = this.transformACFSection(page.menuPageSections);
+    }
+
+    return transformed;
+  }
+
+  transformACFSection(section) {
+    if (!section) return null;
+    
+    const transformed = {};
+    
+    for (const [key, value] of Object.entries(section)) {
+      // Transform image fields
+      if (value && typeof value === 'object' && value.sourceUrl) {
+        transformed[key] = {
+          url: value.sourceUrl,
+          alt: value.altText || '',
+          width: value.mediaDetails?.width || null,
+          height: value.mediaDetails?.height || null
+        };
+      } else {
+        transformed[key] = value;
+      }
+    }
+    
+    return transformed;
   }
 }
 

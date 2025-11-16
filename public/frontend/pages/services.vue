@@ -11,11 +11,14 @@
           <div class="col-lg-12">
             <!-- Section Title Start -->
             <div class="section-title">
-              <h3 class="wow fadeInUp">our services</h3>
+              <h3 class="wow fadeInUp">{{ acf?.servicesSubtitle || 'our services' }}</h3>
               <h2 class="text-anime-style-2" data-cursor="-opaque">
-                What we <span>offer</span>
+                {{ acf?.servicesTitle || 'What we offer' }}
               </h2>
-              <p class="wow fadeInUp" data-wow-delay="0.2s">
+              <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.servicesDescription">
+                {{ acf.servicesDescription }}
+              </p>
+              <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
                 We provide exceptional dining experiences with a range of services designed to make your visit memorable.
               </p>
             </div>
@@ -52,15 +55,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { usePagesStore, type Page } from '~/stores/pages'
 
 // Meta tags
-useHead({
-  title: 'Services - Restaurant',
-  meta: [
-    { name: 'description', content: 'Our restaurant services' }
-  ]
-})
+const pagesStore = usePagesStore()
+const page = ref<Page | null>(null)
+
+// Computed para obtener campos ACF
+const acf = computed(() => page.value?.acf?.servicesPageSections)
 
 const services = ref([
   {
@@ -107,14 +110,38 @@ const services = ref([
   }
 ])
 
-onMounted(() => {
-  // Inicializar animaciones
-  if (process.client) {
-    setTimeout(() => {
-      if ((window as any).WOW) {
-        new (window as any).WOW().init()
-      }
-    }, 500)
+onMounted(async () => {
+  try {
+    // Obtener página por slug
+    page.value = await pagesStore.fetchPageBySlug('services')
+    
+    // Actualizar meta tags si hay SEO
+    if (page.value?.seo?.title) {
+      useHead({
+        title: page.value.seo.title,
+        meta: [
+          { name: 'description', content: page.value.seo.metaDesc || page.value.excerpt }
+        ]
+      })
+    } else {
+      useHead({
+        title: 'Services - Restaurant',
+        meta: [
+          { name: 'description', content: acf.value?.servicesDescription || 'Our restaurant services' }
+        ]
+      })
+    }
+    
+    // Inicializar animaciones
+    if (process.client) {
+      setTimeout(() => {
+        if ((window as any).WOW) {
+          new (window as any).WOW().init()
+        }
+      }, 500)
+    }
+  } catch (error) {
+    console.error('Error loading services page:', error)
   }
 })
 </script>

@@ -9,11 +9,14 @@
             <div class="hero-content">
               <!-- Section Title Start -->
               <div class="section-title">
-                <h3 class="wow fadeInUp">art of fine dining</h3>
+                <h3 class="wow fadeInUp">{{ acf?.heroSubtitle || 'art of fine dining' }}</h3>
                 <h1 class="text-anime-style-2" data-cursor="-opaque">
-                  Dining redefined with <span>every bite</span>
+                  {{ acf?.heroTitle || 'Dining redefined with every bite' }}
                 </h1>
-                <p class="wow fadeInUp" data-wow-delay="0.2s">
+                <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.heroDescription">
+                  {{ acf.heroDescription }}
+                </p>
+                <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
                   Immerse yourself in a dining experience like no other, where every dish is a masterpiece of flavor, crafted with care and precision. From the freshest ingredients.
                 </p>
               </div>
@@ -37,7 +40,10 @@
               <!-- Hero Image Start -->
               <div class="hero-image">
                 <figure class="image-anime">
-                  <img src="/images/hero-img.jpg" alt="Hero">
+                  <img 
+                    :src="acf?.heroMainImage?.url || '/images/hero-img.jpg'" 
+                    :alt="acf?.heroMainImage?.alt || 'Hero'"
+                  >
                 </figure>
               </div>
               <!-- Hero Image End -->
@@ -107,11 +113,14 @@
             <div class="about-us-content">
               <!-- Section Title Start -->
               <div class="section-title">
-                <h3 class="wow fadeInUp">about us</h3>
+                <h3 class="wow fadeInUp">{{ acf?.aboutSubtitle || 'about us' }}</h3>
                 <h2 class="text-anime-style-2" data-cursor="-opaque">
-                  Our Commitment to Authenticity & <span>excellence</span>
+                  {{ acf?.aboutTitle || 'Our Commitment to Authenticity & excellence' }}
                 </h2>
-                <p class="wow fadeInUp" data-wow-delay="0.2s">
+                <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.aboutDescription">
+                  {{ acf.aboutDescription }}
+                </p>
+                <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
                   Every dish we create is a celebration of connection, crafted with passion and inspired by diverse flavors. Join us in an inviting space where every bite sparks joy and every moment becomes a cherished memory.
                 </p>
               </div>
@@ -190,9 +199,9 @@
           <div class="col-lg-12">
             <!-- Section Title Start -->
             <div class="section-title">
-              <h3 class="wow fadeInUp">our main dishes</h3>
+              <h3 class="wow fadeInUp">{{ acf?.dishesSubtitle || 'our main dishes' }}</h3>
               <h2 class="text-anime-style-2" data-cursor="-opaque">
-                Satisfy your cravings with our <span>signature mains</span>
+                {{ acf?.dishesTitle || 'Satisfy your cravings with our signature mains' }}
               </h2>
             </div>
             <!-- Section Title End -->
@@ -231,15 +240,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { usePagesStore, type Page } from '~/stores/pages'
 
 // Meta tags
-useHead({
-  title: 'Home - Restaurant',
-  meta: [
-    { name: 'description', content: 'Dining redefined with every bite' }
-  ]
-})
+const pagesStore = usePagesStore()
+const page = ref<Page | null>(null)
+
+// Computed para obtener campos ACF
+const acf = computed(() => page.value?.acf?.homePageSections)
 
 // Dishes data (esto vendrá de WordPress en el futuro)
 const dishes = ref([
@@ -265,14 +274,52 @@ const dishes = ref([
   }
 ])
 
-onMounted(() => {
-  // Inicializar animaciones cuando los scripts estén cargados
-  if (process.client) {
-    setTimeout(() => {
-      if ((window as any).WOW) {
-        new (window as any).WOW().init()
-      }
-    }, 500)
+onMounted(async () => {
+  try {
+    // Obtener página Home (front page)
+    // Primero intentamos obtener por slug "home", si no existe, obtenemos la página frontal
+    try {
+      page.value = await pagesStore.fetchPageBySlug('home')
+    } catch {
+      // Si no existe "home", intentamos obtener la página frontal
+      // En WordPress, la página frontal puede tener un slug diferente
+      // Por ahora, intentamos con "home" y si falla, usamos valores por defecto
+    }
+    
+    // Actualizar meta tags si hay SEO
+    if (page.value?.seo?.title) {
+      useHead({
+        title: page.value.seo.title,
+        meta: [
+          { name: 'description', content: page.value.seo.metaDesc || page.value.excerpt }
+        ]
+      })
+    } else {
+      useHead({
+        title: 'Home - Restaurant',
+        meta: [
+          { name: 'description', content: acf.value?.heroDescription || 'Dining redefined with every bite' }
+        ]
+      })
+    }
+    
+    // Inicializar animaciones cuando los scripts estén cargados
+    if (process.client) {
+      setTimeout(() => {
+        if ((window as any).WOW) {
+          new (window as any).WOW().init()
+        }
+      }, 500)
+    }
+  } catch (error) {
+    console.error('Error loading home page:', error)
+    // Usar valores por defecto si hay error
+    useHead({
+      title: 'Home - Restaurant',
+      meta: [
+        { name: 'description', content: 'Dining redefined with every bite' }
+      ]
+    })
   }
 })
 </script>

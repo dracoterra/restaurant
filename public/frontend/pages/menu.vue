@@ -11,11 +11,14 @@
           <div class="col-lg-12">
             <!-- Section Title Start -->
             <div class="section-title">
-              <h3 class="wow fadeInUp">taste the best that surprise you</h3>
+              <h3 class="wow fadeInUp">{{ acf?.menuSubtitle || 'taste the best that surprise you' }}</h3>
               <h2 class="text-anime-style-2" data-cursor="-opaque">
-                our special <span>menu</span>
+                {{ acf?.menuTitle || 'our special menu' }}
               </h2>
-              <p class="wow fadeInUp" data-wow-delay="0.2s">
+              <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.menuDescription">
+                {{ acf.menuDescription }}
+              </p>
+              <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
                 Enjoy the unique dishes from the basillico restaurant that only our restaurant has, Fusce malesuada, lorem vitae euismod lobortis.
               </p>
             </div>
@@ -136,18 +139,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useProductsStore } from '~/stores/products'
+import { usePagesStore, type Page } from '~/stores/pages'
 
 // Meta tags
-useHead({
-  title: 'Menu - Restaurant',
-  meta: [
-    { name: 'description', content: 'Our special menu with unique dishes' }
-  ]
-})
-
+const pagesStore = usePagesStore()
 const productsStore = useProductsStore()
+const page = ref<Page | null>(null)
+
+// Computed para obtener campos ACF
+const acf = computed(() => page.value?.acf?.menuPageSections)
 
 // Categorías del menú con imágenes
 const menuCategories = ref([
@@ -167,16 +169,40 @@ const scrollToCategory = (categorySlug: string) => {
 }
 
 onMounted(async () => {
-  // Cargar productos
-  await productsStore.fetchProducts({ limit: 100 })
-  
-  // Inicializar animaciones
-  if (process.client) {
-    setTimeout(() => {
-      if ((window as any).WOW) {
-        new (window as any).WOW().init()
-      }
-    }, 500)
+  try {
+    // Cargar productos
+    await productsStore.fetchProducts({ limit: 100 })
+    
+    // Obtener página por slug
+    page.value = await pagesStore.fetchPageBySlug('menu')
+    
+    // Actualizar meta tags si hay SEO
+    if (page.value?.seo?.title) {
+      useHead({
+        title: page.value.seo.title,
+        meta: [
+          { name: 'description', content: page.value.seo.metaDesc || page.value.excerpt }
+        ]
+      })
+    } else {
+      useHead({
+        title: 'Menu - Restaurant',
+        meta: [
+          { name: 'description', content: acf.value?.menuDescription || 'Our special menu with unique dishes' }
+        ]
+      })
+    }
+    
+    // Inicializar animaciones
+    if (process.client) {
+      setTimeout(() => {
+        if ((window as any).WOW) {
+          new (window as any).WOW().init()
+        }
+      }, 500)
+    }
+  } catch (error) {
+    console.error('Error loading menu page:', error)
   }
 })
 </script>

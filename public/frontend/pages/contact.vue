@@ -1,27 +1,42 @@
 <template>
   <div>
-    <!-- Page Header Start -->
-    <SectionsPageHeader title="Contact us" />
-    <!-- Page Header End -->
+    <!-- Loading State -->
+    <div v-if="pagesStore.loading" class="container py-5 text-center">
+      <p>Cargando contenido...</p>
+    </div>
 
-    <!-- Page Contact Us Start -->
-    <div class="page-contact-us">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-6">
-            <!-- Contect Us Content Start -->
-            <div class="contact-us-content">
-              <!-- Section Title Start -->
-              <div class="section-title">
-                <h3 class="wow fadeInUp">contact us</h3>
-                <h2 class="text-anime-style-2" data-cursor="-opaque">
-                  Get in touch <span>with us</span>
-                </h2>
-                <p class="wow fadeInUp" data-wow-delay="0.2s">
-                  Have questions or feedback? Reach out to us through the form below, call us, or visit our restaurant. We're here to help and look forward to connecting with you!
-                </p>
-              </div>
-              <!-- Section Title End -->
+    <!-- Error State -->
+    <div v-else-if="pagesStore.error" class="container py-5 text-center">
+      <p class="text-danger">Error: {{ pagesStore.error }}</p>
+    </div>
+
+    <!-- Content -->
+    <div v-else>
+      <!-- Page Header Start -->
+      <SectionsPageHeader :title="acf?.contactSubtitle || 'Contact us'" />
+      <!-- Page Header End -->
+
+      <!-- Page Contact Us Start -->
+      <div class="page-contact-us">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-6">
+              <!-- Contect Us Content Start -->
+              <div class="contact-us-content">
+                <!-- Section Title Start -->
+                <div class="section-title">
+                  <h3 class="wow fadeInUp">{{ acf?.contactSubtitle || 'contact us' }}</h3>
+                  <h2 class="text-anime-style-2" data-cursor="-opaque">
+                    {{ acf?.contactTitle || 'Get in touch with us' }}
+                  </h2>
+                  <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.contactDescription">
+                    {{ acf.contactDescription }}
+                  </p>
+                  <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
+                    Have questions or feedback? Reach out to us through the form below, call us, or visit our restaurant. We're here to help and look forward to connecting with you!
+                  </p>
+                </div>
+                <!-- Section Title End -->
 
               <!-- Contact Info List Start -->
               <div class="contact-info-list wow fadeInUp" data-wow-delay="0.4s">
@@ -134,7 +149,8 @@
         <div class="row">
           <div class="col-lg-12">
             <!-- Google Map Start -->
-            <div class="google-map-iframe">
+            <div class="google-map-iframe" v-if="acf?.mapEmbed" v-html="acf.mapEmbed"></div>
+            <div class="google-map-iframe" v-else>
               <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d96737.10562045308!2d-74.08535042841811!3d40.739265258395164!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sin!4v1703158537552!5m2!1sen!2sin" 
                 allowfullscreen 
@@ -291,17 +307,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useSettingsStore } from '~/stores/settings'
+import { usePagesStore, type Page } from '~/stores/pages'
 
 // Meta tags
-useHead({
-  title: 'Contact Us - Restaurant',
-  meta: [
-    { name: 'description', content: 'Get in touch with us' }
-  ]
-})
-
+const pagesStore = usePagesStore()
 const settingsStore = useSettingsStore()
+const page = ref<Page | null>(null)
 const settings = computed(() => settingsStore.settings)
+
+// Computed para obtener campos ACF
+const acf = computed(() => page.value?.acf?.contactPageSections)
 
 const form = ref({
   name: '',
@@ -365,15 +380,39 @@ const handleReservation = async () => {
 }
 
 onMounted(async () => {
-  await settingsStore.fetchSettings()
-  
-  // Inicializar animaciones
-  if (process.client) {
-    setTimeout(() => {
-      if ((window as any).WOW) {
-        new (window as any).WOW().init()
-      }
-    }, 500)
+  try {
+    await settingsStore.fetchSettings()
+    
+    // Obtener página por slug
+    page.value = await pagesStore.fetchPageBySlug('contact')
+    
+    // Actualizar meta tags si hay SEO
+    if (page.value?.seo?.title) {
+      useHead({
+        title: page.value.seo.title,
+        meta: [
+          { name: 'description', content: page.value.seo.metaDesc || page.value.excerpt }
+        ]
+      })
+    } else {
+      useHead({
+        title: 'Contact Us - Restaurant',
+        meta: [
+          { name: 'description', content: acf.value?.contactDescription || 'Get in touch with us' }
+        ]
+      })
+    }
+    
+    // Inicializar animaciones
+    if (process.client) {
+      setTimeout(() => {
+        if ((window as any).WOW) {
+          new (window as any).WOW().init()
+        }
+      }, 500)
+    }
+  } catch (error) {
+    console.error('Error loading contact page:', error)
   }
 })
 </script>
