@@ -76,63 +76,63 @@
               <!-- Contact Form Start -->
               <div class="contact-form">
                 <form @submit.prevent="handleSubmit" class="wow fadeInUp">
-                <div class="row">
-                  <div class="form-group col-md-12 mb-4">
-                    <label class="form-label">your name</label>
-                    <input 
-                      v-model="form.name"
-                      type="text" 
-                      name="name" 
-                      class="form-control" 
-                      placeholder="e.g. John" 
-                      required
-                    >
+                  <div class="row">
+                    <div class="form-group col-md-12 mb-4">
+                      <label class="form-label">your name</label>
+                      <input 
+                        v-model="form.name"
+                        type="text" 
+                        name="name" 
+                        class="form-control" 
+                        placeholder="e.g. John" 
+                        required
+                      >
                     </div>
 
                     <div class="form-group col-md-6 mb-4">
-                    <label class="form-label">email address</label>
-                    <input 
-                      v-model="form.email"
-                      type="email" 
-                      name="email" 
-                      class="form-control" 
-                      placeholder="e.g. John@example.com" 
-                      required
-                    >
+                      <label class="form-label">email address</label>
+                      <input 
+                        v-model="form.email"
+                        type="email" 
+                        name="email" 
+                        class="form-control" 
+                        placeholder="e.g. John@example.com" 
+                        required
+                      >
                     </div>
 
                     <div class="form-group col-md-6 mb-4">
-                    <label class="form-label">phone number</label>
-                    <input 
-                      v-model="form.phone"
-                      type="text" 
-                      name="phone" 
-                      class="form-control" 
-                      placeholder="e.g. + 123 456 879 2" 
-                      required
-                    >
-                  </div>
+                      <label class="form-label">phone number</label>
+                      <input 
+                        v-model="form.phone"
+                        type="text" 
+                        name="phone" 
+                        class="form-control" 
+                        placeholder="e.g. + 123 456 879 2" 
+                        required
+                      >
+                    </div>
 
-                  <div class="form-group col-md-12 mb-5">
-                    <label class="form-label">message</label>
-                    <textarea 
-                      v-model="form.message"
-                      name="message" 
-                      class="form-control" 
-                      rows="4" 
-                      placeholder="Write Message.."
-                    ></textarea>
-                  </div>
+                    <div class="form-group col-md-12 mb-5">
+                      <label class="form-label">message</label>
+                      <textarea 
+                        v-model="form.message"
+                        name="message" 
+                        class="form-control" 
+                        rows="4" 
+                        placeholder="Write Message.."
+                      ></textarea>
+                    </div>
 
-                  <div class="col-md-12">
-                    <button type="submit" class="btn-default" :disabled="submitting">
-                      {{ submitting ? 'Sending...' : 'submit inquiry' }}
-                    </button>
-                    <div v-if="submitMessage" class="h3" :class="{ 'text-success': submitSuccess, 'text-danger': !submitSuccess }">
-                      {{ submitMessage }}
+                    <div class="col-md-12">
+                      <button type="submit" class="btn-default" :disabled="submitting">
+                        {{ submitting ? 'Sending...' : 'submit inquiry' }}
+                      </button>
+                      <div v-if="submitMessage" class="h3" :class="{ 'text-success': submitSuccess, 'text-danger': !submitSuccess }">
+                        {{ submitMessage }}
+                      </div>
                     </div>
                   </div>
-                </div>
                 </form>
               </div>
               <!-- Contact Form End -->
@@ -302,6 +302,7 @@
       <!-- Reserve Table Section End -->
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">

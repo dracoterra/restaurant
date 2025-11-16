@@ -104,41 +104,41 @@
             <div class="col-lg-12 order-3">
               <!-- About Detail Box Start -->
               <div class="about-detail-box">
-              <!-- About Detail Item Start -->
-              <div class="about-detail-item wow fadeInUp">
-                <div class="icon-box">
-                  <img src="/images/icon-about-detail-1.svg" alt="Premium Dining">
+                <!-- About Detail Item Start -->
+                <div class="about-detail-item wow fadeInUp">
+                  <div class="icon-box">
+                    <img src="/images/icon-about-detail-1.svg" alt="Premium Dining">
+                  </div>
+                  <div class="about-detail-content">
+                    <h3>premium dining</h3>
+                    <p>It's very personal, and can only be a positive experience.</p>
+                  </div>
                 </div>
-                <div class="about-detail-content">
-                  <h3>premium dining</h3>
-                  <p>It's very personal, and can only be a positive experience.</p>
-                </div>
-              </div>
-              <!-- About Detail Item End -->
+                <!-- About Detail Item End -->
 
-              <!-- About Detail Item Start -->
-              <div class="about-detail-item wow fadeInUp" data-wow-delay="0.2s">
-                <div class="icon-box">
-                  <img src="/images/icon-about-detail-2.svg" alt="Abundant Flavors">
+                <!-- About Detail Item Start -->
+                <div class="about-detail-item wow fadeInUp" data-wow-delay="0.2s">
+                  <div class="icon-box">
+                    <img src="/images/icon-about-detail-2.svg" alt="Abundant Flavors">
+                  </div>
+                  <div class="about-detail-content">
+                    <h3>abundant flavors</h3>
+                    <p>At secret recipe, we take immense pride in crafting.</p>
+                  </div>
                 </div>
-                <div class="about-detail-content">
-                  <h3>abundant flavors</h3>
-                  <p>At secret recipe, we take immense pride in crafting.</p>
-                </div>
-              </div>
-              <!-- About Detail Item End -->
+                <!-- About Detail Item End -->
 
-              <!-- About Detail Item Start -->
-              <div class="about-detail-item wow fadeInUp" data-wow-delay="0.4s">
-                <div class="icon-box">
-                  <img src="/images/icon-about-detail-3.svg" alt="Indigenous Meal">
+                <!-- About Detail Item Start -->
+                <div class="about-detail-item wow fadeInUp" data-wow-delay="0.4s">
+                  <div class="icon-box">
+                    <img src="/images/icon-about-detail-3.svg" alt="Indigenous Meal">
+                  </div>
+                  <div class="about-detail-content">
+                    <h3>indigenous meal</h3>
+                    <p>With local ingredients, unique spins on traditional flavors.</p>
+                  </div>
                 </div>
-                <div class="about-detail-content">
-                  <h3>indigenous meal</h3>
-                  <p>With local ingredients, unique spins on traditional flavors.</p>
-                </div>
-              </div>
-              <!-- About Detail Item End -->
+                <!-- About Detail Item End -->
               </div>
               <!-- About Detail Box End -->
             </div>
@@ -236,7 +236,7 @@
                       <div class="col-lg-6" v-else>
                         <div class="approch-tab-image">
                           <figure class="image-anime">
-                            <img src="/images/approch-tab-img-1.jpg" alt="Mission">
+                            <img src="/images/our-mission-img.jpg" alt="Mission">
                           </figure>
                         </div>
                       </div>
@@ -273,7 +273,7 @@
                       <div class="col-lg-6" v-else>
                         <div class="approch-tab-image">
                           <figure class="image-anime">
-                            <img src="/images/approch-tab-img-2.jpg" alt="Vision">
+                            <img src="/images/our-vision-img.jpg" alt="Vision">
                           </figure>
                         </div>
                       </div>
@@ -310,7 +310,7 @@
                       <div class="col-lg-6" v-else>
                         <div class="approch-tab-image">
                           <figure class="image-anime">
-                            <img src="/images/approch-tab-img-3.jpg" alt="Value">
+                            <img src="/images/our-value-img.jpg" alt="Value">
                           </figure>
                         </div>
                       </div>
@@ -327,6 +327,7 @@
       <!-- Our Approach Section End -->
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">

@@ -27,7 +27,7 @@ class PagesService {
     const { $skip = 0, $limit = 10, search = '', slug = '' } = query;
 
     try {
-      // GraphQL query for pages
+      // GraphQL query for pages - solo campos básicos que siempre están disponibles
       const graphqlQuery = `
         query GetPages($first: Int, $after: String, $search: String, $slug: String) {
           pages(first: $first, after: $after, where: { search: $search, name: $slug }) {
@@ -42,7 +42,6 @@ class PagesService {
                 title
                 slug
                 content
-                excerpt
                 date
                 modified
                 featuredImage {
@@ -54,31 +53,6 @@ class PagesService {
                       height
                     }
                   }
-                }
-                seo {
-                  title
-                  metaDesc
-                  canonical
-                }
-                aboutPageSections {
-                  aboutContentSubtitle
-                  aboutContentTitle
-                }
-                homePageSections {
-                  heroSubtitle
-                  heroTitle
-                }
-                contactPageSections {
-                  contactSubtitle
-                  contactTitle
-                }
-                servicesPageSections {
-                  servicesSubtitle
-                  servicesTitle
-                }
-                menuPageSections {
-                  menuSubtitle
-                  menuTitle
                 }
               }
             }
@@ -125,16 +99,15 @@ class PagesService {
 
   async get(id, params) {
     try {
-      // Get page by slug with ACF fields
-      const graphqlQuery = `
+      // Primero intentar con query básica
+      let graphqlQuery = `
         query GetPageBySlug($slug: ID!) {
-          page(id: $slug, idType: SLUG) {
+          page(id: $slug, idType: URI) {
             id
             databaseId
             title
             slug
             content
-            excerpt
             date
             modified
             featuredImage {
@@ -147,120 +120,161 @@ class PagesService {
                 }
               }
             }
-            seo {
-              title
-              metaDesc
-              canonical
-            }
-            aboutPageSections {
-              aboutContentSubtitle
-              aboutContentTitle
-              aboutContentDescription
-              aboutMainImage {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
-                }
-              }
-              aboutSecondaryImage {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
-                }
-              }
-              experienceYears
-              experienceText
-              missionTitle
-              missionHeading
-              missionContent
-              missionImage {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
-                }
-              }
-              visionTitle
-              visionHeading
-              visionContent
-              visionImage {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
-                }
-              }
-              valueTitle
-              valueHeading
-              valueContent
-              valueImage {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
-                }
-              }
-            }
-            homePageSections {
-              heroSubtitle
-              heroTitle
-              heroDescription
-              heroMainImage {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
-                }
-              }
-              aboutSubtitle
-              aboutTitle
-              aboutDescription
-              dishesSubtitle
-              dishesTitle
-            }
-            contactPageSections {
-              contactSubtitle
-              contactTitle
-              contactDescription
-              mapEmbed
-            }
-            servicesPageSections {
-              servicesSubtitle
-              servicesTitle
-              servicesDescription
-            }
-            menuPageSections {
-              menuSubtitle
-              menuTitle
-              menuDescription
-            }
           }
         }
       `;
 
-      const data = await retry(
-        () => timeout(
-          this.graphQLClient.request(graphqlQuery, { slug: id }),
-          10000,
-          'Timeout al conectar con WordPress GraphQL'
-        ),
-        {
-          retries: 2,
-          delay: 1000,
-          onRetry: (error, attempt, waitTime) => {
-            logger.warn(`Reintentando petición GraphQL página (intento ${attempt}/${2 + 1}):`, error.message);
+      let data;
+      try {
+        // Intentar query básica primero
+        data = await retry(
+          () => timeout(
+            this.graphQLClient.request(graphqlQuery, { slug: id }),
+            10000,
+            'Timeout al conectar con WordPress GraphQL'
+          ),
+          {
+            retries: 2,
+            delay: 1000,
+            onRetry: (error, attempt, waitTime) => {
+              logger.warn(`Reintentando petición GraphQL página básica (intento ${attempt}/${2 + 1}):`, error.message);
+            }
           }
+        );
+      } catch (error) {
+        logger.error('Error al obtener página básica:', error);
+        throw error;
+      }
+
+      // Si la página existe, intentar obtener campos adicionales si están disponibles
+      if (data.page) {
+        try {
+          // Query extendida con campos opcionales
+          const extendedQuery = `
+            query GetPageBySlugExtended($slug: ID!) {
+              page(id: $slug, idType: URI) {
+                id
+                databaseId
+                title
+                slug
+                content
+                date
+                modified
+                featuredImage {
+                  node {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                }
+                aboutPageSections {
+                  aboutContentSubtitle
+                  aboutContentTitle
+                  aboutContentDescription
+                  aboutMainImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                  aboutSecondaryImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                  experienceYears
+                  experienceText
+                  missionTitle
+                  missionHeading
+                  missionContent
+                  missionImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                  visionTitle
+                  visionHeading
+                  visionContent
+                  visionImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                  valueTitle
+                  valueHeading
+                  valueContent
+                  valueImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                }
+                homePageSections {
+                  heroSubtitle
+                  heroTitle
+                  heroDescription
+                  heroMainImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                  aboutSubtitle
+                  aboutTitle
+                  aboutDescription
+                  dishesSubtitle
+                  dishesTitle
+                }
+                contactPageSections {
+                  contactSubtitle
+                  contactTitle
+                  contactDescription
+                  mapEmbed
+                }
+                servicesPageSections {
+                  servicesSubtitle
+                  servicesTitle
+                  servicesDescription
+                }
+                menuPageSections {
+                  menuSubtitle
+                  menuTitle
+                  menuDescription
+                }
+              }
+            }
+          `;
+
+          const extendedData = await this.graphQLClient.request(extendedQuery, { slug: id });
+          // Si la query extendida funciona, usar esos datos
+          if (extendedData.page) {
+            data = extendedData;
+          }
+        } catch (extendedError) {
+          // Si los campos extendidos no están disponibles, usar los datos básicos
+          logger.warn('Campos extendidos (ACF) no disponibles, usando datos básicos:', extendedError.message);
         }
-      );
-      
+      }
+
       if (!data.page) {
         throw new Error('Página no encontrada');
       }
@@ -279,7 +293,7 @@ class PagesService {
       title: page.title,
       slug: page.slug,
       content: page.content || '',
-      excerpt: page.excerpt || '',
+      excerpt: page.excerpt || '', // Puede no estar disponible
       date: page.date,
       modified: page.modified,
       featuredImage: page.featuredImage?.node ? {
@@ -288,7 +302,7 @@ class PagesService {
         width: page.featuredImage.node.mediaDetails?.width || null,
         height: page.featuredImage.node.mediaDetails?.height || null
       } : null,
-      seo: page.seo || {},
+      seo: page.seo || {}, // Puede no estar disponible
       acf: {}
     };
 
