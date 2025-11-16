@@ -100,9 +100,10 @@
             <!-- About Us Content End -->
           </div>
 
-          <div class="col-lg-12 order-3">
-            <!-- About Detail Box Start -->
-            <div class="about-detail-box">
+          <div class="row">
+            <div class="col-lg-12 order-3">
+              <!-- About Detail Box Start -->
+              <div class="about-detail-box">
               <!-- About Detail Item Start -->
               <div class="about-detail-item wow fadeInUp">
                 <div class="icon-box">
@@ -138,192 +139,193 @@
                 </div>
               </div>
               <!-- About Detail Item End -->
+              </div>
+              <!-- About Detail Box End -->
             </div>
-            <!-- About Detail Box End -->
           </div>
         </div>
       </div>
-    </div>
-    <!-- About Us Section End -->
+      <!-- About Us Section End -->
 
-    <!-- Our Approach Section Start -->
-    <div class="our-approach">
-      <div class="container">
-        <div class="row section-row">
-          <div class="col-lg-12">
-            <!-- Section Title Start -->
-            <div class="section-title">
-              <h3 class="wow fadeInUp">our approach</h3>
-              <h2 class="text-anime-style-2" data-cursor="-opaque">
-                Delivering memorable dining <span>experiences</span>
-              </h2>
+      <!-- Our Approach Section Start -->
+      <div class="our-approach">
+        <div class="container">
+          <div class="row section-row">
+            <div class="col-lg-12">
+              <!-- Section Title Start -->
+              <div class="section-title">
+                <h3 class="wow fadeInUp">our approach</h3>
+                <h2 class="text-anime-style-2" data-cursor="-opaque">
+                  Delivering memorable dining <span>experiences</span>
+                </h2>
+              </div>
+              <!-- Section Title End -->
             </div>
-            <!-- Section Title End -->
           </div>
-        </div>
 
-        <div class="row">
-          <div class="col-lg-12">
-            <!-- Our Approch Tab Start -->
-            <div class="our-approch-tab">
-              <!-- Sidebar Our Approch Nav start -->
-              <div class="our-approch-tab-nav wow fadeInUp" data-wow-delay="0.2s">
-                <ul class="nav nav-tabs" id="approchTab" role="tablist">
-                  <li class="nav-item" role="presentation">
-                    <button 
-                      class="nav-link" 
-                      :class="{ active: activeTab === 'mission' }"
-                      @click="activeTab = 'mission'"
-                      type="button"
-                    >
-                      our mission
-                    </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button 
-                      class="nav-link" 
-                      :class="{ active: activeTab === 'vision' }"
-                      @click="activeTab = 'vision'"
-                      type="button"
-                    >
-                      our vision
-                    </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button 
-                      class="nav-link" 
-                      :class="{ active: activeTab === 'value' }"
-                      @click="activeTab = 'value'"
-                      type="button"
-                    >
-                      our value
-                    </button>
-                  </li>
-                </ul>
+          <div class="row">
+            <div class="col-lg-12">
+              <!-- Our Approch Tab Start -->
+              <div class="our-approch-tab">
+                <!-- Sidebar Our Approch Nav start -->
+                <div class="our-approch-tab-nav wow fadeInUp" data-wow-delay="0.2s">
+                  <ul class="nav nav-tabs" id="approchTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button 
+                        class="nav-link" 
+                        :class="{ active: activeTab === 'mission' }"
+                        @click="activeTab = 'mission'"
+                        type="button"
+                      >
+                        our mission
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button 
+                        class="nav-link" 
+                        :class="{ active: activeTab === 'vision' }"
+                        @click="activeTab = 'vision'"
+                        type="button"
+                      >
+                        our vision
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button 
+                        class="nav-link" 
+                        :class="{ active: activeTab === 'value' }"
+                        @click="activeTab = 'value'"
+                        type="button"
+                      >
+                        our value
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <!-- Sidebar Our Approch Nav End -->
+
+                <!-- Approch Box Start -->
+                <div class="approch-box tab-content" id="approchTabContent">
+                  <!-- Mission Tab -->
+                  <div v-show="activeTab === 'mission'" class="approch-item">
+                    <div class="row align-items-center">
+                      <div class="col-lg-6">
+                        <div class="approch-tab-content">
+                          <div class="section-title">
+                            <h3 class="wow fadeInUp">{{ acf?.missionTitle || 'our mission' }}</h3>
+                            <h2 class="text-anime-style-2" data-cursor="-opaque">
+                              {{ acf?.missionHeading || 'creating moments around flavor' }}
+                            </h2>
+                            <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.missionContent" v-html="acf.missionContent"></p>
+                            <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
+                              At SpicyHunt, our vision is to redefine the dining experience by bringing people together over authentic, flavorful meals crafted with love and passion. We aim to be a beacon of culinary excellence, where every dish tells a story of tradition, innovation, and uncompromising quality.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-6" v-if="acf?.missionImage">
+                        <div class="approch-tab-image">
+                          <figure class="image-anime">
+                            <img 
+                              :src="acf.missionImage.url" 
+                              :alt="acf.missionImage.alt || 'Mission'"
+                            >
+                          </figure>
+                        </div>
+                      </div>
+                      <div class="col-lg-6" v-else>
+                        <div class="approch-tab-image">
+                          <figure class="image-anime">
+                            <img src="/images/approch-tab-img-1.jpg" alt="Mission">
+                          </figure>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Vision Tab -->
+                  <div v-show="activeTab === 'vision'" class="approch-item">
+                    <div class="row align-items-center">
+                      <div class="col-lg-6">
+                        <div class="approch-tab-content">
+                          <div class="section-title">
+                            <h3 class="wow fadeInUp">{{ acf?.visionTitle || 'our vision' }}</h3>
+                            <h2 class="text-anime-style-2" data-cursor="-opaque">
+                              {{ acf?.visionHeading || 'shaping the future of dining' }}
+                            </h2>
+                            <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.visionContent" v-html="acf.visionContent"></p>
+                            <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
+                              We envision a world where every meal is an opportunity to connect, celebrate, and create lasting memories. Our goal is to become the most trusted name in culinary excellence, known for our commitment to quality, sustainability, and the art of fine dining.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-6" v-if="acf?.visionImage">
+                        <div class="approch-tab-image">
+                          <figure class="image-anime">
+                            <img 
+                              :src="acf.visionImage.url" 
+                              :alt="acf.visionImage.alt || 'Vision'"
+                            >
+                          </figure>
+                        </div>
+                      </div>
+                      <div class="col-lg-6" v-else>
+                        <div class="approch-tab-image">
+                          <figure class="image-anime">
+                            <img src="/images/approch-tab-img-2.jpg" alt="Vision">
+                          </figure>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Value Tab -->
+                  <div v-show="activeTab === 'value'" class="approch-item">
+                    <div class="row align-items-center">
+                      <div class="col-lg-6">
+                        <div class="approch-tab-content">
+                          <div class="section-title">
+                            <h3 class="wow fadeInUp">{{ acf?.valueTitle || 'our value' }}</h3>
+                            <h2 class="text-anime-style-2" data-cursor="-opaque">
+                              {{ acf?.valueHeading || 'what drives us forward' }}
+                            </h2>
+                            <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.valueContent" v-html="acf.valueContent"></p>
+                            <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
+                              Our values are the foundation of everything we do. We believe in authenticity, respect for ingredients, and creating experiences that matter. Every decision we make is guided by our commitment to excellence and our passion for bringing people together through food.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-6" v-if="acf?.valueImage">
+                        <div class="approch-tab-image">
+                          <figure class="image-anime">
+                            <img 
+                              :src="acf.valueImage.url" 
+                              :alt="acf.valueImage.alt || 'Value'"
+                            >
+                          </figure>
+                        </div>
+                      </div>
+                      <div class="col-lg-6" v-else>
+                        <div class="approch-tab-image">
+                          <figure class="image-anime">
+                            <img src="/images/approch-tab-img-3.jpg" alt="Value">
+                          </figure>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Approch Box End -->
               </div>
-              <!-- Sidebar Our Approch Nav End -->
-
-              <!-- Approch Box Start -->
-              <div class="approch-box tab-content" id="approchTabContent">
-                <!-- Mission Tab -->
-                <div v-show="activeTab === 'mission'" class="approch-item">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6">
-                      <div class="approch-tab-content">
-                        <div class="section-title">
-                          <h3 class="wow fadeInUp">{{ acf?.missionTitle || 'our mission' }}</h3>
-                          <h2 class="text-anime-style-2" data-cursor="-opaque">
-                            {{ acf?.missionHeading || 'creating moments around flavor' }}
-                          </h2>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.missionContent" v-html="acf.missionContent"></p>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
-                            At SpicyHunt, our vision is to redefine the dining experience by bringing people together over authentic, flavorful meals crafted with love and passion. We aim to be a beacon of culinary excellence, where every dish tells a story of tradition, innovation, and uncompromising quality.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-6" v-if="acf?.missionImage">
-                      <div class="approch-tab-image">
-                        <figure class="image-anime">
-                          <img 
-                            :src="acf.missionImage.url" 
-                            :alt="acf.missionImage.alt || 'Mission'"
-                          >
-                        </figure>
-                      </div>
-                    </div>
-                    <div class="col-lg-6" v-else>
-                      <div class="approch-tab-image">
-                        <figure class="image-anime">
-                          <img src="/images/approch-tab-img-1.jpg" alt="Mission">
-                        </figure>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Vision Tab -->
-                <div v-show="activeTab === 'vision'" class="approch-item">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6">
-                      <div class="approch-tab-content">
-                        <div class="section-title">
-                          <h3 class="wow fadeInUp">{{ acf?.visionTitle || 'our vision' }}</h3>
-                          <h2 class="text-anime-style-2" data-cursor="-opaque">
-                            {{ acf?.visionHeading || 'shaping the future of dining' }}
-                          </h2>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.visionContent" v-html="acf.visionContent"></p>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
-                            We envision a world where every meal is an opportunity to connect, celebrate, and create lasting memories. Our goal is to become the most trusted name in culinary excellence, known for our commitment to quality, sustainability, and the art of fine dining.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-6" v-if="acf?.visionImage">
-                      <div class="approch-tab-image">
-                        <figure class="image-anime">
-                          <img 
-                            :src="acf.visionImage.url" 
-                            :alt="acf.visionImage.alt || 'Vision'"
-                          >
-                        </figure>
-                      </div>
-                    </div>
-                    <div class="col-lg-6" v-else>
-                      <div class="approch-tab-image">
-                        <figure class="image-anime">
-                          <img src="/images/approch-tab-img-2.jpg" alt="Vision">
-                        </figure>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Value Tab -->
-                <div v-show="activeTab === 'value'" class="approch-item">
-                  <div class="row align-items-center">
-                    <div class="col-lg-6">
-                      <div class="approch-tab-content">
-                        <div class="section-title">
-                          <h3 class="wow fadeInUp">{{ acf?.valueTitle || 'our value' }}</h3>
-                          <h2 class="text-anime-style-2" data-cursor="-opaque">
-                            {{ acf?.valueHeading || 'what drives us forward' }}
-                          </h2>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="acf?.valueContent" v-html="acf.valueContent"></p>
-                          <p class="wow fadeInUp" data-wow-delay="0.2s" v-else>
-                            Our values are the foundation of everything we do. We believe in authenticity, respect for ingredients, and creating experiences that matter. Every decision we make is guided by our commitment to excellence and our passion for bringing people together through food.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-lg-6" v-if="acf?.valueImage">
-                      <div class="approch-tab-image">
-                        <figure class="image-anime">
-                          <img 
-                            :src="acf.valueImage.url" 
-                            :alt="acf.valueImage.alt || 'Value'"
-                          >
-                        </figure>
-                      </div>
-                    </div>
-                    <div class="col-lg-6" v-else>
-                      <div class="approch-tab-image">
-                        <figure class="image-anime">
-                          <img src="/images/approch-tab-img-3.jpg" alt="Value">
-                        </figure>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- Approch Box End -->
+              <!-- Our Approch Tab End -->
             </div>
-            <!-- Our Approch Tab End -->
           </div>
         </div>
       </div>
+      <!-- Our Approach Section End -->
     </div>
-    <!-- Our Approach Section End -->
   </div>
 </template>
 

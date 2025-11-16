@@ -97,7 +97,7 @@ const services = ref([
   {
     id: 5,
     title: 'Takeout Orders',
-    description: 'Convenient and fast takeout options for when you're on the go but still craving our flavors.',
+    description: 'Convenient and fast takeout options for when you are on the go but still craving our flavors.',
     icon: '/images/icon-service-5.svg',
     link: '/services/takeout'
   },

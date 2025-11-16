@@ -54,14 +54,18 @@
             </div>
             <!-- Post Item End -->
           </div>
+        </div>
 
-          <!-- Loading State -->
-          <div v-if="insightsStore.loading" class="col-lg-12 text-center py-5">
+        <!-- Loading State -->
+        <div v-if="insightsStore.loading" class="row">
+          <div class="col-lg-12 text-center py-5">
             <p>Cargando posts...</p>
           </div>
+        </div>
 
-          <!-- Empty State -->
-          <div v-if="!insightsStore.loading && insightsStore.insights.length === 0" class="col-lg-12 text-center py-5">
+        <!-- Empty State -->
+        <div v-if="!insightsStore.loading && insightsStore.insights.length === 0" class="row">
+          <div class="col-lg-12 text-center py-5">
             <p>No hay posts disponibles aún.</p>
           </div>
         </div>

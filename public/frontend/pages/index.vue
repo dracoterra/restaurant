@@ -224,7 +224,9 @@
             </div>
             <!-- Our Dish Item End -->
           </div>
+        </div>
 
+        <div class="row">
           <div class="col-lg-12">
             <!-- Section Footer Text Start -->
             <div class="section-footer-text wow fadeInUp" data-wow-delay="0.8s">
