@@ -1,0 +1,266 @@
+/**
+ * Estilos para la interfaz de administración
+ * Campos Repeater, Flexible Content y Clone
+ */
+
+/* Estilos generales para campos personalizados */
+.acf-field-repeater,
+.acf-field-flexible_content,
+.acf-field-clone {
+    position: relative;
+}
+
+/* Repeater Field Styles */
+.acf-repeater {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.acf-repeater .acf-row {
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    background: #fafafa;
+}
+
+.acf-repeater .acf-row:last-child {
+    border-bottom: none;
+}
+
+.acf-repeater .acf-row-handle {
+    background: #f0f0f1;
+    border-right: 1px solid #ddd;
+    padding: 10px;
+    cursor: move;
+    width: 40px;
+    text-align: center;
+    color: #666;
+}
+
+.acf-repeater .acf-row-handle:hover {
+    background: #e0e0e1;
+}
+
+.acf-repeater .acf-row-handle .acf-icon {
+    font-size: 16px;
+}
+
+.acf-repeater .acf-row-content {
+    padding: 15px;
+}
+
+.acf-repeater .acf-row-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.acf-repeater .acf-row-controls a {
+    display: inline-block;
+    padding: 5px 10px;
+    margin-left: 5px;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.acf-repeater .acf-button-add {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #2271b1;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.acf-repeater .acf-button-add:hover {
+    background: #135e96;
+}
+
+.acf-repeater .acf-button-remove {
+    background: #dc3232;
+    color: #fff;
+}
+
+.acf-repeater .acf-button-remove:hover {
+    background: #b32d2e;
+}
+
+/* Layout Table */
+.acf-repeater[data-layout="table"] .acf-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.acf-repeater[data-layout="table"] .acf-table thead th {
+    background: #f0f0f1;
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+}
+
+.acf-repeater[data-layout="table"] .acf-table tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.acf-repeater[data-layout="table"] .acf-table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+/* Layout Block */
+.acf-repeater[data-layout="block"] .acf-row {
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.acf-repeater[data-layout="block"] .acf-row-header {
+    background: #2271b1;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.acf-repeater[data-layout="block"] .acf-row-title {
+    font-weight: 600;
+}
+
+.acf-repeater[data-layout="block"] .acf-row-content {
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+}
+
+/* Flexible Content Styles */
+.acf-flexible-content {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.acf-flexible-content .acf-layouts {
+    background: #f0f0f1;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.acf-flexible-content .acf-layouts .acf-button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding: 8px 15px;
+    background: #2271b1;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.acf-flexible-content .acf-layouts .acf-button:hover {
+    background: #135e96;
+}
+
+.acf-flexible-content .acf-layout {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.acf-flexible-content .acf-layout:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.acf-flexible-content .acf-layout-handle {
+    background: #2271b1;
+    color: #fff;
+    padding: 10px 15px;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.acf-flexible-content .acf-layout-handle:hover {
+    background: #135e96;
+}
+
+.acf-flexible-content .acf-layout-title {
+    font-weight: 600;
+}
+
+.acf-flexible-content .acf-layout-content {
+    padding: 15px;
+    background: #fafafa;
+}
+
+.acf-flexible-content .acf-layout-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.acf-flexible-content .acf-layout-controls a {
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* Clone Field Styles */
+.acf-field-clone {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background: #fafafa;
+}
+
+.acf-field-clone[data-display="seamless"] {
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+/* Estados de carga */
+.acf-pro-features-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.acf-pro-features-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #2271b1;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .acf-repeater[data-layout="table"] .acf-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .acf-repeater .acf-row-controls {
+        position: static;
+        margin-top: 10px;
+    }
+}
+
