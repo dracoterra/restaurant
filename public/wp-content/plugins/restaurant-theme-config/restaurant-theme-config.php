@@ -334,3 +334,6 @@ new Restaurant_Theme_Config();
 // Incluir campos de secciones de páginas
 require_once plugin_dir_path(__FILE__) . 'includes/page-sections.php';
 
+// Incluir creador de campos ACF
+require_once plugin_dir_path(__FILE__) . 'includes/create-acf-fields.php';
+
