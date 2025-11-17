@@ -53,7 +53,12 @@ const page = ref<Page | null>(null)
 const acf = computed(() => page.value?.acf?.homePageSections)
 
 // Blog posts (desde insights)
-const blogPosts = computed(() => insightsStore.insights.slice(0, 3))
+const blogPosts = computed(() => {
+  if (!insightsStore.insights || !Array.isArray(insightsStore.insights)) {
+    return []
+  }
+  return insightsStore.insights.slice(0, 3)
+})
 
 // Initialize scripts
 const initScripts = () => {

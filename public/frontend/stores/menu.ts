@@ -65,17 +65,10 @@ export const useMenuStore = defineStore('menu', {
       } catch (error: any) {
         this.error = error.message || 'Error al cargar el menú'
         console.error('Error fetching menu:', error)
-        // No usar menú por defecto - mantener items vacío para que el usuario vea que hay un problema
-        // Solo usar menú por defecto si no hay items y es un error de conexión
-        if (this.items.length === 0 && error.message?.includes('CONNECTION_REFUSED')) {
-          console.warn('Backend no disponible, usando menú por defecto temporalmente')
-          this.items = [
-            { id: '1', label: 'Home', url: '/', path: '/', parentId: null, children: [] },
-            { id: '2', label: 'About Us', url: '/about', path: '/about', parentId: null, children: [] },
-            { id: '3', label: 'Services', url: '/services', path: '/services', parentId: null, children: [] },
-            { id: '4', label: 'Menu', url: '/menu', path: '/menu', parentId: null, children: [] },
-            { id: '5', label: 'Contact Us', url: '/contact', path: '/contact', parentId: null, children: [] }
-          ]
+        // No usar menú hardcodeado - mantener items vacío
+        // El backend ahora retorna array vacío en lugar de menú por defecto
+        if (this.items.length === 0) {
+          this.items = []
         }
       } finally {
         this.loading = false

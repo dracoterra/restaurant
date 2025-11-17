@@ -50,10 +50,12 @@ app.use(express.errorHandler({ logger }));
 app.hooks(appHooks);
 
 const port = process.env.PORT || 3030;
-const host = process.env.HOST || 'localhost';
+// Escuchar en todas las interfaces (0.0.0.0) para permitir conexiones IPv4 e IPv6
+const host = process.env.HOST || '0.0.0.0';
 
 const server = app.listen(port, host, () => {
   logger.info(`Feathers application started on http://${host}:${port}`);
+  logger.info(`Feathers application accessible at http://localhost:${port}`);
 });
 
 module.exports = app;

@@ -99,19 +99,12 @@ class InsightsService {
         }
       `;
 
-      // Construir variables para GraphQL
-      const variables = {
-        first: parseInt($limit) || 10
-      };
-      
-      // Solo agregar 'after' si existe
-      if (query.after) {
-        variables.after = query.after;
+      // Limpiar variables vacías
+      if (variables.after === null || variables.after === undefined || variables.after === '') {
+        delete variables.after;
       }
-      
-      // Solo agregar 'search' si no está vacío
-      if (search && search.trim() !== '') {
-        variables.search = search.trim();
+      if (variables.search === null || variables.search === undefined || variables.search === '') {
+        delete variables.search;
       }
 
       // Aplicar timeout y retry a las peticiones GraphQL

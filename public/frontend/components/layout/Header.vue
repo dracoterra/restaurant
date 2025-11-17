@@ -10,9 +10,12 @@
           <!-- Logo End -->
 
           <!-- Main Menu Start -->
-          <div class="navbar-collapse main-menu show" style="display: block !important;">
+          <div 
+            class="navbar-collapse main-menu show" 
+            style="display: flex !important; visibility: visible !important; opacity: 1 !important; height: auto !important; overflow: visible !important;"
+          >
             <div class="nav-menu-wrapper">
-              <ul class="navbar-nav mr-auto" id="menu">
+              <ul class="navbar-nav mr-auto" id="menu" v-if="menuItems.length > 0">
                 <li 
                   v-for="item in menuItems" 
                   :key="item.id"
@@ -31,6 +34,17 @@
                   </ul>
                 </li>
               </ul>
+              <div v-else-if="menuStore.loading" class="menu-loading" style="color: var(--text-color); padding: 10px;">
+                Cargando menú...
+              </div>
+              <div v-else-if="menuStore.error" class="menu-error" style="color: #ff6b6b; padding: 10px; font-size: 14px;">
+                <span v-if="menuStore.error.includes('CONNECTION_REFUSED') || menuStore.error.includes('Failed to fetch')">
+                  ⚠️ Backend no disponible. Por favor, inicia el backend con: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px;">cd backend && npm run dev</code>
+                </span>
+                <span v-else>
+                  Error: {{ menuStore.error }}
+                </span>
+              </div>
             </div>
             <!-- Header Contact Box Start -->
             <div class="header-btn">

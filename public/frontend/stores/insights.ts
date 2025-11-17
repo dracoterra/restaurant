@@ -61,10 +61,30 @@ export const useInsightsStore = defineStore('insights', {
           }
         })
 
-        this.insights = response.data.data
-        this.total = response.data.total
-        this.skip = response.data.skip
-        this.limit = response.data.limit
+        // Manejar diferentes estructuras de respuesta
+        const responseData = response.data
+        if (responseData && typeof responseData === 'object') {
+          // Si la respuesta tiene una propiedad 'data', usarla
+          if ('data' in responseData && Array.isArray(responseData.data)) {
+            this.insights = responseData.data
+            this.total = responseData.total || responseData.data.length
+            this.skip = responseData.skip || 0
+            this.limit = responseData.limit || this.limit
+          } 
+          // Si la respuesta es directamente un array
+          else if (Array.isArray(responseData)) {
+            this.insights = responseData
+            this.total = responseData.length
+          }
+          // Si la respuesta tiene una estructura diferente
+          else {
+            this.insights = []
+            this.total = 0
+          }
+        } else {
+          this.insights = []
+          this.total = 0
+        }
       } catch (error: any) {
         this.error = error.message || 'Error al cargar insights'
         console.error('Error fetching insights:', error)
