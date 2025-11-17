@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Hero Section -->
     <PagesHomeHeroSection
       :subtitle="acf?.heroSubtitle"
       :title="acf?.heroTitle"
@@ -8,38 +7,29 @@
       :main-image="acf?.heroMainImage"
     />
 
-    <!-- About Us Section -->
     <PagesHomeAboutUsSection
       :subtitle="acf?.aboutSubtitle"
       :title="acf?.aboutTitle"
       :description="acf?.aboutDescription"
     />
 
-    <!-- Our Dishes Section -->
     <PagesHomeOurDishesSection
       :subtitle="acf?.dishesSubtitle"
       :title="acf?.dishesTitle"
     />
 
-    <!-- Daily Offer Section -->
     <PagesHomeDailyOfferSection />
 
-    <!-- Our Menu Section -->
     <PagesHomeOurMenuSection />
 
-    <!-- Intro Video Section -->
     <PagesHomeIntroVideoSection />
 
-    <!-- Our Ingredients Section -->
     <PagesHomeOurIngredientsSection />
 
-    <!-- Our Testimonial Section -->
     <PagesHomeOurTestimonialSection />
 
-    <!-- Our Blog Section -->
     <PagesHomeOurBlogSection :posts="blogPosts" />
 
-    <!-- Reserve Table Section -->
     <PagesHomeReserveTableSection />
   </div>
 </template>

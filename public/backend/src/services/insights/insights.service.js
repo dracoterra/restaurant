@@ -32,7 +32,7 @@ class InsightsService {
       // GraphQL query for posts/insights
       const graphqlQuery = `
         query GetPosts($first: Int, $after: String, $search: String) {
-          posts(first: $first, after: $after, where: { search: $search }) {
+          posts(first: $first, after: $after, where: { search: $search, status: PUBLISH }) {
             pageInfo {
               hasNextPage
               endCursor
@@ -71,10 +71,18 @@ class InsightsService {
       `;
 
       const variables = {
-        first: $limit,
+        first: $limit || 10,
         after: query.after || null,
         search: search || ''
       };
+      
+      // Limpiar variables null/undefined para GraphQL
+      if (!variables.after) {
+        delete variables.after;
+      }
+      if (!variables.search) {
+        delete variables.search;
+      }
 
       // Aplicar timeout y retry a las peticiones GraphQL
       const data = await retry(

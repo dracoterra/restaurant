@@ -1,12 +1,14 @@
 <template>
-  <div class="preloader" v-if="isLoading">
-    <div class="loading-container">
-      <div class="loading"></div>
-      <div id="loading-icon">
-        <img src="/images/loader.svg" alt="Loading">
+  <ClientOnly>
+    <div class="preloader" v-if="isLoading">
+      <div class="loading-container">
+        <div class="loading"></div>
+        <div id="loading-icon">
+          <img src="/images/loader.svg" alt="Loading">
+        </div>
       </div>
     </div>
-  </div>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
