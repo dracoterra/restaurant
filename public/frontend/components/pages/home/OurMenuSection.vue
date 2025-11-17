@@ -4,9 +4,11 @@
       <div class="row section-row">
         <div class="col-lg-12">
           <!-- Section Title Start -->
-          <div class="section-title">
-            <h3 class="wow fadeInUp">from our menu</h3>
-            <h2 class="text-anime-style-2" data-cursor="-opaque">An Inspired Menu That <span>Blends Tradition</span></h2>
+          <div class="section-title" v-if="subtitle || title">
+            <h3 class="wow fadeInUp" v-if="subtitle">{{ subtitle }}</h3>
+            <h2 class="text-anime-style-2" data-cursor="-opaque" v-if="title">
+              <span v-html="formatTitle(title)"></span>
+            </h2>
           </div>
           <!-- Section Title End -->
         </div>
@@ -223,7 +225,23 @@ interface MenuItems {
   desserts: MenuItem[]
 }
 
+interface Props {
+  subtitle?: string
+  title?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  subtitle: '',
+  title: ''
+})
+
 const activeTab = ref('appetizers')
+
+// Helper para formatear el título con spans
+const formatTitle = (title: string) => {
+  if (!title) return ''
+  return title.replace(/\<span\>(.*?)\<\/span\>/gi, '<span>$1</span>')
+}
 
 const menuItems: MenuItems = {
   appetizers: [

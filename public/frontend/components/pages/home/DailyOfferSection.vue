@@ -1,20 +1,23 @@
 <template>
-  <div class="daily-offer">
+  <div class="daily-offer" v-if="subtitle || title || description">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-6">
           <!-- Daily Offer Image Start -->
           <div class="daily-offer-image">
             <div class="daily-offer-img">
-              <figure>
+              <figure v-if="image">
+                <img :src="image.url" :alt="image.alt || 'Daily Offer'">
+              </figure>
+              <figure v-else>
                 <img src="/images/daily-offer-image.png" alt="Daily Offer">
               </figure>
             </div>
 
             <!-- Delicious Burger Box Start -->
-            <div class="delicious-burger-box">
-              <div class="delicious-burger-title">
-                <h3>Delicious Burger</h3>
+            <div class="delicious-burger-box" v-if="burgerTitle || (burgerFeatures && burgerFeatures.length > 0)">
+              <div class="delicious-burger-title" v-if="burgerTitle">
+                <h3>{{ burgerTitle }}</h3>
               </div>
               <div class="delicious-burger-rating">
                 <i class="fa-solid fa-star"></i>
@@ -23,12 +26,11 @@
                 <i class="fa-solid fa-star"></i>
                 <i class="fa-solid fa-star"></i>
               </div>
-              <div class="delicious-burger-list">
+              <div class="delicious-burger-list" v-if="burgerFeatures && burgerFeatures.length > 0">
                 <ul>
-                  <li>tomato sauces</li>
-                  <li>vegitables</li>
-                  <li>lettuce</li>
-                  <li>cheese slice</li>
+                  <li v-for="(feature, index) in burgerFeatures" :key="index">
+                    {{ feature.featureText }}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -42,18 +44,20 @@
           <div class="daily-offer-content">
             <!-- Section Title Start -->
             <div class="section-title">
-              <h3 class="wow fadeInUp">our daily offers</h3>
-              <h2 class="text-anime-style-2" data-cursor="-opaque">taste the savings with our <span>daily specials</span></h2>
-              <p class="wow fadeInUp" data-wow-delay="0.2s">Every day is an opportunity to enjoy your favorites at a discounted price. Explore our daily rotating specials and indulge in flavorful meals at a fraction of the cost.</p>
+              <h3 class="wow fadeInUp" v-if="subtitle">{{ subtitle }}</h3>
+              <h2 class="text-anime-style-2" data-cursor="-opaque" v-if="title">
+                <span v-html="formatTitle(title)"></span>
+              </h2>
+              <p class="wow fadeInUp" data-wow-delay="0.2s" v-if="description">{{ description }}</p>
             </div>
             <!-- Section Title End -->
 
             <!-- Daily Offer List Start -->
-            <div class="daily-offer-list wow fadeInUp" data-wow-delay="0.4s">
+            <div class="daily-offer-list wow fadeInUp" data-wow-delay="0.4s" v-if="features && features.length > 0">
               <ul>
-                <li>seasonal & locally sourced ingredients</li>
-                <li>vegetarian & dietary-friendly options</li>
-                <li>exquisite pairings & unique flavors</li>
+                <li v-for="(feature, index) in features" :key="index">
+                  {{ feature.featureText }}
+                </li>
               </ul>
             </div>
             <!-- Daily Offer List End -->
@@ -73,6 +77,42 @@
 </template>
 
 <script setup lang="ts">
-// No props needed for this component as it uses static content
+interface Image {
+  sourceUrl?: string
+  url?: string
+  altText?: string
+  alt?: string
+}
+
+interface Feature {
+  featureText: string
+}
+
+interface Props {
+  subtitle?: string
+  title?: string
+  description?: string
+  image?: Image | null
+  features?: Feature[]
+  burgerTitle?: string
+  burgerFeatures?: Feature[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  subtitle: '',
+  title: '',
+  description: '',
+  image: null,
+  features: () => [],
+  burgerTitle: '',
+  burgerFeatures: () => []
+})
+
+// Helper para formatear el título con spans
+const formatTitle = (title: string) => {
+  if (!title) return ''
+  // Buscar texto entre <span> tags o agregar span al texto destacado
+  return title.replace(/\<span\>(.*?)\<\/span\>/gi, '<span>$1</span>')
+}
 </script>
 

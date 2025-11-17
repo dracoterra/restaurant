@@ -18,19 +18,50 @@
       :title="acf?.dishesTitle"
     />
 
-    <PagesHomeDailyOfferSection />
+    <PagesHomeDailyOfferSection
+      :subtitle="acf?.dailyOfferSubtitle"
+      :title="acf?.dailyOfferTitle"
+      :description="acf?.dailyOfferDescription"
+      :image="acf?.dailyOfferImage"
+      :features="acf?.dailyOfferFeatures"
+      :burger-title="acf?.dailyOfferBurgerTitle"
+      :burger-features="acf?.dailyOfferBurgerFeatures"
+    />
 
-    <PagesHomeOurMenuSection />
+    <PagesHomeOurMenuSection
+      :subtitle="acf?.menuSubtitle"
+      :title="acf?.menuTitle"
+    />
 
-    <PagesHomeIntroVideoSection />
+    <PagesHomeIntroVideoSection
+      :video-bg="acf?.introVideoBg?.url || acf?.introVideoBg?.sourceUrl"
+      :video-url="acf?.introVideoUrl"
+    />
 
-    <PagesHomeOurIngredientsSection />
+    <PagesHomeOurIngredientsSection
+      :subtitle="acf?.ingredientsSubtitle"
+      :title="acf?.ingredientsTitle"
+      :description="acf?.ingredientsDescription"
+      :image="acf?.ingredientsImage"
+      :features="acf?.ingredientsFeatures"
+      :happy-customers-count="acf?.ingredientsHappyCustomers"
+      :customer-images="acf?.ingredientsCustomerImages?.nodes || acf?.ingredientsCustomerImages"
+      :counters="acf?.ingredientsCounters"
+    />
 
-    <PagesHomeOurTestimonialSection />
+    <PagesHomeOurTestimonialSection
+      :subtitle="acf?.testimonialSubtitle"
+      :title="acf?.testimonialTitle"
+      :testimonials="acf?.testimonials"
+    />
 
     <PagesHomeOurBlogSection :posts="blogPosts" />
 
-    <PagesHomeReserveTableSection />
+    <PagesHomeReserveTableSection
+      :subtitle="acf?.reserveSubtitle"
+      :title="acf?.reserveTitle"
+      :hours="acf?.reserveHours"
+    />
   </div>
 </template>
 

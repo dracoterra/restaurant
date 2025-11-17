@@ -3,9 +3,13 @@
     <div class="container">
       <div class="row section-row">
         <div class="col-lg-12">
-          <div class="section-title">
-            <h3 class="wow fadeInUp">our testimonials</h3>
-            <h2 class="text-anime-style-2" data-cursor="-opaque">real stories of memorable <span>meals and experiences</span></h2>
+          <div class="section-title" v-if="subtitle || title">
+            <h3 class="wow fadeInUp" v-if="subtitle">{{ subtitle }}</h3>
+            <h3 class="wow fadeInUp" v-else>our testimonials</h3>
+            <h2 class="text-anime-style-2" data-cursor="-opaque" v-if="title">
+              <span v-html="formatTitle(title)"></span>
+            </h2>
+            <h2 class="text-anime-style-2" data-cursor="-opaque" v-else>real stories of memorable <span>meals and experiences</span></h2>
           </div>
         </div>
       </div>
@@ -31,7 +35,7 @@
                     <div class="author-info">
                       <div class="author-image">
                         <figure class="image-anime">
-                          <img :src="testimonial.authorImage" :alt="testimonial.authorName">
+                          <img :src="getAuthorImageUrl(testimonial.authorImage)" :alt="testimonial.authorName">
                         </figure>
                       </div>
                       <div class="author-content">
@@ -60,14 +64,18 @@ import { ref, onMounted, nextTick } from 'vue'
 interface Testimonial {
   content: string
   authorName: string
-  authorImage: string
+  authorImage: string | { url: string; alt?: string }
 }
 
 interface Props {
+  subtitle?: string
+  title?: string
   testimonials?: Testimonial[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  subtitle: '',
+  title: '',
   testimonials: () => [
     {
       content: 'From the moment we walked in, the ambiance was welcoming, and the service was top-notch. The dish was absolutely delicious, full of fresh flavors, and perfectly cooked. I especially loved how the staff took the time to explain the menu and suggest pairings for our meal.',
@@ -81,6 +89,19 @@ const props = withDefaults(defineProps<Props>(), {
     }
   ]
 })
+
+// Helper para formatear el título con spans
+const formatTitle = (title: string) => {
+  if (!title) return ''
+  return title.replace(/\<span\>(.*?)\<\/span\>/gi, '<span>$1</span>')
+}
+
+// Helper para obtener la URL de la imagen del autor
+const getAuthorImageUrl = (authorImage: string | { url: string; alt?: string } | undefined): string => {
+  if (!authorImage) return '/images/author-1.jpg'
+  if (typeof authorImage === 'string') return authorImage
+  return authorImage.url || '/images/author-1.jpg'
+}
 
 const testimonialSwiper = ref<HTMLElement | null>(null)
 

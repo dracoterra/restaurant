@@ -15,6 +15,8 @@ class Restaurant_ACF_Fields_Creator {
         // Solo ejecutar si ACF está activo
         if (function_exists('acf_add_local_field_group')) {
             add_action('acf/init', array($this, 'create_field_groups'));
+            // También ejecutar en admin_init para asegurar que se creen los campos
+            add_action('admin_init', array($this, 'create_field_groups'), 20);
         }
     }
     
@@ -27,7 +29,11 @@ class Restaurant_ACF_Fields_Creator {
     }
     
     private function create_home_fields() {
-        acf_add_local_field_group(array(
+        $home_page_id = $this->get_page_id_by_slug('home');
+        
+        // Usar acf_update_field_group para crear directamente en la base de datos
+        // Esto permite que los campos funcionen con WPGraphQL
+        $field_group = array(
             'key' => 'group_home_page',
             'title' => 'Home Page Sections',
             'fields' => array(
@@ -95,17 +101,280 @@ class Restaurant_ACF_Fields_Creator {
                     'type' => 'text',
                     'default_value' => 'Explore our signature dishes',
                 ),
+                // Daily Offer Section
+                array(
+                    'key' => 'field_daily_offer_image',
+                    'label' => 'Daily Offer Image',
+                    'name' => 'daily_offer_image',
+                    'type' => 'image',
+                ),
+                array(
+                    'key' => 'field_daily_offer_subtitle',
+                    'label' => 'Daily Offer Subtitle',
+                    'name' => 'daily_offer_subtitle',
+                    'type' => 'text',
+                    'default_value' => 'our daily offers',
+                ),
+                array(
+                    'key' => 'field_daily_offer_title',
+                    'label' => 'Daily Offer Title',
+                    'name' => 'daily_offer_title',
+                    'type' => 'text',
+                    'default_value' => 'taste the savings with our daily specials',
+                ),
+                array(
+                    'key' => 'field_daily_offer_description',
+                    'label' => 'Daily Offer Description',
+                    'name' => 'daily_offer_description',
+                    'type' => 'textarea',
+                    'default_value' => 'Every day is an opportunity to enjoy your favorites at a discounted price. Explore our daily rotating specials and indulge in flavorful meals at a fraction of the cost.',
+                ),
+                array(
+                    'key' => 'field_daily_offer_features',
+                    'label' => 'Daily Offer Features',
+                    'name' => 'daily_offer_features',
+                    'type' => 'repeater',
+                    'sub_fields' => array(
+                        array(
+                            'key' => 'field_daily_offer_feature_text',
+                            'label' => 'Feature Text',
+                            'name' => 'feature_text',
+                            'type' => 'text',
+                        ),
+                    ),
+                ),
+                array(
+                    'key' => 'field_daily_offer_burger_title',
+                    'label' => 'Daily Offer Burger Title',
+                    'name' => 'daily_offer_burger_title',
+                    'type' => 'text',
+                    'default_value' => 'Delicious Burger',
+                ),
+                array(
+                    'key' => 'field_daily_offer_burger_features',
+                    'label' => 'Daily Offer Burger Features',
+                    'name' => 'daily_offer_burger_features',
+                    'type' => 'repeater',
+                    'sub_fields' => array(
+                        array(
+                            'key' => 'field_burger_feature_text',
+                            'label' => 'Feature Text',
+                            'name' => 'feature_text',
+                            'type' => 'text',
+                        ),
+                    ),
+                ),
+                // Our Menu Section
+                array(
+                    'key' => 'field_menu_subtitle',
+                    'label' => 'Menu Subtitle',
+                    'name' => 'menu_subtitle',
+                    'type' => 'text',
+                    'default_value' => 'from our menu',
+                ),
+                array(
+                    'key' => 'field_menu_title',
+                    'label' => 'Menu Title',
+                    'name' => 'menu_title',
+                    'type' => 'text',
+                    'default_value' => 'An Inspired Menu That Blends Tradition',
+                ),
+                // Intro Video Section
+                array(
+                    'key' => 'field_intro_video_bg',
+                    'label' => 'Intro Video Background',
+                    'name' => 'intro_video_bg',
+                    'type' => 'file',
+                    'return_format' => 'url',
+                    'mime_types' => 'mp4,webm,ogg',
+                ),
+                array(
+                    'key' => 'field_intro_video_url',
+                    'label' => 'Intro Video URL (YouTube)',
+                    'name' => 'intro_video_url',
+                    'type' => 'url',
+                    'default_value' => 'https://www.youtube.com/watch?v=Y-x0efG1seA',
+                ),
+                // Our Ingredients Section
+                array(
+                    'key' => 'field_ingredients_image',
+                    'label' => 'Ingredients Image',
+                    'name' => 'ingredients_image',
+                    'type' => 'image',
+                ),
+                array(
+                    'key' => 'field_ingredients_subtitle',
+                    'label' => 'Ingredients Subtitle',
+                    'name' => 'ingredients_subtitle',
+                    'type' => 'text',
+                    'default_value' => 'our ingredients',
+                ),
+                array(
+                    'key' => 'field_ingredients_title',
+                    'label' => 'Ingredients Title',
+                    'name' => 'ingredients_title',
+                    'type' => 'text',
+                    'default_value' => 'Crafting Dishes with freshest Flavors',
+                ),
+                array(
+                    'key' => 'field_ingredients_description',
+                    'label' => 'Ingredients Description',
+                    'name' => 'ingredients_description',
+                    'type' => 'textarea',
+                    'default_value' => 'We take pride in using only the freshest, hand-picked ingredients that are free from preservatives and artificial additives. Taste the difference with every bite as we serve dishes made from nature\'s finest.',
+                ),
+                array(
+                    'key' => 'field_ingredients_features',
+                    'label' => 'Ingredients Features',
+                    'name' => 'ingredients_features',
+                    'type' => 'repeater',
+                    'sub_fields' => array(
+                        array(
+                            'key' => 'field_ingredient_feature_icon',
+                            'label' => 'Icon',
+                            'name' => 'icon',
+                            'type' => 'image',
+                        ),
+                        array(
+                            'key' => 'field_ingredient_feature_title',
+                            'label' => 'Title',
+                            'name' => 'title',
+                            'type' => 'text',
+                        ),
+                    ),
+                ),
+                array(
+                    'key' => 'field_ingredients_happy_customers',
+                    'label' => 'Happy Customers Count',
+                    'name' => 'ingredients_happy_customers',
+                    'type' => 'number',
+                    'default_value' => 620,
+                ),
+                array(
+                    'key' => 'field_ingredients_customer_images',
+                    'label' => 'Customer Images',
+                    'name' => 'ingredients_customer_images',
+                    'type' => 'gallery',
+                ),
+                array(
+                    'key' => 'field_ingredients_counters',
+                    'label' => 'Ingredients Counters',
+                    'name' => 'ingredients_counters',
+                    'type' => 'repeater',
+                    'sub_fields' => array(
+                        array(
+                            'key' => 'field_counter_icon',
+                            'label' => 'Icon',
+                            'name' => 'icon',
+                            'type' => 'image',
+                        ),
+                        array(
+                            'key' => 'field_counter_number',
+                            'label' => 'Number',
+                            'name' => 'number',
+                            'type' => 'number',
+                        ),
+                        array(
+                            'key' => 'field_counter_label',
+                            'label' => 'Label',
+                            'name' => 'label',
+                            'type' => 'text',
+                        ),
+                    ),
+                ),
+                // Our Testimonial Section
+                array(
+                    'key' => 'field_testimonial_subtitle',
+                    'label' => 'Testimonial Subtitle',
+                    'name' => 'testimonial_subtitle',
+                    'type' => 'text',
+                    'default_value' => 'our testimonials',
+                ),
+                array(
+                    'key' => 'field_testimonial_title',
+                    'label' => 'Testimonial Title',
+                    'name' => 'testimonial_title',
+                    'type' => 'text',
+                    'default_value' => 'real stories of memorable meals and experiences',
+                ),
+                array(
+                    'key' => 'field_testimonials',
+                    'label' => 'Testimonials',
+                    'name' => 'testimonials',
+                    'type' => 'repeater',
+                    'sub_fields' => array(
+                        array(
+                            'key' => 'field_testimonial_content',
+                            'label' => 'Content',
+                            'name' => 'content',
+                            'type' => 'textarea',
+                        ),
+                        array(
+                            'key' => 'field_testimonial_author_name',
+                            'label' => 'Author Name',
+                            'name' => 'author_name',
+                            'type' => 'text',
+                        ),
+                        array(
+                            'key' => 'field_testimonial_author_image',
+                            'label' => 'Author Image',
+                            'name' => 'author_image',
+                            'type' => 'image',
+                        ),
+                    ),
+                ),
+                // Reserve Table Section
+                array(
+                    'key' => 'field_reserve_subtitle',
+                    'label' => 'Reserve Table Subtitle',
+                    'name' => 'reserve_subtitle',
+                    'type' => 'text',
+                    'default_value' => 'reserve a table',
+                ),
+                array(
+                    'key' => 'field_reserve_title',
+                    'label' => 'Reserve Table Title',
+                    'name' => 'reserve_title',
+                    'type' => 'text',
+                    'default_value' => 'reserve now your table and enjoy dining experience.',
+                ),
+                array(
+                    'key' => 'field_reserve_hours',
+                    'label' => 'Opening Hours',
+                    'name' => 'reserve_hours',
+                    'type' => 'repeater',
+                    'sub_fields' => array(
+                        array(
+                            'key' => 'field_hours_days',
+                            'label' => 'Days',
+                            'name' => 'days',
+                            'type' => 'text',
+                        ),
+                        array(
+                            'key' => 'field_hours_time',
+                            'label' => 'Time',
+                            'name' => 'time',
+                            'type' => 'text',
+                        ),
+                    ),
+                ),
             ),
             'location' => array(
                 array(
                     array(
-                        'param' => 'page_type',
+                        'param' => 'page',
                         'operator' => '==',
-                        'value' => 'front_page',
+                        'value' => $home_page_id ?: 'page',
                     ),
                 ),
             ),
-        ));
+        );
+        
+        if (function_exists('acf_update_field_group')) {
+            acf_update_field_group($field_group);
+        } else {
+            acf_add_local_field_group($field_group);
+        }
     }
     
     private function get_page_id_by_slug($slug) {
@@ -116,7 +385,7 @@ class Restaurant_ACF_Fields_Creator {
     private function create_about_fields() {
         $about_page_id = $this->get_page_id_by_slug('about');
         
-        acf_add_local_field_group(array(
+        $field_group = array(
             'key' => 'group_about_page',
             'title' => 'About Page Sections',
             'fields' => array(
@@ -297,12 +566,18 @@ class Restaurant_ACF_Fields_Creator {
                     ),
                 ),
             ),
-        ));
+        );
+        
+        if (function_exists('acf_update_field_group')) {
+            acf_update_field_group($field_group);
+        } else {
+            acf_add_local_field_group($field_group);
+        }
     }
     
     private function create_contact_fields() {
         $contact_page_id = $this->get_page_id_by_slug('contact');
-        acf_add_local_field_group(array(
+        $field_group = array(
             'key' => 'group_contact_page',
             'title' => 'Contact Page Sections',
             'fields' => array(
@@ -342,12 +617,18 @@ class Restaurant_ACF_Fields_Creator {
                     ),
                 ),
             ),
-        ));
+        );
+        
+        if (function_exists('acf_update_field_group')) {
+            acf_update_field_group($field_group);
+        } else {
+            acf_add_local_field_group($field_group);
+        }
     }
     
     private function create_services_fields() {
         $services_page_id = $this->get_page_id_by_slug('services');
-        acf_add_local_field_group(array(
+        $field_group = array(
             'key' => 'group_services_page',
             'title' => 'Services Page Sections',
             'fields' => array(
@@ -413,12 +694,18 @@ class Restaurant_ACF_Fields_Creator {
                     ),
                 ),
             ),
-        ));
+        );
+        
+        if (function_exists('acf_update_field_group')) {
+            acf_update_field_group($field_group);
+        } else {
+            acf_add_local_field_group($field_group);
+        }
     }
     
     private function create_menu_fields() {
         $menu_page_id = $this->get_page_id_by_slug('menu');
-        acf_add_local_field_group(array(
+        $field_group = array(
             'key' => 'group_menu_page',
             'title' => 'Menu Page Sections',
             'fields' => array(
@@ -452,7 +739,13 @@ class Restaurant_ACF_Fields_Creator {
                     ),
                 ),
             ),
-        ));
+        );
+        
+        if (function_exists('acf_update_field_group')) {
+            acf_update_field_group($field_group);
+        } else {
+            acf_add_local_field_group($field_group);
+        }
     }
 }
 

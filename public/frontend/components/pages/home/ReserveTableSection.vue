@@ -4,11 +4,23 @@
       <div class="row">
         <div class="col-lg-6">
           <div class="reserve-table-content">
-            <div class="section-title">
-              <h3 class="wow fadeInUp">reserve a table</h3>
-              <h2 class="text-anime-style-2" data-cursor="-opaque">reserve now your table and <span>enjoy dining experience.</span></h2>
+            <div class="section-title" v-if="subtitle || title">
+              <h3 class="wow fadeInUp" v-if="subtitle">{{ subtitle }}</h3>
+              <h3 class="wow fadeInUp" v-else>reserve a table</h3>
+              <h2 class="text-anime-style-2" data-cursor="-opaque" v-if="title">
+                <span v-html="formatTitle(title)"></span>
+              </h2>
+              <h2 class="text-anime-style-2" data-cursor="-opaque" v-else>reserve now your table and <span>enjoy dining experience.</span></h2>
             </div>
-            <div class="reserve-table-body wow fadeInUp" data-wow-delay="0.2s">
+            <div class="reserve-table-body wow fadeInUp" data-wow-delay="0.2s" v-if="hours && hours.length > 0">
+              <h3>open hours</h3>
+              <ul>
+                <li v-for="(hour, index) in hours" :key="index">
+                  {{ hour.days }} <span>{{ hour.time }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="reserve-table-body wow fadeInUp" data-wow-delay="0.2s" v-else>
               <h3>open hours</h3>
               <ul>
                 <li>Mon - Thu <span>10:00 AM - 09:00 PM</span></li>
@@ -102,6 +114,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+interface Hour {
+  days: string
+  time: string
+}
+
+interface Props {
+  subtitle?: string
+  title?: string
+  hours?: Hour[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  subtitle: '',
+  title: '',
+  hours: () => []
+})
+
 const form = ref({
   name: '',
   email: '',
@@ -115,6 +144,12 @@ const handleReservation = () => {
   // TODO: Implementar envío de formulario
   console.log('Reservation submitted:', form.value)
   alert('Reservation submitted! (This is a placeholder)')
+}
+
+// Helper para formatear el título con spans
+const formatTitle = (title: string) => {
+  if (!title) return ''
+  return title.replace(/\<span\>(.*?)\<\/span\>/gi, '<span>$1</span>')
 }
 </script>
 

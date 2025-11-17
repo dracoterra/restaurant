@@ -259,6 +259,95 @@ class PagesService {
                   aboutDescription
                   dishesSubtitle
                   dishesTitle
+                  dailyOfferImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                  dailyOfferSubtitle
+                  dailyOfferTitle
+                  dailyOfferDescription
+                  dailyOfferFeatures {
+                    featureText
+                  }
+                  dailyOfferBurgerTitle
+                  dailyOfferBurgerFeatures {
+                    featureText
+                  }
+                  menuSubtitle
+                  menuTitle
+                  introVideoBg {
+                    sourceUrl
+                  }
+                  introVideoUrl
+                  ingredientsImage {
+                    sourceUrl
+                    altText
+                    mediaDetails {
+                      width
+                      height
+                    }
+                  }
+                  ingredientsSubtitle
+                  ingredientsTitle
+                  ingredientsDescription
+                  ingredientsFeatures {
+                    icon {
+                      sourceUrl
+                      altText
+                      mediaDetails {
+                        width
+                        height
+                      }
+                    }
+                    title
+                  }
+                  ingredientsHappyCustomers
+                  ingredientsCustomerImages {
+                    nodes {
+                      sourceUrl
+                      altText
+                      mediaDetails {
+                        width
+                        height
+                      }
+                    }
+                  }
+                  ingredientsCounters {
+                    icon {
+                      sourceUrl
+                      altText
+                      mediaDetails {
+                        width
+                        height
+                      }
+                    }
+                    number
+                    label
+                  }
+                  testimonialSubtitle
+                  testimonialTitle
+                  testimonials {
+                    content
+                    authorName
+                    authorImage {
+                      sourceUrl
+                      altText
+                      mediaDetails {
+                        width
+                        height
+                      }
+                    }
+                  }
+                  reserveSubtitle
+                  reserveTitle
+                  reserveHours {
+                    days
+                    time
+                  }
                 }
                 contactPageSections {
                   contactSubtitle
@@ -433,8 +522,19 @@ class PagesService {
     const transformed = {};
     
     for (const [key, value] of Object.entries(section)) {
+      // Handle gallery fields (objects with nodes property)
+      if (value && typeof value === 'object' && value.nodes && Array.isArray(value.nodes)) {
+        transformed[key] = {
+          nodes: value.nodes.map(node => ({
+            url: node.sourceUrl,
+            alt: node.altText || '',
+            width: node.mediaDetails?.width || null,
+            height: node.mediaDetails?.height || null
+          }))
+        };
+      }
       // Handle arrays (repeater fields)
-      if (Array.isArray(value)) {
+      else if (Array.isArray(value)) {
         transformed[key] = value.map(item => {
           if (typeof item === 'object' && item !== null) {
             const transformedItem = {};
