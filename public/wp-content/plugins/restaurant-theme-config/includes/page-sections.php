@@ -204,7 +204,7 @@ class Restaurant_Page_Sections {
             if (isset($_POST['restaurant_hero_section'])) {
                 $hero = $_POST['restaurant_hero_section'];
                 update_post_meta($post_id, '_restaurant_hero_section', $hero);
-                // Guardar campos individuales para ACF
+                // Guardar campos individuales para compatibilidad con REST API/GraphQL
                 if (is_array($hero)) {
                     update_post_meta($post_id, 'heroSubtitle', $hero['subtitle'] ?? '');
                     update_post_meta($post_id, 'heroTitle', $hero['title'] ?? '');
@@ -216,7 +216,7 @@ class Restaurant_Page_Sections {
             if (isset($_POST['restaurant_about_section'])) {
                 $about = $_POST['restaurant_about_section'];
                 update_post_meta($post_id, '_restaurant_about_section', $about);
-                // Guardar campos individuales para ACF
+                // Guardar campos individuales para compatibilidad con REST API/GraphQL
                 if (is_array($about)) {
                     update_post_meta($post_id, 'aboutSubtitle', $about['subtitle'] ?? '');
                     update_post_meta($post_id, 'aboutTitle', $about['title'] ?? '');
@@ -227,7 +227,7 @@ class Restaurant_Page_Sections {
             if (isset($_POST['restaurant_dishes_section'])) {
                 $dishes = $_POST['restaurant_dishes_section'];
                 update_post_meta($post_id, '_restaurant_dishes_section', $dishes);
-                // Guardar campos individuales para ACF
+                // Guardar campos individuales para compatibilidad con REST API/GraphQL
                 if (is_array($dishes)) {
                     update_post_meta($post_id, 'dishesSubtitle', $dishes['subtitle'] ?? '');
                     update_post_meta($post_id, 'dishesTitle', $dishes['title'] ?? '');
@@ -263,7 +263,7 @@ class Restaurant_Page_Sections {
             if (isset($_POST['restaurant_services_section'])) {
                 $services = $_POST['restaurant_services_section'];
                 update_post_meta($post_id, '_restaurant_services_section', $services);
-                // Guardar campos individuales para ACF
+                // Guardar campos individuales para compatibilidad con REST API/GraphQL
                 if (is_array($services)) {
                     update_post_meta($post_id, 'servicesSubtitle', $services['subtitle'] ?? '');
                     update_post_meta($post_id, 'servicesTitle', $services['title'] ?? '');

@@ -413,9 +413,3 @@ add_action('rest_api_init', function() {
     ));
 });
 
-// Incluir creador de campos ACF
-require_once plugin_dir_path(__FILE__) . 'includes/create-acf-fields.php';
-
-// Incluir sincronizador de campos ACF
-require_once plugin_dir_path(__FILE__) . 'includes/sync-acf-fields.php';
-
