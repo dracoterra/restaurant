@@ -67,10 +67,6 @@ onMounted(async () => {
       menuStore.fetchMenu('primary'),
       settingsStore.fetchSettings()
     ])
-    
-    console.log('Menu items loaded:', menuStore.items)
-    console.log('Menu loading:', menuStore.loading)
-    console.log('Menu error:', menuStore.error)
   } catch (error) {
     console.error('Error loading menu or settings:', error)
   }

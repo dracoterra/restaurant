@@ -32,8 +32,6 @@ export const useMenuStore = defineStore('menu', {
         const response = await api.get('/menus', {
           params
         })
-
-        console.log('Menu API response:', response)
         
         // FeathersJS devuelve { data: [...], total: N } para find()
         // $fetch ya parsea la respuesta, así que response.data es el objeto completo
@@ -49,7 +47,6 @@ export const useMenuStore = defineStore('menu', {
           }
         }
         
-        console.log('Menu data extracted:', menuData)
         this.items = menuData || []
       } catch (error: any) {
         this.error = error.message || 'Error al cargar el menú'
