@@ -24,14 +24,14 @@ export const useMenuStore = defineStore('menu', {
 
       try {
         const api = useApi()
-        const params: Record<string, string> = { location }
+        
+        // Primero intentar obtener por location
+        let params: Record<string, string> = { location }
         if (slug) {
           params.slug = slug
         }
         
-        const response = await api.get('/menus', {
-          params
-        })
+        let response = await api.get('/menus', { params })
         
         // FeathersJS devuelve { data: [...], total: N } para find()
         // $fetch ya parsea la respuesta, así que response.data es el objeto completo
@@ -47,18 +47,36 @@ export const useMenuStore = defineStore('menu', {
           }
         }
         
+        // Si no se encontró menú por location y no hay slug, intentar obtener todos los menús
+        if (menuData.length === 0 && !slug) {
+          console.log('No se encontró menú por location, intentando obtener todos los menús...')
+          response = await api.get('/menus', { params: {} })
+          
+          if (response.data) {
+            if (typeof response.data === 'object' && 'data' in response.data) {
+              menuData = Array.isArray(response.data.data) ? response.data.data : []
+            } else if (Array.isArray(response.data)) {
+              menuData = response.data
+            }
+          }
+        }
+        
         this.items = menuData || []
       } catch (error: any) {
         this.error = error.message || 'Error al cargar el menú'
         console.error('Error fetching menu:', error)
-        // Usar menú por defecto en caso de error
-        this.items = [
-          { id: '1', label: 'Home', url: '/', path: '/', parentId: null, children: [] },
-          { id: '2', label: 'About Us', url: '/about', path: '/about', parentId: null, children: [] },
-          { id: '3', label: 'Services', url: '/services', path: '/services', parentId: null, children: [] },
-          { id: '4', label: 'Menu', url: '/menu', path: '/menu', parentId: null, children: [] },
-          { id: '5', label: 'Contact Us', url: '/contact', path: '/contact', parentId: null, children: [] }
-        ]
+        // No usar menú por defecto - mantener items vacío para que el usuario vea que hay un problema
+        // Solo usar menú por defecto si no hay items y es un error de conexión
+        if (this.items.length === 0 && error.message?.includes('CONNECTION_REFUSED')) {
+          console.warn('Backend no disponible, usando menú por defecto temporalmente')
+          this.items = [
+            { id: '1', label: 'Home', url: '/', path: '/', parentId: null, children: [] },
+            { id: '2', label: 'About Us', url: '/about', path: '/about', parentId: null, children: [] },
+            { id: '3', label: 'Services', url: '/services', path: '/services', parentId: null, children: [] },
+            { id: '4', label: 'Menu', url: '/menu', path: '/menu', parentId: null, children: [] },
+            { id: '5', label: 'Contact Us', url: '/contact', path: '/contact', parentId: null, children: [] }
+          ]
+        }
       } finally {
         this.loading = false
       }

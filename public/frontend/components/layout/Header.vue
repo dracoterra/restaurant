@@ -10,7 +10,7 @@
           <!-- Logo End -->
 
           <!-- Main Menu Start -->
-          <div class="navbar-collapse main-menu show">
+          <div class="navbar-collapse main-menu show" style="display: block !important;">
             <div class="nav-menu-wrapper">
               <ul class="navbar-nav mr-auto" id="menu">
                 <li 

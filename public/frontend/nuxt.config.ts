@@ -45,6 +45,9 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ]
     }
-  }
+  },
+
+  // Deshabilitar SSR globalmente para evitar problemas de hidratación
+  ssr: false
 })
 

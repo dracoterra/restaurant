@@ -29,10 +29,39 @@ class InsightsService {
     const { $skip = 0, $limit = 10, search = '' } = query;
 
     try {
-      // GraphQL query for posts/insights
-      const graphqlQuery = `
-        query GetPosts($first: Int, $after: String, $search: String) {
-          posts(first: $first, after: $after, where: { search: $search, status: PUBLISH }) {
+      // Construir la query GraphQL dinámicamente según las variables disponibles
+      let graphqlQuery;
+      let variables;
+      
+      if (search && search.trim() !== '') {
+        // Query con búsqueda
+        graphqlQuery = `
+          query GetPosts($first: Int, $after: String, $search: String) {
+            posts(first: $first, after: $after, where: { search: $search, status: PUBLISH }) {
+        `;
+        variables = {
+          first: parseInt($limit) || 10,
+          search: search.trim()
+        };
+        if (query.after) {
+          variables.after = query.after;
+        }
+      } else {
+        // Query sin búsqueda
+        graphqlQuery = `
+          query GetPosts($first: Int, $after: String) {
+            posts(first: $first, after: $after, where: { status: PUBLISH }) {
+        `;
+        variables = {
+          first: parseInt($limit) || 10
+        };
+        if (query.after) {
+          variables.after = query.after;
+        }
+      }
+      
+      // Completar la query (el resto es igual)
+      graphqlQuery += `
             pageInfo {
               hasNextPage
               endCursor
@@ -70,18 +99,19 @@ class InsightsService {
         }
       `;
 
+      // Construir variables para GraphQL
       const variables = {
-        first: $limit || 10,
-        after: query.after || null,
-        search: search || ''
+        first: parseInt($limit) || 10
       };
       
-      // Limpiar variables null/undefined para GraphQL
-      if (!variables.after) {
-        delete variables.after;
+      // Solo agregar 'after' si existe
+      if (query.after) {
+        variables.after = query.after;
       }
-      if (!variables.search) {
-        delete variables.search;
+      
+      // Solo agregar 'search' si no está vacío
+      if (search && search.trim() !== '') {
+        variables.search = search.trim();
       }
 
       // Aplicar timeout y retry a las peticiones GraphQL
@@ -121,16 +151,32 @@ class InsightsService {
       };
     } catch (error) {
       logger.error('Error fetching insights:', error);
+      logger.error('Error details:', {
+        message: error.message,
+        response: error.response,
+        stack: error.stack
+      });
       
       // Transformar errores GraphQL a formato estándar
       if (error.response) {
-        const graphqlError = new Error(error.response.errors?.[0]?.message || 'Error fetching insights from WordPress');
+        const graphqlErrors = error.response.errors || [];
+        const errorMessage = graphqlErrors.length > 0 
+          ? graphqlErrors.map(e => e.message).join(', ')
+          : 'Error fetching insights from WordPress';
+        const graphqlError = new Error(errorMessage);
         graphqlError.statusCode = error.response.status || 500;
         throw graphqlError;
       }
       
+      // Si es un error de timeout o conexión
+      if (error.message && error.message.includes('Timeout')) {
+        const timeoutError = new Error('Timeout al conectar con WordPress. Por favor, verifica que WordPress esté disponible.');
+        timeoutError.statusCode = 504;
+        throw timeoutError;
+      }
+      
       if (error.message) {
-        const standardError = new Error(error.message);
+        const standardError = new Error(`Error al obtener insights: ${error.message}`);
         standardError.statusCode = 500;
         throw standardError;
       }

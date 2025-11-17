@@ -1,6 +1,13 @@
 <template>
   <div>
-    <LayoutPreloader />
+    <ClientOnly>
+      <template #default>
+        <LayoutPreloader />
+      </template>
+      <template #fallback>
+        <!-- Placeholder durante SSR -->
+      </template>
+    </ClientOnly>
     <LayoutHeader />
     <main>
       <slot />

@@ -35,6 +35,11 @@
 </template>
 
 <script setup lang="ts">
+// Deshabilitar SSR para evitar problemas de hidratación
+definePageMeta({
+  ssr: false
+})
+
 import { ref, computed, onMounted } from 'vue'
 import { usePagesStore, type Page } from '~/stores/pages'
 import { useInsightsStore } from '~/stores/insights'
