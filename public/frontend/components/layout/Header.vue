@@ -11,38 +11,7 @@
 
           <!-- Main Menu Start -->
           <div class="collapse navbar-collapse main-menu">
-            <div class="nav-menu-wrapper">
-              <ul class="navbar-nav mr-auto" id="menu" v-if="menuItems.length > 0">
-                <li 
-                  v-for="item in menuItems" 
-                  :key="item.id"
-                  class="nav-item"
-                  :class="{ submenu: item.children && item.children.length > 0 }"
-                >
-                  <NuxtLink :to="item.path" class="nav-link">{{ item.label }}</NuxtLink>
-                  <ul v-if="item.children && item.children.length > 0">
-                    <li 
-                      v-for="child in item.children" 
-                      :key="child.id"
-                      class="nav-item"
-                    >
-                      <NuxtLink :to="child.path" class="nav-link">{{ child.label }}</NuxtLink>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-              <div v-else-if="menuStore.loading" class="menu-loading">
-                Cargando menú...
-              </div>
-              <div v-else-if="menuStore.error" class="menu-error">
-                <span v-if="menuStore.error.includes('CONNECTION_REFUSED') || menuStore.error.includes('Failed to fetch')">
-                  ⚠️ Backend no disponible. Por favor, inicia el backend con: <code>cd backend && npm run dev</code>
-                </span>
-                <span v-else>
-                  Error: {{ menuStore.error }}
-                </span>
-              </div>
-            </div>
+            <Menu location="primary" />
             <!-- Header Contact Box Start -->
             <div class="header-btn">
               <NuxtLink to="/contact" class="btn-default">book a table</NuxtLink>
@@ -60,44 +29,24 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useMenuStore } from '~/stores/menu'
 import { useSettingsStore } from '~/stores/settings'
 
-const menuStore = useMenuStore()
 const settingsStore = useSettingsStore()
 
 const isScrolled = ref(false)
-
-const menuItems = computed(() => menuStore.items)
 const settings = computed(() => settingsStore.settings)
 
 onMounted(async () => {
-  // Cargar menú y configuración
+  // Cargar configuración
   try {
-    await Promise.all([
-      menuStore.fetchMenu('primary'),
-      settingsStore.fetchSettings()
-    ])
+    await settingsStore.fetchSettings()
   } catch (error) {
-    // Error loading menu or settings
+    // Error loading settings
   }
 
   // Manejar scroll para sticky header
   if (typeof window !== 'undefined') {
     window.addEventListener('scroll', handleScroll)
-  }
-
-  // Inicializar menú móvil (SlickNav) cuando esté disponible
-  if (typeof window !== 'undefined' && (window as any).jQuery) {
-    setTimeout(() => {
-      const $ = (window as any).jQuery
-      if ($ && $.fn.slicknav) {
-        $('#menu').slicknav({
-          label: '',
-          prependTo: '.responsive-menu'
-        })
-      }
-    }, 100)
   }
 })
 

@@ -62,12 +62,10 @@ export const useMenuStore = defineStore('menu', {
         
         this.items = menuData || []
       } catch (error: any) {
+        // Silenciar el error - no mostrar mensaje en el header
+        // El skeleton loader se mostrará mientras no haya items
         this.error = error.message || 'Error al cargar el menú'
-        // No usar menú hardcodeado - mantener items vacío
-        // El backend ahora retorna array vacío en lugar de menú por defecto
-        if (this.items.length === 0) {
-          this.items = []
-        }
+        this.items = []
       } finally {
         this.loading = false
       }
