@@ -108,6 +108,7 @@ class ACF_Pro_Features_Free {
         // Solo cargar archivos que no dependen de acf_field
         require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/class-graphql-integration.php';
         require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/class-admin-page.php';
+        require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/class-options-pages.php';
         require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/functions.php';
         
         // Cargar las clases de campos cuando ACF esté listo
@@ -132,11 +133,13 @@ class ACF_Pro_Features_Free {
         require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/class-repeater-field.php';
         require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/class-flexible-content-field.php';
         require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/class-clone-field.php';
+        require_once ACF_PRO_FEATURES_PLUGIN_DIR . 'includes/class-gallery-field.php';
         
         // Registrar los tipos de campo
         $repeater = acf_register_field_type('ACF_Pro_Features_Repeater_Field');
         $flexible = acf_register_field_type('ACF_Pro_Features_Flexible_Content_Field');
         $clone = acf_register_field_type('ACF_Pro_Features_Clone_Field');
+        $gallery = acf_register_field_type('ACF_Pro_Features_Gallery_Field');
         
         // Asegurar que la propiedad 'pro' sea false
         if ($repeater) {
@@ -147,6 +150,9 @@ class ACF_Pro_Features_Free {
         }
         if ($clone) {
             $clone->pro = false;
+        }
+        if ($gallery) {
+            $gallery->pro = false;
         }
         
         // Interceptar acf_get_pro_field_types() para remover nuestros campos
@@ -164,7 +170,7 @@ class ACF_Pro_Features_Free {
      */
     public function intercept_pro_field_types() {
         // Verificar que nuestros campos estén registrados
-        $our_fields = array('repeater', 'flexible_content', 'clone');
+        $our_fields = array('repeater', 'flexible_content', 'clone', 'gallery');
         $fields_registered = false;
         
         foreach ($our_fields as $field_name) {
@@ -172,7 +178,8 @@ class ACF_Pro_Features_Free {
             if ($field_type && (
                 get_class($field_type) === 'ACF_Pro_Features_Repeater_Field' || 
                 get_class($field_type) === 'ACF_Pro_Features_Flexible_Content_Field' ||
-                get_class($field_type) === 'ACF_Pro_Features_Clone_Field'
+                get_class($field_type) === 'ACF_Pro_Features_Clone_Field' ||
+                get_class($field_type) === 'ACF_Pro_Features_Gallery_Field'
             )) {
                 $fields_registered = true;
                 break;

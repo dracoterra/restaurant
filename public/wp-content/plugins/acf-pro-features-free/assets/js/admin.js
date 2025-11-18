@@ -11,6 +11,7 @@
      */
     $(document).ready(function() {
         initRepeaterFields();
+        initGalleryFields();
         initFlexibleContentFields();
         initCloneFields();
     });
@@ -200,6 +201,494 @@
             
             frame.open();
         });
+    }
+    
+    /**
+     * Inicializar campos Gallery
+     */
+    function initGalleryFields() {
+        $('.acf-field-gallery').each(function() {
+            var $field = $(this);
+            var $gallery = $field.find('.acf-gallery');
+            
+            if ($gallery.length === 0) {
+                return;
+            }
+            
+            // Agregar imágenes
+            $gallery.on('click', '.acf-gallery-add', function(e) {
+                e.preventDefault();
+                openGalleryMediaFrame($gallery, false);
+            });
+            
+            // Editar galería
+            $gallery.on('click', '.acf-gallery-edit', function(e) {
+                e.preventDefault();
+                openGalleryMediaFrame($gallery, true);
+            });
+            
+            // Limpiar galería
+            $gallery.on('click', '.acf-gallery-clear', function(e) {
+                e.preventDefault();
+                if (confirm(acfProFeatures.strings.confirmDelete || '¿Eliminar todas las imágenes?')) {
+                    clearGallery($gallery);
+                }
+            });
+            
+            // Eliminar imagen individual
+            $gallery.on('click', '.acf-gallery-remove', function(e) {
+                e.preventDefault();
+                var $attachment = $(this).closest('.acf-gallery-attachment');
+                removeGalleryAttachment($gallery, $attachment);
+            });
+            
+            // Hacer imágenes ordenables
+            var $attachments = $gallery.find('.acf-gallery-attachments');
+            if ($attachments.length > 0 && typeof $.fn.sortable !== 'undefined') {
+                $attachments.sortable({
+                    items: '.acf-gallery-attachment',
+                    forceHelperSize: true,
+                    forcePlaceholderSize: true,
+                    scroll: true,
+                    opacity: 0.6,
+                    update: function() {
+                        updateGalleryValue($gallery);
+                    }
+                });
+            }
+            
+            // Seleccionar imagen para editar en sidebar
+            $gallery.on('click', '.acf-gallery-attachment', function(e) {
+                if ($(e.target).closest('.actions').length) {
+                    return; // No hacer nada si se hace clic en acciones
+                }
+                e.preventDefault();
+                var $attachment = $(this);
+                var imageId = $attachment.data('id');
+                if (imageId) {
+                    openGallerySidebar($gallery, imageId);
+                }
+            });
+            
+            // Cerrar sidebar
+            $gallery.on('click', '.acf-gallery-close', function(e) {
+                e.preventDefault();
+                closeGallerySidebar($gallery);
+            });
+            
+            // Actualizar metadatos
+            $gallery.on('click', '.acf-gallery-update', function(e) {
+                e.preventDefault();
+                updateGalleryAttachment($gallery);
+            });
+            
+            // Ordenamiento
+            $gallery.on('change', '.acf-gallery-sort', function(e) {
+                var sortValue = $(this).val();
+                if (sortValue) {
+                    sortGallery($gallery, sortValue);
+                }
+            });
+        });
+    }
+    
+    /**
+     * Abrir sidebar para editar imagen
+     */
+    function openGallerySidebar($gallery, imageId) {
+        var $side = $gallery.find('.acf-gallery-side');
+        var $sideData = $gallery.find('.acf-gallery-side-data');
+        var fieldKey = $gallery.data('key');
+        
+        // Marcar attachment como activo
+        $gallery.find('.acf-gallery-attachment').removeClass('active');
+        $gallery.find('.acf-gallery-attachment[data-id="' + imageId + '"]').addClass('active');
+        
+        // Cargar datos via AJAX
+        var nonce = '';
+        if (typeof acf !== 'undefined' && acf.get) {
+            nonce = acf.get('nonce') || '';
+        } else if (typeof acfProFeatures !== 'undefined') {
+            nonce = acfProFeatures.nonce || '';
+        }
+        
+        var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl : (typeof acfProFeatures !== 'undefined' ? acfProFeatures.ajaxUrl : '');
+        if (!ajaxUrl && typeof acf !== 'undefined' && acf.get) {
+            ajaxUrl = acf.get('ajaxurl') || '';
+        }
+        
+        $.ajax({
+            url: ajaxUrl || '/wp-admin/admin-ajax.php',
+            type: 'POST',
+            data: {
+                action: 'acf/fields/gallery/get_attachment',
+                id: imageId,
+                field_key: fieldKey,
+                nonce: nonce
+            },
+            success: function(response) {
+                $sideData.html(response);
+                $gallery.addClass('sidebar-open');
+                $side.css('width', '349px');
+            }
+        });
+    }
+    
+    /**
+     * Cerrar sidebar
+     */
+    function closeGallerySidebar($gallery) {
+        $gallery.removeClass('sidebar-open');
+        $gallery.find('.acf-gallery-side').css('width', '0');
+        $gallery.find('.acf-gallery-attachment').removeClass('active');
+    }
+    
+    /**
+     * Actualizar metadatos de attachment
+     */
+    function updateGalleryAttachment($gallery) {
+        var $sideData = $gallery.find('.acf-gallery-side-data');
+        var $active = $gallery.find('.acf-gallery-attachment.active');
+        var imageId = $active.data('id');
+        
+        if (!imageId) {
+            return;
+        }
+        
+        // Recopilar datos del formulario
+        var attachments = {};
+        attachments[imageId] = {};
+        
+        $sideData.find('input, textarea').each(function() {
+            var $field = $(this);
+            var name = $field.attr('name');
+            if (name && name.indexOf('attachments[' + imageId + ']') !== -1) {
+                var fieldName = name.match(/\[([^\]]+)\]$/);
+                if (fieldName && fieldName[1]) {
+                    attachments[imageId][fieldName[1]] = $field.val();
+                }
+            }
+        });
+        
+        // Enviar via AJAX
+        var nonce = '';
+        if (typeof acf !== 'undefined' && acf.get) {
+            nonce = acf.get('nonce') || '';
+        } else if (typeof acfProFeatures !== 'undefined') {
+            nonce = acfProFeatures.nonce || '';
+        }
+        
+        var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl : (typeof acfProFeatures !== 'undefined' ? acfProFeatures.ajaxUrl : '');
+        if (!ajaxUrl && typeof acf !== 'undefined' && acf.get) {
+            ajaxUrl = acf.get('ajaxurl') || '';
+        }
+        
+        $.ajax({
+            url: ajaxUrl || '/wp-admin/admin-ajax.php',
+            type: 'POST',
+            data: {
+                action: 'acf/fields/gallery/update_attachment',
+                attachments: attachments,
+                nonce: nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Recargar sidebar con datos actualizados
+                    openGallerySidebar($gallery, imageId);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Ordenar galería
+     */
+    function sortGallery($gallery, sortValue) {
+        var currentIds = getGalleryImageIds($gallery);
+        var fieldKey = $gallery.data('key');
+        
+        var nonce = '';
+        if (typeof acf !== 'undefined' && acf.get) {
+            nonce = acf.get('nonce') || '';
+        } else if (typeof acfProFeatures !== 'undefined') {
+            nonce = acfProFeatures.nonce || '';
+        }
+        
+        var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl : (typeof acfProFeatures !== 'undefined' ? acfProFeatures.ajaxUrl : '');
+        if (!ajaxUrl && typeof acf !== 'undefined' && acf.get) {
+            ajaxUrl = acf.get('ajaxurl') || '';
+        }
+        
+        $.ajax({
+            url: ajaxUrl || '/wp-admin/admin-ajax.php',
+            type: 'POST',
+            data: {
+                action: 'acf/fields/gallery/get_sort_order',
+                ids: currentIds,
+                sort: sortValue,
+                field_key: fieldKey,
+                nonce: nonce
+            },
+            success: function(response) {
+                if (response.success && response.data) {
+                    // Reordenar attachments
+                    var $attachments = $gallery.find('.acf-gallery-attachments');
+                    var $empty = $attachments.find('.acf-gallery-empty');
+                    $empty.remove();
+                    
+                    // Remover todos los attachments
+                    $attachments.find('.acf-gallery-attachment').detach();
+                    
+                    // Agregar en el nuevo orden
+                    response.data.forEach(function(id) {
+                        var $attachment = $gallery.find('.acf-gallery-attachment[data-id="' + id + '"]');
+                        if ($attachment.length) {
+                            $attachments.append($attachment);
+                        }
+                    });
+                    
+                    // Si no hay attachments, mostrar mensaje vacío
+                    if ($attachments.find('.acf-gallery-attachment').length === 0) {
+                        $attachments.html('<div class="acf-gallery-empty"><p>No hay imágenes seleccionadas</p></div>');
+                    }
+                    
+                    updateGalleryValue($gallery);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Abrir frame de medios para galería
+     */
+    function openGalleryMediaFrame($gallery, editMode) {
+        var library = $gallery.data('library') || 'all';
+        var mimeTypes = $gallery.data('mime-types') || '';
+        var currentIds = getGalleryImageIds($gallery);
+        
+        var frameOptions = {
+            title: editMode ? 'Editar Galería' : 'Agregar a Galería',
+            button: {
+                text: editMode ? 'Actualizar Galería' : 'Agregar a Galería'
+            },
+            library: {
+                type: 'image'
+            },
+            multiple: true
+        };
+        
+        // Limitar a imágenes subidas al post
+        if (library === 'uploadedTo') {
+            var postId = $('#post_ID').val();
+            if (postId) {
+                frameOptions.library.uploadedTo = postId;
+            }
+        }
+        
+        // Filtrar por tipo MIME
+        if (mimeTypes) {
+            frameOptions.library.type = mimeTypes.split(',').map(function(type) {
+                return type.trim();
+            });
+        }
+        
+        var frame = wp.media(frameOptions);
+        
+        // Seleccionar imágenes actuales si estamos editando
+        if (editMode && currentIds.length > 0) {
+            frame.on('open', function() {
+                var selection = frame.state().get('selection');
+                currentIds.forEach(function(id) {
+                    var attachment = wp.media.attachment(id);
+                    attachment.fetch();
+                    selection.add(attachment);
+                });
+            });
+        }
+        
+        frame.on('select', function() {
+            var attachments = frame.state().get('selection').toJSON();
+            var insert = $gallery.data('insert') || 'append';
+            
+            if (editMode) {
+                // Reemplazar todas las imágenes
+                clearGallery($gallery);
+                attachments.forEach(function(attachment) {
+                    addGalleryAttachment($gallery, attachment, 'append');
+                });
+            } else {
+                // Agregar nuevas imágenes
+                attachments.forEach(function(attachment) {
+                    addGalleryAttachment($gallery, attachment, insert);
+                });
+            }
+            
+            updateGalleryValue($gallery);
+            checkGalleryLimits($gallery);
+        });
+        
+        frame.open();
+    }
+    
+    /**
+     * Agregar attachment a la galería
+     */
+    function addGalleryAttachment($gallery, attachment, insert) {
+        var $attachments = $gallery.find('.acf-gallery-attachments');
+        var $empty = $attachments.find('.acf-gallery-empty');
+        var previewSize = $gallery.data('preview-size') || 'medium';
+        var fieldKey = $gallery.data('key');
+        
+        // Remover mensaje vacío
+        $empty.remove();
+        
+        // Obtener URL de imagen según tamaño
+        var imageUrl = attachment.url;
+        if (attachment.sizes && attachment.sizes[previewSize]) {
+            imageUrl = attachment.sizes[previewSize].url;
+        } else if (attachment.sizes && attachment.sizes.thumbnail) {
+            imageUrl = attachment.sizes.thumbnail.url;
+        }
+        
+        var $attachment = $('<div class="acf-gallery-attachment" data-id="' + attachment.id + '">' +
+            '<input type="hidden" name="acf[' + fieldKey + '][]" value="' + attachment.id + '" />' +
+            '<div class="acf-gallery-attachment-inner">' +
+            '<div class="acf-gallery-attachment-image">' +
+            '<img src="' + imageUrl + '" alt="' + (attachment.alt || '') + '" title="' + (attachment.title || '') + '" />' +
+            '</div>' +
+            '<div class="acf-gallery-attachment-actions">' +
+            '<a href="#" class="acf-icon acf-icon-move" title="Mover"></a>' +
+            '<a href="#" class="acf-icon acf-icon-edit" title="Editar"></a>' +
+            '<a href="#" class="acf-icon acf-icon-cancel acf-gallery-remove" title="Eliminar"></a>' +
+            '</div>' +
+            '</div>' +
+            '</div>');
+        
+        if (insert === 'prepend') {
+            $attachments.prepend($attachment);
+        } else {
+            $attachments.append($attachment);
+        }
+    }
+    
+    /**
+     * Eliminar attachment de la galería
+     */
+    function removeGalleryAttachment($gallery, $attachment) {
+        $attachment.fadeOut(300, function() {
+            $(this).remove();
+            updateGalleryValue($gallery);
+            checkGalleryLimits($gallery);
+            
+            // Mostrar mensaje vacío si no hay imágenes
+            var $attachments = $gallery.find('.acf-gallery-attachments');
+            if ($attachments.find('.acf-gallery-attachment').length === 0) {
+                $attachments.html('<div class="acf-gallery-empty"><p>No hay imágenes seleccionadas</p></div>');
+            }
+        });
+    }
+    
+    /**
+     * Limpiar galería
+     */
+    function clearGallery($gallery) {
+        var $attachments = $gallery.find('.acf-gallery-attachments');
+        $attachments.find('.acf-gallery-attachment').remove();
+        $attachments.html('<div class="acf-gallery-empty"><p>No hay imágenes seleccionadas</p></div>');
+        updateGalleryValue($gallery);
+    }
+    
+    /**
+     * Obtener IDs de imágenes de la galería
+     */
+    function getGalleryImageIds($gallery) {
+        var ids = [];
+        $gallery.find('.acf-gallery-attachment').each(function() {
+            var id = $(this).data('id');
+            if (id) {
+                ids.push(id);
+            }
+        });
+        return ids;
+    }
+    
+    /**
+     * Actualizar valor de la galería
+     */
+    function updateGalleryValue($gallery) {
+        var ids = getGalleryImageIds($gallery);
+        var $input = $gallery.find('.acf-gallery-value');
+        $input.val(ids.join(','));
+    }
+    
+    /**
+     * Editar imagen individual
+     */
+    function editGalleryImage($gallery, imageId) {
+        var frame = wp.media({
+            title: 'Editar Imagen',
+            button: {
+                text: 'Actualizar'
+            },
+            library: {
+                type: 'image'
+            },
+            multiple: false
+        });
+        
+        frame.on('open', function() {
+            var selection = frame.state().get('selection');
+            var attachment = wp.media.attachment(imageId);
+            attachment.fetch();
+            selection.add(attachment);
+        });
+        
+        frame.on('select', function() {
+            var attachment = frame.state().get('selection').first().toJSON();
+            var $attachment = $gallery.find('.acf-gallery-attachment[data-id="' + imageId + '"]');
+            
+            if ($attachment.length > 0) {
+                // Actualizar imagen
+                var previewSize = $gallery.data('preview-size') || 'medium';
+                var imageUrl = attachment.url;
+                if (attachment.sizes && attachment.sizes[previewSize]) {
+                    imageUrl = attachment.sizes[previewSize].url;
+                }
+                
+                $attachment.find('img').attr('src', imageUrl);
+                $attachment.find('img').attr('alt', attachment.alt || '');
+                $attachment.find('img').attr('title', attachment.title || '');
+            }
+        });
+        
+        frame.open();
+    }
+    
+    /**
+     * Verificar límites de la galería
+     */
+    function checkGalleryLimits($gallery) {
+        var min = parseInt($gallery.data('min')) || 0;
+        var max = parseInt($gallery.data('max')) || 0;
+        var currentCount = $gallery.find('.acf-gallery-attachment').length;
+        
+        // Ocultar/mostrar botones según límites
+        if (max > 0 && currentCount >= max) {
+            $gallery.find('.acf-gallery-add').prop('disabled', true).addClass('disabled');
+        } else {
+            $gallery.find('.acf-gallery-add').prop('disabled', false).removeClass('disabled');
+        }
+        
+        // Mostrar mensaje si está por debajo del mínimo
+        if (min > 0 && currentCount < min) {
+            var $notice = $gallery.find('.acf-notice-min');
+            if ($notice.length === 0) {
+                $notice = $('<div class="acf-notice acf-notice-min">Se requieren al menos ' + min + ' imágenes.</div>');
+                $gallery.prepend($notice);
+            }
+        } else {
+            $gallery.find('.acf-notice-min').remove();
+        }
     }
     
     /**

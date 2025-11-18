@@ -7,6 +7,8 @@ Plugin de WordPress que recrea las funcionalidades de ACF PRO (Advanced Custom F
 - ✅ **Campo Repeater**: Crea campos repetibles con sub-campos
 - ✅ **Campo Flexible Content**: Crea layouts flexibles con diferentes secciones
 - ✅ **Campo Clone**: Clona campos o grupos de campos existentes
+- ✅ **Campo Gallery**: Gestiona colecciones de imágenes con sidebar de edición
+- ✅ **Options Pages**: Crea páginas de opciones globales en el admin
 - ✅ **Integración GraphQL**: Compatible con WPGraphQL y WPGraphQL for ACF
 - ✅ **100% Seguro**: Sin código malicioso, código abierto y revisable
 - ✅ **Compatible con ACF Gratuito**: Funciona perfectamente con la versión gratuita de ACF
@@ -85,6 +87,60 @@ El campo Clone te permite reutilizar campos o grupos de campos:
 2. Selecciona qué campos o grupos quieres clonar
 3. Los campos se expandirán automáticamente
 
+**Ejemplo de código:**
+```php
+// Obtener valor del clone
+$cloned_data = get_field('cloned_fields');
+```
+
+### Campo Gallery
+
+El campo Gallery te permite gestionar múltiples imágenes:
+
+1. Crea un campo de tipo **Gallery**
+2. Configura el tamaño de vista previa y límites
+3. Agrega imágenes desde la biblioteca de medios
+4. Edita metadatos de imágenes desde el sidebar
+5. Reordena imágenes por drag & drop
+
+**Ejemplo de código:**
+```php
+// Obtener galería
+$gallery = get_field('image_gallery');
+
+if ($gallery) {
+    foreach ($gallery as $image) {
+        echo '<img src="' . $image['url'] . '" alt="' . $image['alt'] . '" />';
+    }
+}
+```
+
+### Options Pages
+
+Las Options Pages te permiten crear páginas de configuración globales:
+
+1. Registra una página de opciones en tu `functions.php`:
+```php
+if (function_exists('acf_add_options_page')) {
+    acf_add_options_page(array(
+        'page_title' => 'Configuración General',
+        'menu_title' => 'Configuración',
+        'menu_slug' => 'general-settings',
+        'capability' => 'edit_posts',
+    ));
+}
+```
+
+2. Crea un grupo de campos y asígnalo a la página de opciones
+3. Accede a los datos con `get_field('campo', 'option')`
+
+**Ejemplo de código:**
+```php
+// Obtener opción global
+$logo = get_field('site_logo', 'option');
+$phone = get_field('contact_phone', 'option');
+```
+
 ## 🔌 Integración con GraphQL
 
 Si tienes WPGraphQL y WPGraphQL for ACF instalados, todos los campos se expondrán automáticamente en GraphQL.
@@ -125,6 +181,8 @@ acf-pro-features-free/
 │   ├── class-repeater-field.php
 │   ├── class-flexible-content-field.php
 │   ├── class-clone-field.php
+│   ├── class-gallery-field.php
+│   ├── class-options-pages.php
 │   ├── class-graphql-integration.php
 │   ├── class-admin-page.php
 │   └── functions.php
@@ -144,6 +202,9 @@ El plugin incluye funciones auxiliares para trabajar con los campos:
 - `acf_pro_features_get_flexible_content_field($field_name, $post_id)` - Obtener valor de flexible content
 - `acf_pro_features_get_field($field_name, $post_id)` - Obtener campo (compatible con PRO y Free)
 - `acf_pro_features_is_pro_active()` - Verificar si ACF PRO está activo
+- `acf_add_options_page($args)` - Agregar página de opciones
+- `acf_add_options_sub_page($args)` - Agregar sub-página de opciones
+- `acf_get_options_pages()` - Obtener páginas de opciones registradas
 
 ## ⚙️ Configuración
 

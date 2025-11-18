@@ -69,6 +69,11 @@ class ACF_Pro_Features_GraphQL_Integration {
             return $this->format_clone_for_graphql($value, $field);
         }
         
+        // Si es un campo gallery
+        if ($field['type'] === 'gallery' && is_array($value)) {
+            return $this->format_gallery_for_graphql($value, $field);
+        }
+        
         return $value;
     }
     
@@ -141,6 +146,35 @@ class ACF_Pro_Features_GraphQL_Integration {
     }
     
     /**
+     * Formatear gallery para GraphQL
+     */
+    private function format_gallery_for_graphql($value, $field) {
+        $formatted = array();
+        
+        foreach ($value as $image_id) {
+            if (!is_numeric($image_id)) {
+                continue;
+            }
+            
+            $image = wp_get_attachment_image_src($image_id, 'full');
+            if ($image) {
+                $formatted[] = array(
+                    'id' => $image_id,
+                    'url' => $image[0],
+                    'width' => $image[1],
+                    'height' => $image[2],
+                    'alt' => get_post_meta($image_id, '_wp_attachment_image_alt', true),
+                    'title' => get_the_title($image_id),
+                    'caption' => wp_get_attachment_caption($image_id),
+                    'description' => get_post_field('post_content', $image_id),
+                );
+            }
+        }
+        
+        return $formatted;
+    }
+    
+    /**
      * Formatear clone para GraphQL
      */
     private function format_clone_for_graphql($value, $field) {
@@ -202,6 +236,12 @@ class ACF_Pro_Features_GraphQL_Integration {
      */
     private function format_field_value($value, $field) {
         switch ($field['type']) {
+            case 'gallery':
+                if (is_array($value)) {
+                    return $this->format_gallery_for_graphql($value, $field);
+                }
+                return array();
+                
             case 'image':
             case 'file':
                 if (is_numeric($value)) {

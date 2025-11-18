@@ -171,7 +171,16 @@ wp-content/plugins/acf-pro-features-free/
 
 ## Estado Final
 
-✅ **Todas las funcionalidades de ACF PRO están implementadas y funcionando**
+✅ **3 de las 5 funcionalidades principales de ACF PRO están implementadas y funcionando**
 
-El plugin está listo para uso en producción y proporciona todas las características principales de ACF PRO de forma gratuita.
+El plugin está listo para uso en producción y proporciona las características principales de ACF PRO de forma gratuita.
+
+### Funcionalidades Faltantes
+
+Para una implementación completa de ACF PRO, faltan las siguientes funcionalidades:
+
+1. ❌ **Gallery Field** - Campo para gestionar múltiples imágenes
+2. ❌ **Options Pages** - Páginas de opciones globales en el admin
+
+Ver `docs/ACF_PRO_MISSING_FEATURES.md` para más detalles sobre estas funcionalidades faltantes.
 
