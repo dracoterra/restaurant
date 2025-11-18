@@ -3,7 +3,5 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <CommonNotificationToast />
   </div>
 </template>
-

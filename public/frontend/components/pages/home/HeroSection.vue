@@ -66,20 +66,25 @@
 </template>
 
 <script setup lang="ts">
+interface Image {
+  url?: string
+  sourceUrl?: string
+  alt?: string
+  altText?: string
+}
+
 interface Props {
   subtitle?: string
   title?: string
   description?: string
-  mainImage?: {
-    url: string
-    alt?: string
-  }
+  mainImage?: Image | null
 }
 
 withDefaults(defineProps<Props>(), {
   subtitle: 'art of fine dining',
   title: 'Dining redefined with <span>every bite</span>',
-  description: 'Immerse yourself in a dining experience like no other, where every dish is a masterpiece of flavor, crafted with care and precision. From the freshest ingredients.'
+  description: 'Immerse yourself in a dining experience like no other, where every dish is a masterpiece of flavor, crafted with care and precision. From the freshest ingredients.',
+  mainImage: null
 })
 </script>
 

@@ -5,15 +5,12 @@
         <div class="container">
           <!-- Logo Start -->
           <NuxtLink class="navbar-brand" to="/">
-            <img :src="settings.logo" alt="Logo">
+            <img :src="settings?.logo || '/images/logo.svg'" alt="Logo">
           </NuxtLink>
           <!-- Logo End -->
 
           <!-- Main Menu Start -->
-          <div 
-            class="navbar-collapse main-menu show" 
-            style="display: flex !important; visibility: visible !important; opacity: 1 !important; height: auto !important; overflow: visible !important;"
-          >
+          <div class="collapse navbar-collapse main-menu">
             <div class="nav-menu-wrapper">
               <ul class="navbar-nav mr-auto" id="menu" v-if="menuItems.length > 0">
                 <li 
@@ -34,12 +31,12 @@
                   </ul>
                 </li>
               </ul>
-              <div v-else-if="menuStore.loading" class="menu-loading" style="color: var(--text-color); padding: 10px;">
+              <div v-else-if="menuStore.loading" class="menu-loading">
                 Cargando menú...
               </div>
-              <div v-else-if="menuStore.error" class="menu-error" style="color: #ff6b6b; padding: 10px; font-size: 14px;">
+              <div v-else-if="menuStore.error" class="menu-error">
                 <span v-if="menuStore.error.includes('CONNECTION_REFUSED') || menuStore.error.includes('Failed to fetch')">
-                  ⚠️ Backend no disponible. Por favor, inicia el backend con: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px;">cd backend && npm run dev</code>
+                  ⚠️ Backend no disponible. Por favor, inicia el backend con: <code>cd backend && npm run dev</code>
                 </span>
                 <span v-else>
                   Error: {{ menuStore.error }}

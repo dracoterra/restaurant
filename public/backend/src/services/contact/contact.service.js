@@ -1,5 +1,11 @@
 const logger = require('../../logger');
-const nodemailer = require('nodemailer');
+// nodemailer es opcional - solo se usa si está disponible
+let nodemailer = null;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  logger.warn('nodemailer no está instalado. El envío de emails no estará disponible.');
+}
 
 class ContactService {
   constructor(options) {

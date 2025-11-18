@@ -66,7 +66,6 @@
 </template>
 
 <script setup lang="ts">
-// Deshabilitar SSR para evitar problemas de hidratación
 definePageMeta({
   ssr: false
 })
@@ -75,15 +74,12 @@ import { ref, computed, onMounted } from 'vue'
 import { usePagesStore, type Page } from '~/stores/pages'
 import { useInsightsStore } from '~/stores/insights'
 
-// Stores
 const pagesStore = usePagesStore()
 const insightsStore = useInsightsStore()
 
-// Page data
 const page = ref<Page | null>(null)
 const acf = computed(() => page.value?.acf?.homePageSections)
 
-// Blog posts (desde insights)
 const blogPosts = computed(() => {
   if (!insightsStore.insights || !Array.isArray(insightsStore.insights)) {
     return []
@@ -91,16 +87,13 @@ const blogPosts = computed(() => {
   return insightsStore.insights.slice(0, 3)
 })
 
-// Initialize scripts
 const initScripts = () => {
   if (process.client) {
     setTimeout(() => {
-      // WOW animations
       if ((window as any).WOW) {
         new (window as any).WOW().init()
       }
       
-      // Counters
       if ((window as any).jQuery) {
         const $ = (window as any).jQuery
         if ($.fn.counterUp) {
@@ -109,11 +102,7 @@ const initScripts = () => {
             time: 2000
           })
         }
-      }
-      
-      // Video popup
-      if ((window as any).jQuery) {
-        const $ = (window as any).jQuery
+        
         if ($.fn.magnificPopup) {
           $('.popup-video').magnificPopup({
             type: 'iframe',
@@ -130,15 +119,11 @@ const initScripts = () => {
 
 onMounted(async () => {
   try {
-    // Obtener página Home y insights
     await Promise.all([
       pagesStore.fetchPageBySlug('home').catch(() => null).then(p => { page.value = p }),
-      insightsStore.fetchInsights({ limit: 3 }).catch(() => {
-        // Error loading insights, using empty array
-      })
+      insightsStore.fetchInsights({ limit: 3 }).catch(() => {})
     ])
     
-    // Actualizar meta tags si hay SEO
     if (page.value?.seo?.title) {
       useHead({
         title: page.value.seo.title,
@@ -155,7 +140,6 @@ onMounted(async () => {
       })
     }
     
-    // Inicializar scripts
     initScripts()
   } catch (error) {
     useHead({

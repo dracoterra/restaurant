@@ -1,22 +1,12 @@
 <template>
-  <div>
-    <ClientOnly>
-      <template #default>
-        <LayoutPreloader />
-      </template>
-      <template #fallback>
-        <!-- Placeholder durante SSR -->
-      </template>
-    </ClientOnly>
-    <LayoutHeader />
-    <main>
-      <slot />
-    </main>
-    <LayoutFooter />
+  <div id="app">
+    <LayoutPreloader />
+    <div id="app-content">
+      <LayoutHeader />
+      <main id="main-content">
+        <slot />
+      </main>
+      <LayoutFooter />
+    </div>
   </div>
 </template>
-
-<script setup lang="ts">
-// Layout por defecto con Header, Footer y Preloader
-</script>
-

@@ -12,6 +12,25 @@ export interface ApiError {
   data?: any
 }
 
+// Helper para mejorar mensajes de error
+function improveErrorMessage(error: any): string {
+  const message = error.message || 'Error en la petición'
+  
+  // Detectar errores de conexión
+  if (
+    message.includes('fetch') || 
+    message.includes('CONNECTION_REFUSED') || 
+    message.includes('ERR_CONNECTION_REFUSED') ||
+    message.includes('Failed to fetch') ||
+    message.includes('NetworkError') ||
+    (error.status === undefined && message.includes('localhost'))
+  ) {
+    return 'Backend no disponible. Por favor, inicia el backend con: cd backend && npm run dev'
+  }
+  
+  return message
+}
+
 export function useApi() {
   // Obtener la configuración de forma segura
   let apiBase = 'http://localhost:3030'
@@ -43,7 +62,9 @@ export function useApi() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          // Timeout más corto para no bloquear la UI
+          timeout: 5000
         })
 
         // FeathersJS puede devolver el objeto directamente o envuelto en { data: ... }
@@ -58,7 +79,7 @@ export function useApi() {
         }
       } catch (error: any) {
         const apiError: ApiError = {
-          message: error.message || 'Error en la petición',
+          message: improveErrorMessage(error),
           status: error.status || error.statusCode || 500,
           data: error.data || error
         }
@@ -85,7 +106,7 @@ export function useApi() {
         }
       } catch (error: any) {
         const apiError: ApiError = {
-          message: error.message || 'Error en la petición',
+          message: improveErrorMessage(error),
           status: error.status || error.statusCode || 500,
           data: error.data || error
         }
@@ -112,7 +133,7 @@ export function useApi() {
         }
       } catch (error: any) {
         const apiError: ApiError = {
-          message: error.message || 'Error en la petición',
+          message: improveErrorMessage(error),
           status: error.status || error.statusCode || 500,
           data: error.data || error
         }
@@ -138,7 +159,7 @@ export function useApi() {
         }
       } catch (error: any) {
         const apiError: ApiError = {
-          message: error.message || 'Error en la petición',
+          message: improveErrorMessage(error),
           status: error.status || error.statusCode || 500,
           data: error.data || error
         }
