@@ -43,6 +43,18 @@ app.configure(middleware);
 // Host the public folder (AFTER services)
 app.use('/', express.static('public'));
 
+// Middleware para logging de acceso HTTP
+app.use((req, res, next) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const responseTime = Date.now() - start;
+    logger.access(req, res, responseTime);
+  });
+  
+  next();
+});
+
 // Configure a middleware for 404s and the error handler
 app.use(express.notFound());
 app.use(express.errorHandler({ logger }));

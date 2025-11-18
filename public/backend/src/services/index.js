@@ -7,6 +7,7 @@ const pages = require('./pages/pages.service');
 const contact = require('./contact/contact.service');
 const reservations = require('./reservations/reservations.service');
 const debug = require('./debug/debug.service');
+const sitemap = require('./sitemap/sitemap.service');
 
 module.exports = function (app) {
   app.configure(insights);
@@ -18,5 +19,6 @@ module.exports = function (app) {
   app.configure(contact);
   app.configure(reservations);
   app.configure(debug);
+  app.configure(sitemap);
 };
 

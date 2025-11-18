@@ -5,6 +5,7 @@ const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
 const cache = require('../../utils/cache');
+const fragments = require('../../utils/graphql-fragments');
 
 class PagesService {
   constructor(options) {
@@ -102,27 +103,12 @@ class PagesService {
 
   async get(id, params) {
     try {
-      // Primero intentar con query básica
+      // Primero intentar con query básica usando fragmentos
       let graphqlQuery = `
         query GetPageBySlug($slug: ID!) {
           page(id: $slug, idType: URI) {
-            id
-            databaseId
-            title
-            slug
-            content
-            date
-            modified
-            featuredImage {
-              node {
-                sourceUrl
-                altText
-                mediaDetails {
-                  width
-                  height
-                }
-              }
-            }
+            ${fragments.PAGE_BASIC_FIELDS}
+            ${fragments.FEATURED_IMAGE_FRAGMENT}
           }
         }
       `;

@@ -28,33 +28,75 @@ export const useProductsStore = defineStore('products', {
     loading: false,
     error: null as string | null,
     total: 0,
-    currentCategory: ''
+    currentCategory: '',
+    limit: 20,
+    skip: 0,
+    hasMore: false
   }),
 
   actions: {
-    async fetchProducts(params: { category?: string; search?: string; limit?: number } = {}) {
+    async fetchProducts(params: { category?: string; search?: string; limit?: number; append?: boolean } = {}) {
       this.loading = true
       this.error = null
-      this.currentCategory = params.category || ''
+      
+      // Solo actualizar categoría si no es append
+      if (!params.append) {
+        this.currentCategory = params.category || ''
+        this.skip = 0
+      }
+      
+      const limit = params.limit || this.limit
 
       try {
         const api = useApi()
+        const queryParams: Record<string, any> = {
+          category: params.category || this.currentCategory,
+          search: params.search || '',
+          $limit: limit,
+          $skip: params.append ? this.skip : 0
+        }
+        
         const response = await api.get('/products', {
-          params: {
-            category: params.category || '',
-            search: params.search || '',
-            $limit: params.limit || 20
-          }
+          params: queryParams
         })
 
-        this.products = response.data.data || []
+        const newProducts = response.data.data || []
+        
+        // Si es append, agregar a la lista existente
+        if (params.append) {
+          this.products = [...this.products, ...newProducts]
+        } else {
+          this.products = newProducts
+        }
+        
         this.total = response.data.total || 0
+        this.skip += newProducts.length
+        this.hasMore = this.products.length < this.total
       } catch (error: any) {
         this.error = error.message || 'Error al cargar productos'
-        this.products = []
+        if (!params.append) {
+          this.products = []
+        }
       } finally {
         this.loading = false
       }
+    },
+    
+    async loadMore() {
+      if (!this.hasMore || this.loading) {
+        return
+      }
+      
+      await this.fetchProducts({
+        category: this.currentCategory,
+        append: true
+      })
+    },
+    
+    reset() {
+      this.products = []
+      this.skip = 0
+      this.hasMore = false
     },
 
     async fetchCategories() {

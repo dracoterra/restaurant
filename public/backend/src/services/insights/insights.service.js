@@ -4,6 +4,7 @@ const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
 const cache = require('../../utils/cache');
+const fragments = require('../../utils/graphql-fragments');
 
 class InsightsService {
   constructor(options) {
@@ -61,7 +62,7 @@ class InsightsService {
         }
       }
       
-      // Completar la query (el resto es igual)
+      // Completar la query usando fragmentos
       graphqlQuery += `
             pageInfo {
               hasNextPage
@@ -76,24 +77,10 @@ class InsightsService {
                 content
                 date
                 modified
-                author {
-                  node {
-                    name
-                    slug
-                  }
-                }
-                featuredImage {
-                  node {
-                    sourceUrl
-                    altText
-                  }
-                }
-                categories {
-                  nodes {
-                    name
-                    slug
-                  }
-                }
+                ${fragments.AUTHOR_FRAGMENT.replace('author {', 'author {')}
+                ${fragments.FEATURED_IMAGE_FRAGMENT.replace('featuredImage {', 'featuredImage {')}
+                ${fragments.CATEGORIES_FRAGMENT.replace('categories {', 'categories {')}
+                ${fragments.TAGS_FRAGMENT.replace('tags {', 'tags {')}
               }
             }
           }

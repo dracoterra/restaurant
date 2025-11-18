@@ -67,89 +67,68 @@
 </template>
 
 <script setup lang="ts">
+import { usePagesStore } from '~/stores/pages'
+import { useInsightsStore } from '~/stores/insights'
+import { useSettingsStore } from '~/stores/settings'
+import { useSEO, generateOrganizationStructuredData } from '~/composables/useSEO'
+
 definePageMeta({
   ssr: false
 })
 
-import { ref, computed, onMounted } from 'vue'
-import { usePagesStore, type Page } from '~/stores/pages'
-import { useInsightsStore } from '~/stores/insights'
-
 const pagesStore = usePagesStore()
 const insightsStore = useInsightsStore()
+const settingsStore = useSettingsStore()
 
-const page = ref<Page | null>(null)
-const acf = computed(() => page.value?.acf?.homePageSections)
-
-const blogPosts = computed(() => {
-  if (!insightsStore.insights || !Array.isArray(insightsStore.insights)) {
-    return []
-  }
-  return insightsStore.insights.slice(0, 3)
-})
-
-const initScripts = () => {
-  if (process.client) {
-    setTimeout(() => {
-      if ((window as any).WOW) {
-        new (window as any).WOW().init()
-      }
-      
-      if ((window as any).jQuery) {
-        const $ = (window as any).jQuery
-        if ($.fn.counterUp) {
-          $('.counter').counterUp({
-            delay: 10,
-            time: 2000
-          })
-        }
-        
-        if ($.fn.magnificPopup) {
-          $('.popup-video').magnificPopup({
-            type: 'iframe',
-            mainClass: 'mfp-fade',
-            removalDelay: 160,
-            preloader: false,
-            fixedContentPos: false
-          })
-        }
-      }
-    }, 500)
-  }
-}
-
+// Cargar datos
 onMounted(async () => {
   try {
     await Promise.all([
-      pagesStore.fetchPageBySlug('home').catch(() => null).then(p => { page.value = p }),
-      insightsStore.fetchInsights({ limit: 3 }).catch(() => {})
+      pagesStore.fetchPageBySlug('home'),
+      insightsStore.fetchInsights({ limit: 3 }),
+      settingsStore.fetchSettings()
     ])
-    
-    if (page.value?.seo?.title) {
-      useHead({
-        title: page.value.seo.title,
-        meta: [
-          { name: 'description', content: page.value.seo.metaDesc || page.value.excerpt }
-        ]
-      })
-    } else {
-      useHead({
-        title: 'Home - Restaurant',
-        meta: [
-          { name: 'description', content: acf.value?.heroDescription || 'Dining redefined with every bite' }
-        ]
-      })
-    }
-    
-    initScripts()
   } catch (error) {
-    useHead({
-      title: 'Home - Restaurant',
-      meta: [
-        { name: 'description', content: 'Dining redefined with every bite' }
-      ]
-    })
-    initScripts()
+    // Error manejado por stores
   }
 })
+
+// Obtener datos
+const page = computed(() => pagesStore.currentPage)
+const acf = computed(() => page.value?.acf?.homePageSections)
+const blogPosts = computed(() => insightsStore.insights.slice(0, 3))
+const settings = computed(() => settingsStore.settings)
+
+// SEO y Structured Data
+watch([page, settings], ([newPage, newSettings]) => {
+  if (newPage && newSettings) {
+    // SEO básico
+    useSEO({
+      title: newPage.seo?.title || newPage.title,
+      description: newPage.seo?.metaDesc || newPage.excerpt,
+      image: newPage.featuredImage?.url,
+      type: 'website'
+    })
+    
+    // Structured Data para organización
+    const orgData = generateOrganizationStructuredData({
+      name: newSettings.siteInfo?.name || 'Restaurant',
+      url: newSettings.siteInfo?.url || 'http://localhost:3000',
+      logo: newSettings.logo,
+      description: newSettings.siteInfo?.description,
+      address: {
+        streetAddress: newSettings.address,
+        addressLocality: 'Kentucky',
+        addressCountry: 'US'
+      },
+      contactPoint: {
+        telephone: newSettings.phone,
+        email: newSettings.email,
+        contactType: 'Customer Service'
+      }
+    })
+    
+    useSEO({}, orgData)
+  }
+}, { immediate: true })
 </script>
