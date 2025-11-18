@@ -1,5 +1,6 @@
 const { GraphQLClient } = require('graphql-request');
 const axios = require('axios');
+const { NotFound } = require('@feathersjs/errors');
 const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
@@ -327,7 +328,7 @@ class PagesService {
       }
 
       if (!data.page) {
-        throw new Error('Página no encontrada');
+        throw new NotFound(`Página con slug "${id}" no encontrada`);
       }
 
       // Log para debugging ACF
@@ -437,6 +438,21 @@ class PagesService {
       return transformedPage;
     } catch (error) {
       logger.error('Error al obtener página de WordPress:', error);
+      // Si el error ya es un error de FeathersJS, re-lanzarlo
+      if (error.code && error.name) {
+        throw error;
+      }
+      // Si es un error de GraphQL que indica que la página no existe
+      if (error.response?.errors) {
+        const graphqlErrors = error.response.errors;
+        const notFoundError = graphqlErrors.find(err => 
+          err.message && err.message.toLowerCase().includes('not found') ||
+          err.message && err.message.toLowerCase().includes('no existe')
+        );
+        if (notFoundError) {
+          throw new NotFound(`Página con slug "${id}" no encontrada`);
+        }
+      }
       throw new Error(`Error al obtener página: ${error.message}`);
     }
   }

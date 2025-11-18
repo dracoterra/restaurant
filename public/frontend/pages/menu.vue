@@ -173,8 +173,14 @@ onMounted(async () => {
     // Cargar productos
     await productsStore.fetchProducts({ limit: 100 })
     
-    // Obtener página por slug
-    page.value = await pagesStore.fetchPageBySlug('menu')
+    // Intentar obtener página por slug (puede no existir en WordPress)
+    try {
+      page.value = await pagesStore.fetchPageBySlug('menu')
+    } catch (error: any) {
+      // Si la página no existe en WordPress, usar valores por defecto
+      // Esto es normal si la página "menu" no se ha creado en WordPress
+      page.value = null
+    }
     
     // Actualizar meta tags si hay SEO
     if (page.value?.seo?.title) {

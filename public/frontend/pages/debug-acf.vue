@@ -187,8 +187,9 @@ const pageTypes = [
   { value: 'home', label: 'Home', section: 'homePageSections' },
   { value: 'about', label: 'About', section: 'aboutPageSections' },
   { value: 'contact', label: 'Contact', section: 'contactPageSections' },
-  { value: 'services', label: 'Services', section: 'servicesPageSections' },
-  { value: 'menu', label: 'Menu', section: 'menuPageSections' }
+  { value: 'services', label: 'Services', section: 'servicesPageSections' }
+  // Nota: 'menu' no es una página de WordPress, es solo el nombre del menú de navegación
+  // Si necesitas una página "menu" en WordPress, créala con el slug "menu"
 ]
 
 const selectedPage = ref<string>('home')
@@ -211,7 +212,7 @@ const debugReport = computed(() => {
   if (!pageData.value || !debugInfo.value) return ''
   return generateReport(
     pageData.value, 
-    selectedPage.value as 'home' | 'about' | 'contact' | 'services' | 'menu'
+    selectedPage.value as 'home' | 'about' | 'contact' | 'services'
   )
 })
 
@@ -231,7 +232,11 @@ const loadPage = async (pageType: string) => {
       logAcfData(page, pageType as any)
     }
   } catch (err: any) {
-    error.value = err.message || 'Error al cargar la página'
+    if (err.status === 404) {
+      error.value = `Página "${pageType}" no encontrada en WordPress`
+    } else {
+      error.value = err.message || 'Error al cargar la página'
+    }
     console.error('Error loading page:', err)
   } finally {
     loading.value = false

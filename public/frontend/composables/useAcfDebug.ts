@@ -115,13 +115,12 @@ export function useAcfDebug() {
   /**
    * Generar reporte de debugging
    */
-  const generateReport = (page: any, pageType: 'home' | 'about' | 'contact' | 'services' | 'menu' = 'home'): string => {
+  const generateReport = (page: any, pageType: 'home' | 'about' | 'contact' | 'services' = 'home'): string => {
     const expectedSections = {
       home: ['homePageSections'],
       about: ['aboutPageSections'],
       contact: ['contactPageSections'],
-      services: ['servicesPageSections'],
-      menu: ['menuPageSections']
+      services: ['servicesPageSections']
     }
 
     const sections = expectedSections[pageType] || []
