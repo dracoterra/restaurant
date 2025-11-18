@@ -14,8 +14,8 @@
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-lg-3 col-md-6" v-for="(dish, index) in dishes" :key="index">
+      <div class="row" v-if="!productsStore.loading && dishes.length > 0">
+        <div class="col-lg-3 col-md-6" v-for="(dish, index) in dishes" :key="dish.id || index">
           <!-- Our Dish Item Start -->
           <div class="our-dish-item wow fadeInUp" :data-wow-delay="`${index * 0.2}s`">
             <div class="our-dish-img">
@@ -29,6 +29,12 @@
             </div>
           </div>
           <!-- Our Dish Item End -->
+        </div>
+      </div>
+
+      <div class="row" v-else-if="productsStore.loading">
+        <div class="col-lg-12">
+          <p class="text-center">Cargando platos...</p>
         </div>
       </div>
 
@@ -46,7 +52,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
+import { useProductsStore, type Product } from '~/stores/products'
+
 interface Dish {
+  id?: string
   title: string
   description: string
   image: string
@@ -58,31 +68,32 @@ interface Props {
   dishes?: Dish[]
 }
 
-withDefaults(defineProps<Props>(), {
-  subtitle: 'our main dishes',
-  title: 'Satisfy your cravings with our signature mains',
-  dishes: () => [
-    {
-      title: 'soups',
-      description: 'Warm, comforting, and full of flavor, our soups are the perfect start to any meal.',
-      image: '/images/our-dish-image-1.jpg'
-    },
-    {
-      title: 'salads',
-      description: 'Refreshing, vibrant, and full of fresh flavors, our salads are crafted to senses.',
-      image: '/images/our-dish-image-2.jpg'
-    },
-    {
-      title: 'main dishes',
-      description: 'Offering bold flavors and expertly crafted recipes that cater to every taste.',
-      image: '/images/our-dish-image-3.jpg'
-    },
-    {
-      title: 'appetizers',
-      description: 'Our appetizers are the perfect way to begin your dining experience flavors.',
-      image: '/images/our-dish-image-4.jpg'
+const props = defineProps<Props>()
+
+const productsStore = useProductsStore()
+
+// Si se pasan dishes como prop, usarlos; si no, usar productos
+const dishes = computed<Dish[]>(() => {
+  if (props.dishes && props.dishes.length > 0) {
+    return props.dishes
+  }
+  
+  // Usar productos desde el store, limitar a 4
+  return productsStore.products.slice(0, 4).map((product: Product) => ({
+    id: product.id,
+    title: product.name,
+    description: product.shortDescription || product.description || '',
+    image: product.image?.url || '/images/our-dish-image-1.jpg'
+  }))
+})
+
+onMounted(async () => {
+  // Si no hay dishes pasados como prop, cargar productos
+  if (!props.dishes || props.dishes.length === 0) {
+    if (productsStore.products.length === 0) {
+      await productsStore.fetchProducts({ limit: 4 })
     }
-  ]
+  }
 })
 </script>
 

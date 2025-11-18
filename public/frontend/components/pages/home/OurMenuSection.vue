@@ -73,8 +73,8 @@
                   <div class="col-lg-12">
                     <div class="our-menu-list">
                       <div 
-                        v-for="(item, index) in menuItems.appetizers" 
-                        :key="index"
+                        v-for="(item, index) in computedMenuItems.appetizers" 
+                        :key="item.id || index"
                         class="our-menu-item"
                       >
                         <div class="our-menu-image">
@@ -104,8 +104,8 @@
                   <div class="col-lg-12">
                     <div class="our-menu-list">
                       <div 
-                        v-for="(item, index) in menuItems.maincourses" 
-                        :key="index"
+                        v-for="(item, index) in computedMenuItems.maincourses" 
+                        :key="item.id || index"
                         class="our-menu-item"
                       >
                         <div class="our-menu-image">
@@ -135,8 +135,8 @@
                   <div class="col-lg-12">
                     <div class="our-menu-list">
                       <div 
-                        v-for="(item, index) in menuItems.sides" 
-                        :key="index"
+                        v-for="(item, index) in computedMenuItems.sides" 
+                        :key="item.id || index"
                         class="our-menu-item"
                       >
                         <div class="our-menu-image">
@@ -166,8 +166,8 @@
                   <div class="col-lg-12">
                     <div class="our-menu-list">
                       <div 
-                        v-for="(item, index) in menuItems.desserts" 
-                        :key="index"
+                        v-for="(item, index) in computedMenuItems.desserts" 
+                        :key="item.id || index"
                         class="our-menu-item"
                       >
                         <div class="our-menu-image">
@@ -209,9 +209,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useProductsStore, type Product } from '~/stores/products'
 
 interface MenuItem {
+  id?: string
   title: string
   price: string
   description: string
@@ -228,13 +230,12 @@ interface MenuItems {
 interface Props {
   subtitle?: string
   title?: string
+  menuItems?: MenuItems
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  subtitle: '',
-  title: ''
-})
+const props = defineProps<Props>()
 
+const productsStore = useProductsStore()
 const activeTab = ref('appetizers')
 
 // Helper para formatear el título con spans
@@ -243,159 +244,63 @@ const formatTitle = (title: string) => {
   return title.replace(/\<span\>(.*?)\<\/span\>/gi, '<span>$1</span>')
 }
 
-const menuItems: MenuItems = {
-  appetizers: [
-    {
-      title: 'chips & dip',
-      price: '16.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-1.png'
-    },
-    {
-      title: 'caprese salad',
-      price: '12.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-2.png'
-    },
-    {
-      title: 'garlic fries',
-      price: '26.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-3.png'
-    },
-    {
-      title: 'tortilla soup',
-      price: '20.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-4.png'
-    },
-    {
-      title: 'kale salad',
-      price: '10.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-5.png'
-    },
-    {
-      title: 'thai curry',
-      price: '22.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-6.png'
+// Mapear productos a items del menú según categorías
+const computedMenuItems = computed<MenuItems>(() => {
+  // Si se pasan menuItems como prop, usarlos
+  if (props.menuItems) {
+    return props.menuItems
+  }
+
+  // Si no, usar productos desde el store
+  const products = productsStore.products
+
+  // Función helper para convertir producto a menu item
+  const productToMenuItem = (product: Product): MenuItem => ({
+    id: product.id,
+    title: product.name,
+    price: product.salePrice || product.price || '0.00',
+    description: product.shortDescription || product.description || '',
+    image: product.image?.url || '/images/our-menu-image-1.png'
+  })
+
+  // Categorizar productos por slug de categoría
+  const appetizers: MenuItem[] = []
+  const maincourses: MenuItem[] = []
+  const sides: MenuItem[] = []
+  const desserts: MenuItem[] = []
+
+  products.forEach((product: Product) => {
+    const categorySlugs = product.categories?.map(cat => cat.slug.toLowerCase()) || []
+    
+    if (categorySlugs.some(slug => slug.includes('appetizer') || slug.includes('entrada'))) {
+      appetizers.push(productToMenuItem(product))
+    } else if (categorySlugs.some(slug => slug.includes('main') || slug.includes('principal') || slug.includes('course'))) {
+      maincourses.push(productToMenuItem(product))
+    } else if (categorySlugs.some(slug => slug.includes('side') || slug.includes('acompañamiento'))) {
+      sides.push(productToMenuItem(product))
+    } else if (categorySlugs.some(slug => slug.includes('dessert') || slug.includes('postre'))) {
+      desserts.push(productToMenuItem(product))
+    } else {
+      // Si no tiene categoría específica, agregar a maincourses por defecto
+      maincourses.push(productToMenuItem(product))
     }
-  ],
-  maincourses: [
-    {
-      title: 'Fish fry',
-      price: '26.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-1.png'
-    },
-    {
-      title: 'Prawn masala',
-      price: '28.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-2.png'
-    },
-    {
-      title: 'Pasta alfredo',
-      price: '30.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-3.png'
-    },
-    {
-      title: 'Sushi platter',
-      price: '20.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-4.png'
-    },
-    {
-      title: 'Veg biryani',
-      price: '29.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-5.png'
-    },
-    {
-      title: 'Mutton curry',
-      price: '24.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-6.png'
+  })
+
+  return {
+    appetizers: appetizers.slice(0, 6),
+    maincourses: maincourses.slice(0, 6),
+    sides: sides.slice(0, 6),
+    desserts: desserts.slice(0, 6)
+  }
+})
+
+onMounted(async () => {
+  // Si no hay menuItems pasados como prop, cargar productos
+  if (!props.menuItems) {
+    if (productsStore.products.length === 0) {
+      await productsStore.fetchProducts({ limit: 50 })
     }
-  ],
-  sides: [
-    {
-      title: 'Fries',
-      price: '6.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-1.png'
-    },
-    {
-      title: 'Veggies',
-      price: '8.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-2.png'
-    },
-    {
-      title: 'Chips',
-      price: '7.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-3.png'
-    },
-    {
-      title: 'Mash',
-      price: '9.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-4.png'
-    },
-    {
-      title: 'Salad',
-      price: '4.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-5.png'
-    },
-    {
-      title: 'Slaw',
-      price: '10.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-6.png'
-    }
-  ],
-  desserts: [
-    {
-      title: 'Tang yuan',
-      price: '16.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-1.png'
-    },
-    {
-      title: 'Egg custard',
-      price: '26.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-2.png'
-    },
-    {
-      title: 'Zabaione',
-      price: '21.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-3.png'
-    },
-    {
-      title: 'Almond soup',
-      price: '30.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-4.png'
-    },
-    {
-      title: 'Bomboloni',
-      price: '28.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-5.png'
-    },
-    {
-      title: 'Tiramisu',
-      price: '22.00',
-      description: 'A perfect pairing of crispy, freshly made chips and rich, flavorful dips that bring a burst of taste in every bite.',
-      image: '/images/our-menu-image-6.png'
-    }
-  ]
-}
+  }
+})
 </script>
 

@@ -130,6 +130,7 @@ Toda la documentación histórica y técnica del proyecto se encuentra en la car
 ### Documentación General
 - [Arquitectura del Proyecto](docs/ARCHITECTURE.md) - Descripción detallada de la arquitectura
 - [Guía de Configuración](docs/SETUP.md) - Instrucciones paso a paso para configurar el proyecto
+- [Conexión WordPress - Backend - Frontend](docs/WORDPRESS_CONNECTION.md) - Explicación completa de cómo funciona la conexión entre WordPress, Backend y Frontend
 - [Backend README](backend/README.md) - Documentación específica del backend
 
 ### Plugins

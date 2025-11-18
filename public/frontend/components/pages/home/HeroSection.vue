@@ -1,12 +1,5 @@
 <template>
-  <div class="hero hero-video">
-    <!-- Video Start -->
-    <div class="hero-bg-video">
-      <video autoplay muted loop id="heroVideo">
-        <source src="/assets/videos/spicyhunt-video.mp4" type="video/mp4">
-      </video>
-    </div>
-    <!-- Video End -->
+  <div class="hero parallaxie">
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-6">
@@ -42,8 +35,8 @@
             <div class="hero-image">
               <figure class="image-anime">
                 <img 
-                  :src="mainImage?.url || '/images/hero-img.jpg'" 
-                  :alt="mainImage?.alt || 'Hero'"
+                  :src="mainImage?.url || mainImage?.sourceUrl || '/images/hero-img.jpg'" 
+                  :alt="mainImage?.alt || mainImage?.altText || 'Hero'"
                 >
               </figure>
             </div>

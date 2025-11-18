@@ -65,7 +65,23 @@ const page = ref<Page | null>(null)
 // Computed para obtener campos ACF
 const acf = computed(() => page.value?.acf?.servicesPageSections)
 
-const services = ref([
+const services = computed(() => {
+  // Si hay servicios desde ACF, usarlos
+  if (acf.value?.servicesItems && Array.isArray(acf.value.servicesItems) && acf.value.servicesItems.length > 0) {
+    return acf.value.servicesItems.map((item: any, index: number) => ({
+      id: item.id || index + 1,
+      title: item.title,
+      description: item.description,
+      icon: item.icon?.sourceUrl || item.icon?.url || `/images/icon-service-${index + 1}.svg`,
+      link: item.link || `/services/${item.title.toLowerCase().replace(/\s+/g, '-')}`
+    }))
+  }
+
+  // Fallback a servicios por defecto
+  return defaultServices.value
+})
+
+const defaultServices = ref([
   {
     id: 1,
     title: 'Dine-In Experience',
