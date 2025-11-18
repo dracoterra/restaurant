@@ -127,7 +127,11 @@ Toda la documentación histórica y técnica del proyecto se encuentra en la car
 
 ## Documentación Adicional
 
+### Documentación General
 - [Arquitectura del Proyecto](docs/ARCHITECTURE.md) - Descripción detallada de la arquitectura
 - [Guía de Configuración](docs/SETUP.md) - Instrucciones paso a paso para configurar el proyecto
 - [Backend README](backend/README.md) - Documentación específica del backend
+
+### Plugins
+- [ACF Pro Features Free - Documentación Completa](docs/ACF_PRO_FEATURES_FREE_PLUGIN.md) - Plugin que proporciona todas las funcionalidades de ACF PRO de forma gratuita (Repeater, Flexible Content, Clone, Gallery, Options Pages)
 
