@@ -5,6 +5,7 @@
       :title="acf?.heroTitle"
       :description="acf?.heroDescription"
       :main-image="acf?.heroMainImage"
+      :video-src="acf?.heroVideo?.url || acf?.heroVideo?.sourceUrl"
     />
 
     <PagesHomeAboutUsSection

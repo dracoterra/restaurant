@@ -1,5 +1,12 @@
 <template>
-  <div class="hero parallaxie">
+  <div class="hero hero-video">
+    <!-- Video Start -->
+    <div class="hero-bg-video">
+      <video autoplay muted loop id="heroVideo">
+        <source :src="videoSrc || '/assets/videos/spicyhunt-video.mp4'" type="video/mp4">
+      </video>
+    </div>
+    <!-- Video End -->
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-6">
@@ -66,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+
 interface Image {
   url?: string
   sourceUrl?: string
@@ -78,13 +86,15 @@ interface Props {
   title?: string
   description?: string
   mainImage?: Image | null
+  videoSrc?: string | null
 }
 
 withDefaults(defineProps<Props>(), {
   subtitle: 'art of fine dining',
   title: 'Dining redefined with <span>every bite</span>',
   description: 'Immerse yourself in a dining experience like no other, where every dish is a masterpiece of flavor, crafted with care and precision. From the freshest ingredients.',
-  mainImage: null
+  mainImage: null,
+  videoSrc: null
 })
 </script>
 
