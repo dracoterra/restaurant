@@ -171,212 +171,133 @@ class PagesService {
                     }
                   }
                 }
-                aboutPageSections {
-                  aboutContentSubtitle
-                  aboutContentTitle
-                  aboutContentDescription
-                  aboutMainImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                  aboutSecondaryImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                  experienceYears
-                  experienceText
-                  aboutFeatures {
-                    featureText
-                  }
-                  aboutDetails {
-                    icon {
-                      sourceUrl
-                      altText
-                      mediaDetails {
-                        width
-                        height
-                      }
-                    }
-                    title
-                    description
-                  }
-                  missionTitle
-                  missionHeading
-                  missionContent
-                  missionImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                  visionTitle
-                  visionHeading
-                  visionContent
-                  visionImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                  valueTitle
-                  valueHeading
-                  valueContent
-                  valueImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                }
                 homePageSections {
-                  heroSubtitle
-                  heroTitle
-                  heroDescription
-                  heroMainImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                  aboutSubtitle
-                  aboutTitle
-                  aboutDescription
-                  dishesSubtitle
-                  dishesTitle
-                  dailyOfferImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                  dailyOfferSubtitle
-                  dailyOfferTitle
-                  dailyOfferDescription
-                  dailyOfferFeatures {
-                    featureText
-                  }
-                  dailyOfferBurgerTitle
-                  dailyOfferBurgerFeatures {
-                    featureText
-                  }
-                  menuSubtitle
-                  menuTitle
-                  introVideoBg {
-                    sourceUrl
-                  }
-                  introVideoUrl
-                  ingredientsImage {
-                    sourceUrl
-                    altText
-                    mediaDetails {
-                      width
-                      height
-                    }
-                  }
-                  ingredientsSubtitle
-                  ingredientsTitle
-                  ingredientsDescription
-                  ingredientsFeatures {
-                    icon {
-                      sourceUrl
-                      altText
-                      mediaDetails {
-                        width
-                        height
+                  homePageSections {
+                    heroSubtitle
+                    heroTitle
+                    heroDescription
+                    heroMainImage {
+                      node {
+                        sourceUrl
+                        altText
+                        mediaDetails {
+                          width
+                          height
+                        }
                       }
                     }
-                    title
-                  }
-                  ingredientsHappyCustomers
-                  ingredientsCustomerImages {
-                    nodes {
-                      sourceUrl
-                      altText
-                      mediaDetails {
-                        width
-                        height
+                    aboutSubtitle
+                    aboutTitle
+                    aboutDescription
+                    dishesSubtitle
+                    dishesTitle
+                    dailyOfferImage {
+                      node {
+                        sourceUrl
+                        altText
+                        mediaDetails {
+                          width
+                          height
+                        }
                       }
                     }
-                  }
-                  ingredientsCounters {
-                    icon {
-                      sourceUrl
-                      altText
-                      mediaDetails {
-                        width
-                        height
+                    dailyOfferSubtitle
+                    dailyOfferTitle
+                    dailyOfferDescription
+                    dailyOfferFeatures {
+                      featureText
+                    }
+                    dailyOfferBurgerTitle
+                    dailyOfferBurgerFeatures {
+                      featureText
+                    }
+                    menuSubtitle
+                    menuTitle
+                    introVideoBg {
+                      node {
+                        sourceUrl
+                        altText
+                        mediaDetails {
+                          width
+                          height
+                        }
                       }
                     }
-                    number
-                    label
-                  }
-                  testimonialSubtitle
-                  testimonialTitle
-                  testimonials {
-                    content
-                    authorName
-                    authorImage {
-                      sourceUrl
-                      altText
-                      mediaDetails {
-                        width
-                        height
+                    introVideoUrl
+                    ingredientsImage {
+                      node {
+                        sourceUrl
+                        altText
+                        mediaDetails {
+                          width
+                          height
+                        }
                       }
                     }
-                  }
-                  reserveSubtitle
-                  reserveTitle
-                  reserveHours {
-                    days
-                    time
-                  }
-                }
-                contactPageSections {
-                  contactSubtitle
-                  contactTitle
-                  contactDescription
-                  mapEmbed
-                }
-                servicesPageSections {
-                  servicesSubtitle
-                  servicesTitle
-                  servicesDescription
-                  servicesItems {
-                    icon {
-                      sourceUrl
-                      altText
-                      mediaDetails {
-                        width
-                        height
+                    ingredientsSubtitle
+                    ingredientsTitle
+                    ingredientsDescription
+                    ingredientsFeatures {
+                      icon {
+                        node {
+                          sourceUrl
+                          altText
+                          mediaDetails {
+                            width
+                            height
+                          }
+                        }
+                      }
+                      title
+                    }
+                    ingredientsHappyCustomers
+                    ingredientsCustomerImages {
+                      nodes {
+                        sourceUrl
+                        altText
+                        mediaDetails {
+                          width
+                          height
+                        }
                       }
                     }
-                    title
-                    description
-                    link
+                    ingredientsCounters {
+                      icon {
+                        node {
+                          sourceUrl
+                          altText
+                          mediaDetails {
+                            width
+                            height
+                          }
+                        }
+                      }
+                      number
+                      label
+                    }
+                    testimonialSubtitle
+                    testimonialTitle
+                    testimonials {
+                      content
+                      authorName
+                      authorImage {
+                        node {
+                          sourceUrl
+                          altText
+                          mediaDetails {
+                            width
+                            height
+                          }
+                        }
+                      }
+                    }
+                    reserveSubtitle
+                    reserveTitle
+                    reserveHours {
+                      days
+                      time
+                    }
                   }
-                }
-                menuPageSections {
-                  menuSubtitle
-                  menuTitle
-                  menuDescription
                 }
               }
             }
@@ -386,10 +307,22 @@ class PagesService {
           // Si la query extendida funciona, usar esos datos
           if (extendedData.page) {
             data = extendedData;
+            logger.info('✅ Query extendida exitosa, datos ACF obtenidos');
           }
         } catch (extendedError) {
           // Si los campos extendidos no están disponibles, usar los datos básicos
           logger.warn('Campos extendidos (ACF) no disponibles, usando datos básicos:', extendedError.message);
+          if (extendedError.response?.errors) {
+            logger.error('Errores GraphQL en query extendida:');
+            extendedError.response.errors.forEach(err => {
+              logger.error(`  - ${err.message}`);
+              if (err.locations) {
+                err.locations.forEach(loc => {
+                  logger.error(`    Línea ${loc.line}, Columna ${loc.column}`);
+                });
+              }
+            });
+          }
         }
       }
 
@@ -397,13 +330,45 @@ class PagesService {
         throw new Error('Página no encontrada');
       }
 
+      // Log para debugging ACF
+      logger.info('=== ACF DEBUG - Page Data ===');
+      logger.info('Page Slug:', id);
+      logger.info('Has homePageSections:', !!data.page.homePageSections);
+      logger.info('Has homePageSections.homePageSections:', !!data.page.homePageSections?.homePageSections);
+      
+      if (data.page.homePageSections?.homePageSections) {
+        const innerKeys = Object.keys(data.page.homePageSections.homePageSections);
+        logger.info('Home Page Sections (inner) Keys Count:', innerKeys.length);
+        logger.info('Home Page Sections (inner) Sample Keys:', innerKeys.slice(0, 10).join(', '));
+      } else if (data.page.homePageSections) {
+        logger.info('Home Page Sections (direct) Keys:', Object.keys(data.page.homePageSections));
+      }
+      
+      logger.info('Has aboutPageSections:', !!data.page.aboutPageSections);
+      logger.info('Has contactPageSections:', !!data.page.contactPageSections);
+      logger.info('Has servicesPageSections:', !!data.page.servicesPageSections);
+
       // Transformar página
       let transformedPage = this.transformPage(data.page);
+      
+      // Log después de transformar
+      logger.info('After Transform - Has ACF:', !!transformedPage.acf);
+      if (transformedPage.acf) {
+        const acfKeys = Object.keys(transformedPage.acf);
+        logger.info('Transformed ACF Keys:', acfKeys);
+        
+        // Log detallado de homePageSections si existe
+        if (transformedPage.acf.homePageSections) {
+          const homeKeys = Object.keys(transformedPage.acf.homePageSections);
+          logger.info('Transformed homePageSections Keys Count:', homeKeys.length);
+          logger.info('Transformed homePageSections Sample Keys:', homeKeys.slice(0, 10).join(', '));
+        }
+      }
       
       // Si no hay campos ACF, intentar leer desde meta fields de WordPress REST API
       const pageSlug = data.page.slug || id;
       
-      if (!transformedPage.acf.homePageSections && (pageSlug === 'home' || pageSlug === 'front')) {
+      if (!transformedPage.acf.homePageSections && (pageSlug === 'home' || pageSlug === 'front') && !data.page.homePageSections?.homePageSections) {
         try {
           const metaFields = await this.fetchPageMetaFields(data.page.databaseId);
           if (metaFields) {
@@ -497,16 +462,34 @@ class PagesService {
     };
 
     // Transform ACF fields
-    if (page.aboutPageSections) {
+    // homePageSections tiene estructura anidada: homePageSections.homePageSections
+    if (page.homePageSections?.homePageSections) {
+      transformed.acf.homePageSections = this.transformACFSection(page.homePageSections.homePageSections);
+      logger.info('✅ homePageSections transformado correctamente');
+    } else if (page.homePageSections) {
+      // Fallback: si no tiene estructura anidada, intentar directamente
+      transformed.acf.homePageSections = this.transformACFSection(page.homePageSections);
+      logger.warn('⚠️ homePageSections sin estructura anidada, usando directamente');
+    }
+    
+    // aboutPageSections, contactPageSections, servicesPageSections pueden no estar en GraphQL
+    // Se intentarán obtener desde REST API como fallback
+    if (page.aboutPageSections?.aboutPageSections) {
+      // Si tiene estructura anidada
+      transformed.acf.aboutPageSections = this.transformACFSection(page.aboutPageSections.aboutPageSections);
+    } else if (page.aboutPageSections) {
       transformed.acf.aboutPageSections = this.transformACFSection(page.aboutPageSections);
     }
-    if (page.homePageSections) {
-      transformed.acf.homePageSections = this.transformACFSection(page.homePageSections);
-    }
-    if (page.contactPageSections) {
+    
+    if (page.contactPageSections?.contactPageSections) {
+      transformed.acf.contactPageSections = this.transformACFSection(page.contactPageSections.contactPageSections);
+    } else if (page.contactPageSections) {
       transformed.acf.contactPageSections = this.transformACFSection(page.contactPageSections);
     }
-    if (page.servicesPageSections) {
+    
+    if (page.servicesPageSections?.servicesPageSections) {
+      transformed.acf.servicesPageSections = this.transformACFSection(page.servicesPageSections.servicesPageSections);
+    } else if (page.servicesPageSections) {
       transformed.acf.servicesPageSections = this.transformACFSection(page.servicesPageSections);
     }
     if (page.menuPageSections) {
@@ -539,14 +522,28 @@ class PagesService {
           if (typeof item === 'object' && item !== null) {
             const transformedItem = {};
             for (const [itemKey, itemValue] of Object.entries(item)) {
-              // Transform image fields within repeater items
-              if (itemValue && typeof itemValue === 'object' && itemValue.sourceUrl) {
-                transformedItem[itemKey] = {
-                  url: itemValue.sourceUrl,
-                  alt: itemValue.altText || '',
-                  width: itemValue.mediaDetails?.width || null,
-                  height: itemValue.mediaDetails?.height || null
-                };
+              // Transform image fields within repeater items (pueden venir con node o directamente)
+              if (itemValue && typeof itemValue === 'object') {
+                // Si tiene node, es un AcfMediaItemConnectionEdge
+                if (itemValue.node && itemValue.node.sourceUrl) {
+                  transformedItem[itemKey] = {
+                    url: itemValue.node.sourceUrl,
+                    alt: itemValue.node.altText || '',
+                    width: itemValue.node.mediaDetails?.width || null,
+                    height: itemValue.node.mediaDetails?.height || null
+                  };
+                }
+                // Si tiene sourceUrl directamente
+                else if (itemValue.sourceUrl) {
+                  transformedItem[itemKey] = {
+                    url: itemValue.sourceUrl,
+                    alt: itemValue.altText || '',
+                    width: itemValue.mediaDetails?.width || null,
+                    height: itemValue.mediaDetails?.height || null
+                  };
+                } else {
+                  transformedItem[itemKey] = itemValue;
+                }
               } else {
                 transformedItem[itemKey] = itemValue;
               }
@@ -556,14 +553,28 @@ class PagesService {
           return item;
         });
       }
-      // Transform image fields
-      else if (value && typeof value === 'object' && value.sourceUrl) {
-        transformed[key] = {
-          url: value.sourceUrl,
-          alt: value.altText || '',
-          width: value.mediaDetails?.width || null,
-          height: value.mediaDetails?.height || null
-        };
+      // Transform image fields (pueden venir con node o directamente)
+      else if (value && typeof value === 'object') {
+        // Si tiene node, es un AcfMediaItemConnectionEdge
+        if (value.node && value.node.sourceUrl) {
+          transformed[key] = {
+            url: value.node.sourceUrl,
+            alt: value.node.altText || '',
+            width: value.node.mediaDetails?.width || null,
+            height: value.node.mediaDetails?.height || null
+          };
+        }
+        // Si tiene sourceUrl directamente
+        else if (value.sourceUrl) {
+          transformed[key] = {
+            url: value.sourceUrl,
+            alt: value.altText || '',
+            width: value.mediaDetails?.width || null,
+            height: value.mediaDetails?.height || null
+          };
+        } else {
+          transformed[key] = value;
+        }
       } else {
         transformed[key] = value;
       }
