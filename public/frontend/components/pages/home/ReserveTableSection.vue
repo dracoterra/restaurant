@@ -99,7 +99,12 @@
                 </div>
                 <div class="col-lg-12">
                   <div class="reserve-table-btn">
-                    <button type="submit" class="btn-default">reserve now</button>
+                    <button type="submit" class="btn-default" :disabled="isSubmitting">
+                      {{ isSubmitting ? 'Enviando...' : 'reserve now' }}
+                    </button>
+                  </div>
+                  <div v-if="submitMessage" :class="['mt-3', submitSuccess ? 'text-success' : 'text-danger']">
+                    {{ submitMessage }}
                   </div>
                 </div>
               </div>
@@ -112,8 +117,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
 interface Hour {
   days: string
   time: string
@@ -131,18 +134,32 @@ const props = withDefaults(defineProps<Props>(), {
   hours: () => []
 })
 
-const form = ref({
-  name: '',
-  email: '',
-  phone: '',
-  date: '',
-  time: '',
-  person: ''
-})
+const { form, submit, isSubmitting, submitSuccess, submitMessage, errors, reset } = useForm(
+  {
+    name: '',
+    email: '',
+    phone: '',
+    date: '',
+    time: '',
+    person: ''
+  },
+  {
+    endpoint: '/reservations',
+    method: 'POST',
+    onSuccess: () => {
+      reset()
+      const { success } = useNotifications()
+      success('Reserva realizada exitosamente. Te confirmaremos pronto.')
+    },
+    onError: (error) => {
+      const { error: showError } = useNotifications()
+      showError(error.message || 'Error al procesar la reserva')
+    }
+  }
+)
 
-const handleReservation = () => {
-  // TODO: Implementar envío de formulario
-  alert('Reservation submitted! (This is a placeholder)')
+const handleReservation = async () => {
+  await submit()
 }
 
 // Helper para formatear el título con spans

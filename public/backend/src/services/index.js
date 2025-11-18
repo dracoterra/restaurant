@@ -4,6 +4,8 @@ const products = require('./products/products.service');
 const menus = require('./menus/menus.service');
 const settings = require('./settings/settings.service');
 const pages = require('./pages/pages.service');
+const contact = require('./contact/contact.service');
+const reservations = require('./reservations/reservations.service');
 
 module.exports = function (app) {
   app.configure(insights);
@@ -12,5 +14,7 @@ module.exports = function (app) {
   app.configure(menus);
   app.configure(settings);
   app.configure(pages);
+  app.configure(contact);
+  app.configure(reservations);
 };
 

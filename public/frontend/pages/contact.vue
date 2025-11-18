@@ -80,7 +80,7 @@
                     <div class="form-group col-md-12 mb-4">
                       <label class="form-label">your name</label>
                       <input 
-                        v-model="form.name"
+                        v-model="contactForm.name"
                         type="text" 
                         name="name" 
                         class="form-control" 
@@ -92,7 +92,7 @@
                     <div class="form-group col-md-6 mb-4">
                       <label class="form-label">email address</label>
                       <input 
-                        v-model="form.email"
+                        v-model="contactForm.email"
                         type="email" 
                         name="email" 
                         class="form-control" 
@@ -104,7 +104,7 @@
                     <div class="form-group col-md-6 mb-4">
                       <label class="form-label">phone number</label>
                       <input 
-                        v-model="form.phone"
+                        v-model="contactForm.phone"
                         type="text" 
                         name="phone" 
                         class="form-control" 
@@ -116,7 +116,7 @@
                     <div class="form-group col-md-12 mb-5">
                       <label class="form-label">message</label>
                       <textarea 
-                        v-model="form.message"
+                        v-model="contactForm.message"
                         name="message" 
                         class="form-control" 
                         rows="4" 
@@ -125,11 +125,11 @@
                     </div>
 
                     <div class="col-md-12">
-                      <button type="submit" class="btn-default" :disabled="submitting">
-                        {{ submitting ? 'Sending...' : 'submit inquiry' }}
+                      <button type="submit" class="btn-default" :disabled="submittingContact">
+                        {{ submittingContact ? 'Enviando...' : 'submit inquiry' }}
                       </button>
-                      <div v-if="submitMessage" class="h3" :class="{ 'text-success': submitSuccess, 'text-danger': !submitSuccess }">
-                        {{ submitMessage }}
+                      <div v-if="contactMessage" class="h3 mt-3" :class="{ 'text-success': contactSuccess, 'text-danger': !contactSuccess }">
+                        {{ contactMessage }}
                       </div>
                     </div>
                   </div>
@@ -283,10 +283,10 @@
 
                     <div class="col-lg-12">
                       <div class="reserve-table-btn">
-                        <button type="submit" class="btn-default" :disabled="reserving">
-                          {{ reserving ? 'Reserving...' : 'reserve now' }}
+                        <button type="submit" class="btn-default" :disabled="submittingReservation">
+                          {{ submittingReservation ? 'Reservando...' : 'reserve now' }}
                         </button>
-                        <div v-if="reservationMessage" class="h3" :class="{ 'text-success': reservationSuccess, 'text-danger': !reservationSuccess }">
+                        <div v-if="reservationMessage" class="h3 mt-3" :class="{ 'text-success': reservationSuccess, 'text-danger': !reservationSuccess }">
                           {{ reservationMessage }}
                         </div>
                       </div>
@@ -319,65 +319,72 @@ const settings = computed(() => settingsStore.settings)
 // Computed para obtener campos ACF
 const acf = computed(() => page.value?.acf?.contactPageSections)
 
-const form = ref({
-  name: '',
-  email: '',
-  phone: '',
-  message: ''
-})
+const { 
+  form: contactForm, 
+  submit: submitContact, 
+  isSubmitting: submittingContact, 
+  submitSuccess: contactSuccess, 
+  submitMessage: contactMessage,
+  reset: resetContact
+} = useForm(
+  {
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  },
+  {
+    endpoint: '/contact',
+    method: 'POST',
+    onSuccess: () => {
+      resetContact()
+      const { success } = useNotifications()
+      success('¡Gracias! Tu mensaje ha sido enviado exitosamente.')
+    },
+    onError: (error) => {
+      const { error: showError } = useNotifications()
+      showError(error.message || 'Error al enviar el mensaje')
+    }
+  }
+)
 
-const reservationForm = ref({
-  name: '',
-  email: '',
-  phone: '',
-  date: '',
-  time: '',
-  person: ''
-})
-
-const submitting = ref(false)
-const reserving = ref(false)
-const submitMessage = ref('')
-const reservationMessage = ref('')
-const submitSuccess = ref(false)
-const reservationSuccess = ref(false)
+const { 
+  form: reservationForm, 
+  submit: submitReservation, 
+  isSubmitting: submittingReservation, 
+  submitSuccess: reservationSuccess, 
+  submitMessage: reservationMessage,
+  reset: resetReservation
+} = useForm(
+  {
+    name: '',
+    email: '',
+    phone: '',
+    date: '',
+    time: '',
+    person: ''
+  },
+  {
+    endpoint: '/reservations',
+    method: 'POST',
+    onSuccess: () => {
+      resetReservation()
+      const { success } = useNotifications()
+      success('Reserva realizada exitosamente. Te confirmaremos pronto.')
+    },
+    onError: (error) => {
+      const { error: showError } = useNotifications()
+      showError(error.message || 'Error al procesar la reserva')
+    }
+  }
+)
 
 const handleSubmit = async () => {
-  submitting.value = true
-  submitMessage.value = ''
-  
-  try {
-    // Aquí se enviaría al backend
-    // Por ahora solo simulamos
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    submitSuccess.value = true
-    submitMessage.value = 'Thank you! Your message has been sent successfully.'
-    form.value = { name: '', email: '', phone: '', message: '' }
-  } catch (error) {
-    submitSuccess.value = false
-    submitMessage.value = 'Error sending message. Please try again.'
-  } finally {
-    submitting.value = false
-  }
+  await submitContact()
 }
 
 const handleReservation = async () => {
-  reserving.value = true
-  reservationMessage.value = ''
-  
-  try {
-    // Aquí se enviaría al backend
-    // Por ahora solo simulamos
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    reservationSuccess.value = true
-    reservationMessage.value = 'Table reserved successfully! We will confirm shortly.'
-    reservationForm.value = { name: '', email: '', phone: '', date: '', time: '', person: '' }
-  } catch (error) {
-    reservationSuccess.value = false
-    reservationMessage.value = 'Error reserving table. Please try again.'
-  } finally {
-    reserving.value = false
-  }
+  await submitReservation()
 }
 
 onMounted(async () => {
