@@ -23,23 +23,166 @@ class ACF_Pro_Features_Options_Pages {
      * Constructor
      */
     public function __construct() {
-        // Registrar páginas cuando se llama acf_add_options_page
-        add_action('acf/init', array($this, 'register_pages'), 20);
-        
-        // Interceptar acf_add_options_page si existe
-        if (!function_exists('acf_add_options_page')) {
-            $this->add_helper_functions();
-        }
+        // Agregar funciones helper
+        $this->add_helper_functions();
         
         // Modificar get_field para soportar 'option'
         add_filter('acf/load_value', array($this, 'load_option_value'), 10, 3);
         add_filter('acf/update_value', array($this, 'update_option_value'), 10, 3);
+        
+        // Interceptar la página de preview de ACF y reemplazarla con nuestra interfaz
+        add_action('admin_menu', array($this, 'intercept_acf_options_page'), 5);
+    }
+    
+    /**
+     * Interceptar la página de Options Pages de ACF
+     */
+    public function intercept_acf_options_page() {
+        // Remover la página de preview de ACF
+        remove_submenu_page('edit.php?post_type=acf-field-group', 'acf_options_preview');
+        
+        // Agregar nuestra propia página de Options Pages
+        add_submenu_page(
+            'edit.php?post_type=acf-field-group',
+            __('Options Pages', 'acf-pro-features-free'),
+            __('Options Pages', 'acf-pro-features-free'),
+            'manage_options',
+            'acf_options_preview',
+            array($this, 'render_options_pages_list')
+        );
+    }
+    
+    /**
+     * Renderizar lista de Options Pages (similar a ACF PRO)
+     */
+    public function render_options_pages_list() {
+        // Procesar creación de nueva página primero
+        if (isset($_GET['action']) && $_GET['action'] === 'add' && isset($_GET['page_title'])) {
+            $this->handle_add_options_page();
+            return;
+        }
+        
+        $pages = self::get_pages();
+        ?>
+        <div class="wrap acf-admin-page acf-options-pages-list">
+            <h1 class="wp-heading-inline">
+                <?php esc_html_e('Options Pages', 'acf-pro-features-free'); ?>
+            </h1>
+            <a href="#" class="page-title-action acf-btn acf-btn-primary" id="acf-add-options-page">
+                <?php esc_html_e('+ Add Options Page', 'acf-pro-features-free'); ?>
+            </a>
+            <hr class="wp-header-end">
+            
+            <?php if (!empty($pages)): ?>
+                <div class="acf-options-pages-grid" style="margin-top: 20px;">
+                    <?php foreach ($pages as $page): ?>
+                        <div class="acf-options-page-card" style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; background: #fff; border-radius: 4px;">
+                            <h2 style="margin-top: 0;">
+                                <a href="<?php echo esc_url(admin_url('admin.php?page=' . $page['menu_slug'])); ?>">
+                                    <?php echo esc_html($page['page_title']); ?>
+                                </a>
+                            </h2>
+                            <p>
+                                <strong><?php esc_html_e('Menu Title:', 'acf-pro-features-free'); ?></strong> 
+                                <?php echo esc_html($page['menu_title']); ?><br>
+                                <strong><?php esc_html_e('Menu Slug:', 'acf-pro-features-free'); ?></strong> 
+                                <code><?php echo esc_html($page['menu_slug']); ?></code><br>
+                                <?php if (!empty($page['parent_slug'])): ?>
+                                    <strong><?php esc_html_e('Parent:', 'acf-pro-features-free'); ?></strong> 
+                                    <?php echo esc_html($page['parent_slug']); ?>
+                                <?php endif; ?>
+                            </p>
+                            <p>
+                                <a href="<?php echo esc_url(admin_url('admin.php?page=' . $page['menu_slug'])); ?>" class="button button-primary">
+                                    <?php esc_html_e('Edit', 'acf-pro-features-free'); ?>
+                                </a>
+                            </p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="acf-options-pages-empty" style="text-align: center; padding: 60px 20px; background: #fff; border: 1px solid #ddd; border-radius: 4px; margin-top: 20px;">
+                    <div style="font-size: 48px; color: #ccc; margin-bottom: 20px;">📄</div>
+                    <h2><?php esc_html_e('No Options Pages', 'acf-pro-features-free'); ?></h2>
+                    <p style="color: #666; max-width: 600px; margin: 20px auto;">
+                        <?php esc_html_e('Options Pages allow you to create custom admin pages for managing global settings via fields. You can create multiple pages and sub-pages.', 'acf-pro-features-free'); ?>
+                    </p>
+                    <p>
+                        <a href="#" class="button button-primary button-large" id="acf-add-options-page-first">
+                            <?php esc_html_e('+ Add Options Page', 'acf-pro-features-free'); ?>
+                        </a>
+                    </p>
+                    <p style="margin-top: 30px; font-size: 13px; color: #999;">
+                        <?php esc_html_e('New to ACF?', 'acf-pro-features-free'); ?> 
+                        <a href="https://www.advancedcustomfields.com/resources/getting-started/" target="_blank">
+                            <?php esc_html_e('Take a look at our getting started guide.', 'acf-pro-features-free'); ?>
+                        </a>
+                    </p>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('#acf-add-options-page, #acf-add-options-page-first').on('click', function(e) {
+                e.preventDefault();
+                
+                var pageTitle = prompt('<?php esc_html_e('Page Title:', 'acf-pro-features-free'); ?>', '<?php esc_html_e('Options', 'acf-pro-features-free'); ?>');
+                if (!pageTitle) {
+                    return;
+                }
+                
+                var menuTitle = prompt('<?php esc_html_e('Menu Title:', 'acf-pro-features-free'); ?>', pageTitle);
+                if (!menuTitle) {
+                    return;
+                }
+                
+                var menuSlug = prompt('<?php esc_html_e('Menu Slug:', 'acf-pro-features-free'); ?>', 'acf-options-' + pageTitle.toLowerCase().replace(/\s+/g, '-'));
+                if (!menuSlug) {
+                    return;
+                }
+                
+                // Crear página usando AJAX o redirigir
+                window.location.href = '<?php echo esc_url(admin_url('admin.php?page=acf_options_preview&action=add&page_title=')); ?>' + encodeURIComponent(pageTitle) + '&menu_title=' + encodeURIComponent(menuTitle) + '&menu_slug=' + encodeURIComponent(menuSlug);
+            });
+        });
+        </script>
+        <?php
+    }
+    
+    /**
+     * Manejar creación de nueva Options Page
+     */
+    private function handle_add_options_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('No tienes permisos para realizar esta acción', 'acf-pro-features-free'));
+        }
+        
+        $page_title = isset($_GET['page_title']) ? sanitize_text_field($_GET['page_title']) : '';
+        $menu_title = isset($_GET['menu_title']) ? sanitize_text_field($_GET['menu_title']) : $page_title;
+        $menu_slug = isset($_GET['menu_slug']) ? sanitize_key($_GET['menu_slug']) : '';
+        
+        if (empty($page_title) || empty($menu_slug)) {
+            wp_die(esc_html__('Parámetros inválidos', 'acf-pro-features-free'));
+        }
+        
+        // Crear la página
+        self::add_page(array(
+            'page_title' => $page_title,
+            'menu_title' => $menu_title,
+            'menu_slug' => $menu_slug,
+        ));
+        
+        // Redirigir a la página de edición
+        wp_redirect(admin_url('admin.php?page=' . $menu_slug));
+        exit;
     }
     
     /**
      * Agregar funciones helper
      */
     private function add_helper_functions() {
+        // Registrar funciones antes de que ACF las busque
         if (!function_exists('acf_add_options_page')) {
             /**
              * Agregar página de opciones
@@ -61,9 +204,29 @@ class ACF_Pro_Features_Options_Pages {
         if (!function_exists('acf_get_options_pages')) {
             /**
              * Obtener páginas de opciones
+             * Esta función es usada por ACF para detectar páginas registradas
              */
             function acf_get_options_pages() {
-                return ACF_Pro_Features_Options_Pages::get_pages();
+                $pages = ACF_Pro_Features_Options_Pages::get_pages();
+                
+                // Formatear para compatibilidad con ACF
+                $formatted = array();
+                foreach ($pages as $slug => $page) {
+                    $formatted[] = array(
+                        'page_title' => $page['page_title'],
+                        'menu_title' => $page['menu_title'],
+                        'menu_slug' => $page['menu_slug'],
+                        'capability' => $page['capability'],
+                        'icon_url' => $page['icon_url'],
+                        'position' => $page['position'],
+                        'parent_slug' => isset($page['parent_slug']) ? $page['parent_slug'] : '',
+                        'redirect' => isset($page['redirect']) ? $page['redirect'] : true,
+                        'post_id' => isset($page['post_id']) ? $page['post_id'] : 'options',
+                        'autoload' => isset($page['autoload']) ? $page['autoload'] : false,
+                    );
+                }
+                
+                return $formatted;
             }
         }
     }
@@ -94,6 +257,15 @@ class ACF_Pro_Features_Options_Pages {
         );
         
         $args = wp_parse_args($args, $defaults);
+        
+        // Sanitizar argumentos
+        $args['page_title'] = sanitize_text_field($args['page_title']);
+        $args['menu_title'] = sanitize_text_field($args['menu_title']);
+        $args['menu_slug'] = sanitize_key($args['menu_slug']);
+        $args['capability'] = sanitize_key($args['capability']);
+        $args['icon_url'] = esc_url_raw($args['icon_url']);
+        $args['parent_slug'] = sanitize_text_field($args['parent_slug']);
+        $args['post_id'] = sanitize_key($args['post_id']);
         
         // Agregar a la lista
         self::$pages[$args['menu_slug']] = $args;
@@ -185,16 +357,17 @@ class ACF_Pro_Features_Options_Pages {
      * Renderizar página de opciones
      */
     public static function render_page() {
-        $menu_slug = isset($_GET['page']) ? $_GET['page'] : '';
+        $menu_slug = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
         $page = isset(self::$pages[$menu_slug]) ? self::$pages[$menu_slug] : null;
         
         if (!$page) {
-            wp_die(__('Página de opciones no encontrada', 'acf-pro-features-free'));
+            wp_die(esc_html__('Página de opciones no encontrada', 'acf-pro-features-free'));
         }
         
         // Verificar permisos
-        if (!current_user_can($page['capability'])) {
-            wp_die(__('No tienes permisos para acceder a esta página', 'acf-pro-features-free'));
+        $capability = isset($page['capability']) ? sanitize_text_field($page['capability']) : 'edit_posts';
+        if (!current_user_can($capability)) {
+            wp_die(esc_html__('No tienes permisos para acceder a esta página', 'acf-pro-features-free'));
         }
         
         // Obtener grupos de campos para esta página
@@ -203,7 +376,11 @@ class ACF_Pro_Features_Options_Pages {
         // Renderizar formulario
         ?>
         <div class="wrap acf-options-page">
-            <h1><?php echo esc_html($page['page_title']); ?></h1>
+            <h1 class="wp-heading-inline"><?php echo esc_html($page['page_title']); ?></h1>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=acf_options_preview')); ?>" class="page-title-action">
+                <?php esc_html_e('← Back to Options Pages', 'acf-pro-features-free'); ?>
+            </a>
+            <hr class="wp-header-end">
             
             <?php if (!empty($field_groups)): ?>
                 <form method="post" action="">
@@ -211,14 +388,28 @@ class ACF_Pro_Features_Options_Pages {
                     // Nonce
                     wp_nonce_field('acf_options_page_' . $page['menu_slug'], 'acf_options_page_nonce');
                     
+                    // Establecer post_id como 'option' para que ACF cargue valores correctos
+                    if (function_exists('acf_setup_meta')) {
+                        acf_setup_meta(array(), 'option', true);
+                    }
+                    
                     // Renderizar campos
                     foreach ($field_groups as $field_group) {
                         $fields = function_exists('acf_get_fields') ? acf_get_fields($field_group) : array();
                         if (!empty($fields)) {
                             ?>
-                            <div class="acf-fields">
+                            <div class="acf-fields -clear" style="margin-top: 20px;">
                                 <?php
                                 foreach ($fields as $field) {
+                                    // Establecer post_id como 'option' para cada campo
+                                    $field['post_id'] = 'option';
+                                    
+                                    // Cargar valor desde opciones si ACF no lo hace automáticamente
+                                    if (!isset($field['value']) || $field['value'] === null) {
+                                        $option_name = 'options_' . $field['name'];
+                                        $field['value'] = get_option($option_name, '');
+                                    }
+                                    
                                     if (function_exists('acf_render_field_wrap')) {
                                         acf_render_field_wrap($field, 'div');
                                     } else {
@@ -229,6 +420,11 @@ class ACF_Pro_Features_Options_Pages {
                             </div>
                             <?php
                         }
+                    }
+                    
+                    // Limpiar meta
+                    if (function_exists('acf_reset_meta')) {
+                        acf_reset_meta('option');
                     }
                     ?>
                     
@@ -251,7 +447,9 @@ class ACF_Pro_Features_Options_Pages {
         
         // Procesar guardado
         if (isset($_POST['submit']) && isset($_POST['acf_options_page_nonce'])) {
-            if (wp_verify_nonce($_POST['acf_options_page_nonce'], 'acf_options_page_' . $page['menu_slug'])) {
+            $nonce = sanitize_text_field($_POST['acf_options_page_nonce']);
+            $menu_slug = isset($page['menu_slug']) ? sanitize_key($page['menu_slug']) : '';
+            if (wp_verify_nonce($nonce, 'acf_options_page_' . $menu_slug)) {
                 self::save_options($page);
             }
         }
@@ -341,12 +539,15 @@ class ACF_Pro_Features_Options_Pages {
         } else {
             // Fallback manual
             foreach ($_POST['acf'] as $field_key => $value) {
+                // Sanitizar field_key
+                $field_key = sanitize_text_field($field_key);
+                
                 $field = function_exists('acf_get_field') ? acf_get_field($field_key) : null;
-                if (!$field) {
+                if (!$field || !isset($field['name'])) {
                     continue;
                 }
                 
-                $field_name = $field['name'];
+                $field_name = sanitize_key($field['name']);
                 $option_name = 'options_' . $field_name;
                 
                 // Procesar valor según el tipo de campo
@@ -371,16 +572,25 @@ class ACF_Pro_Features_Options_Pages {
      * Procesar valor de campo
      */
     private static function process_field_value($value, $field) {
-        switch ($field['type']) {
+        $field_type = isset($field['type']) ? sanitize_key($field['type']) : 'text';
+        
+        switch ($field_type) {
             case 'number':
                 return floatval($value);
             case 'true_false':
                 return (bool) $value;
             case 'image':
             case 'file':
-                return intval($value);
+                return absint($value);
+            case 'email':
+                return sanitize_email($value);
+            case 'url':
+                return esc_url_raw($value);
+            case 'textarea':
+                return sanitize_textarea_field($value);
+            case 'text':
             default:
-                return $value;
+                return sanitize_text_field($value);
         }
     }
     

@@ -69,16 +69,21 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
      */
     function ajax_get_attachment() {
         // Validar nonce (ACF usa 'acf_nonce' o podemos verificar de otra forma)
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         if (!wp_verify_nonce($nonce, 'acf_nonce') && !wp_verify_nonce($nonce, 'acf_pro_features_nonce')) {
-            die();
+            wp_die(__('Error de seguridad', 'acf-pro-features-free'));
         }
         
-        $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
-        $field_key = isset($_POST['field_key']) ? $_POST['field_key'] : '';
+        $id = isset($_POST['id']) ? absint($_POST['id']) : 0;
+        $field_key = isset($_POST['field_key']) ? sanitize_text_field($_POST['field_key']) : '';
         
         if (!$id) {
-            die();
+            wp_die(__('ID de imagen no válido', 'acf-pro-features-free'));
+        }
+        
+        // Verificar permisos
+        if (!current_user_can('edit_post', $id)) {
+            wp_die(__('No tienes permisos para editar esta imagen', 'acf-pro-features-free'));
         }
         
         // Cargar field
@@ -97,38 +102,40 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
      */
     function ajax_update_attachment() {
         // Validar nonce
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         if (!wp_verify_nonce($nonce, 'acf_nonce') && !wp_verify_nonce($nonce, 'acf_pro_features_nonce')) {
-            wp_send_json_error();
+            wp_send_json_error(array('message' => __('Error de seguridad', 'acf-pro-features-free')));
         }
         
-        if (empty($_POST['attachments'])) {
-            wp_send_json_error();
+        if (empty($_POST['attachments']) || !is_array($_POST['attachments'])) {
+            wp_send_json_error(array('message' => __('No se proporcionaron attachments', 'acf-pro-features-free')));
         }
         
         // Procesar cada attachment
         foreach ($_POST['attachments'] as $id => $changes) {
-            if (!current_user_can('edit_post', $id)) {
-                wp_send_json_error();
+            $id = absint($id);
+            
+            if (!$id || !current_user_can('edit_post', $id)) {
+                wp_send_json_error(array('message' => __('No tienes permisos para editar esta imagen', 'acf-pro-features-free')));
             }
             
             $post = get_post($id, ARRAY_A);
             if (!$post || $post['post_type'] !== 'attachment') {
-                wp_send_json_error();
+                wp_send_json_error(array('message' => __('Imagen no encontrada', 'acf-pro-features-free')));
             }
             
-            // Actualizar campos
-            if (isset($changes['title'])) {
-                $post['post_title'] = $changes['title'];
+            // Sanitizar y actualizar campos
+            if (isset($changes['title']) && is_string($changes['title'])) {
+                $post['post_title'] = sanitize_text_field($changes['title']);
             }
-            if (isset($changes['caption'])) {
-                $post['post_excerpt'] = $changes['caption'];
+            if (isset($changes['caption']) && is_string($changes['caption'])) {
+                $post['post_excerpt'] = sanitize_textarea_field($changes['caption']);
             }
-            if (isset($changes['description'])) {
-                $post['post_content'] = $changes['description'];
+            if (isset($changes['description']) && is_string($changes['description'])) {
+                $post['post_content'] = wp_kses_post($changes['description']);
             }
-            if (isset($changes['alt'])) {
-                $alt = wp_unslash($changes['alt']);
+            if (isset($changes['alt']) && is_string($changes['alt'])) {
+                $alt = sanitize_text_field($changes['alt']);
                 $alt = wp_strip_all_tags($alt, true);
                 update_post_meta($id, '_wp_attachment_image_alt', wp_slash($alt));
             }
@@ -150,16 +157,30 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
      */
     function ajax_get_sort_order() {
         // Validar nonce
-        $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
         if (!wp_verify_nonce($nonce, 'acf_nonce') && !wp_verify_nonce($nonce, 'acf_pro_features_nonce')) {
-            wp_send_json_error();
+            wp_send_json_error(array('message' => __('Error de seguridad', 'acf-pro-features-free')));
         }
         
         $ids = isset($_POST['ids']) ? $_POST['ids'] : array();
-        $sort = isset($_POST['sort']) ? $_POST['sort'] : 'date';
+        $sort = isset($_POST['sort']) ? sanitize_text_field($_POST['sort']) : 'date';
+        
+        // Validar que sort sea un valor permitido
+        $allowed_sorts = array('date', 'modified', 'title', 'reverse');
+        if (!in_array($sort, $allowed_sorts, true)) {
+            $sort = 'date';
+        }
         
         if (empty($ids) || !is_array($ids)) {
-            wp_send_json_error();
+            wp_send_json_error(array('message' => __('No se proporcionaron IDs válidos', 'acf-pro-features-free')));
+        }
+        
+        // Sanitizar IDs
+        $ids = array_map('absint', $ids);
+        $ids = array_filter($ids);
+        
+        if (empty($ids)) {
+            wp_send_json_error(array('message' => __('No se proporcionaron IDs válidos', 'acf-pro-features-free')));
         }
         
         // Revertir orden
@@ -185,7 +206,7 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
             wp_send_json_success($posts);
         }
         
-        wp_send_json_error();
+        wp_send_json_error(array('message' => __('No se encontraron imágenes', 'acf-pro-features-free')));
     }
     
     /**
@@ -444,11 +465,16 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
      * Cargar valor
      */
     function load_value($value, $post_id, $field) {
-        if (!empty($value)) {
-            return $value;
+        if (!empty($value) && is_array($value)) {
+            // Sanitizar valores existentes
+            return array_map('absint', array_filter($value, 'is_numeric'));
         }
         
-        $field_name = $field['name'];
+        $field_name = isset($field['name']) ? sanitize_key($field['name']) : '';
+        if (empty($field_name)) {
+            return array();
+        }
+        
         $meta_value = get_post_meta($post_id, $field_name, true);
         
         if (empty($meta_value)) {
@@ -457,14 +483,13 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
         
         // Si es un string (IDs separados por coma), convertir a array
         if (is_string($meta_value)) {
-            $meta_value = explode(',', $meta_value);
-            $meta_value = array_filter(array_map('trim', $meta_value));
-            $meta_value = array_filter(array_map('intval', $meta_value));
+            $ids = explode(',', $meta_value);
+            return array_map('absint', array_filter($ids, 'is_numeric'));
         }
         
-        // Si es un array, retornarlo
+        // Si es un array, sanitizar y retornar
         if (is_array($meta_value)) {
-            return array_values($meta_value);
+            return array_map('absint', array_filter($meta_value, 'is_numeric'));
         }
         
         return array();
@@ -480,14 +505,17 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
             $value = array_filter(array_map('trim', $value));
         }
         
-        // Asegurar que todos los valores sean enteros
+        // Asegurar que todos los valores sean enteros positivos
         if (is_array($value)) {
-            $value = array_filter(array_map('intval', $value));
+            $value = array_map('absint', $value);
+            $value = array_filter($value, function($id) {
+                return $id > 0;
+            });
             $value = array_values($value);
             
             // Validar límites
-            $min = isset($field['min']) ? intval($field['min']) : 0;
-            $max = isset($field['max']) ? intval($field['max']) : 0;
+            $min = isset($field['min']) ? absint($field['min']) : 0;
+            $max = isset($field['max']) ? absint($field['max']) : 0;
             
             if ($min > 0 && count($value) < $min) {
                 // No lanzar error, solo ajustar
@@ -497,10 +525,11 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
                 $value = array_slice($value, 0, $max);
             }
             
-            return $value;
+            // Guardar como cadena de IDs separados por coma para simplificar
+            return !empty($value) ? implode(',', $value) : '';
         }
         
-        return array();
+        return '';
     }
     
     /**
@@ -738,31 +767,36 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
             $value = array();
         }
         
+        // Sanitizar el label del campo para evitar XSS
+        $field_label = isset($field['label']) ? esc_html($field['label']) : __('Campo', 'acf-pro-features-free');
+        
         // Validar mínimo de imágenes
-        $min = isset($field['min']) ? intval($field['min']) : 0;
+        $min = isset($field['min']) ? absint($field['min']) : 0;
         if ($min > 0 && count($value) < $min) {
             $valid = sprintf(
                 _n('%s requiere al menos %s imagen', '%s requiere al menos %s imágenes', $min, 'acf-pro-features-free'),
-                $field['label'],
-                $min
+                $field_label,
+                number_format_i18n($min)
             );
             return $valid;
         }
         
         // Validar máximo de imágenes
-        $max = isset($field['max']) ? intval($field['max']) : 0;
+        $max = isset($field['max']) ? absint($field['max']) : 0;
         if ($max > 0 && count($value) > $max) {
             $valid = sprintf(
                 _n('%s permite máximo %s imagen', '%s permite máximo %s imágenes', $max, 'acf-pro-features-free'),
-                $field['label'],
-                $max
+                $field_label,
+                number_format_i18n($max)
             );
             return $valid;
         }
         
         // Validar cada imagen
         foreach ($value as $image_id) {
-            if (!is_numeric($image_id)) {
+            $image_id = absint($image_id);
+            
+            if (!$image_id) {
                 continue;
             }
             
@@ -773,22 +807,29 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
             
             // Obtener información de la imagen
             $image_meta = wp_get_attachment_metadata($image_id);
-            $file_size = filesize($image_path);
+            if (!$image_meta) {
+                continue;
+            }
+            
+            $file_size = @filesize($image_path);
+            if ($file_size === false) {
+                continue;
+            }
             
             // Validar dimensiones mínimas
-            $min_width = isset($field['min_width']) ? intval($field['min_width']) : 0;
-            $min_height = isset($field['min_height']) ? intval($field['min_height']) : 0;
+            $min_width = isset($field['min_width']) ? absint($field['min_width']) : 0;
+            $min_height = isset($field['min_height']) ? absint($field['min_height']) : 0;
             
             if ($min_width > 0 || $min_height > 0) {
-                $width = isset($image_meta['width']) ? $image_meta['width'] : 0;
-                $height = isset($image_meta['height']) ? $image_meta['height'] : 0;
+                $width = isset($image_meta['width']) ? absint($image_meta['width']) : 0;
+                $height = isset($image_meta['height']) ? absint($image_meta['height']) : 0;
                 
                 if ($min_width > 0 && $width < $min_width) {
                     $valid = sprintf(
                         __('%s: La imagen debe tener al menos %spx de ancho. La imagen actual tiene %spx.', 'acf-pro-features-free'),
-                        $field['label'],
-                        $min_width,
-                        $width
+                        $field_label,
+                        number_format_i18n($min_width),
+                        number_format_i18n($width)
                     );
                     return $valid;
                 }
@@ -796,28 +837,28 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
                 if ($min_height > 0 && $height < $min_height) {
                     $valid = sprintf(
                         __('%s: La imagen debe tener al menos %spx de alto. La imagen actual tiene %spx.', 'acf-pro-features-free'),
-                        $field['label'],
-                        $min_height,
-                        $height
+                        $field_label,
+                        number_format_i18n($min_height),
+                        number_format_i18n($height)
                     );
                     return $valid;
                 }
             }
             
             // Validar dimensiones máximas
-            $max_width = isset($field['max_width']) ? intval($field['max_width']) : 0;
-            $max_height = isset($field['max_height']) ? intval($field['max_height']) : 0;
+            $max_width = isset($field['max_width']) ? absint($field['max_width']) : 0;
+            $max_height = isset($field['max_height']) ? absint($field['max_height']) : 0;
             
             if ($max_width > 0 || $max_height > 0) {
-                $width = isset($image_meta['width']) ? $image_meta['width'] : 0;
-                $height = isset($image_meta['height']) ? $image_meta['height'] : 0;
+                $width = isset($image_meta['width']) ? absint($image_meta['width']) : 0;
+                $height = isset($image_meta['height']) ? absint($image_meta['height']) : 0;
                 
                 if ($max_width > 0 && $width > $max_width) {
                     $valid = sprintf(
                         __('%s: La imagen no debe exceder %spx de ancho. La imagen actual tiene %spx.', 'acf-pro-features-free'),
-                        $field['label'],
-                        $max_width,
-                        $width
+                        $field_label,
+                        number_format_i18n($max_width),
+                        number_format_i18n($width)
                     );
                     return $valid;
                 }
@@ -825,9 +866,9 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
                 if ($max_height > 0 && $height > $max_height) {
                     $valid = sprintf(
                         __('%s: La imagen no debe exceder %spx de alto. La imagen actual tiene %spx.', 'acf-pro-features-free'),
-                        $field['label'],
-                        $max_height,
-                        $height
+                        $field_label,
+                        number_format_i18n($max_height),
+                        number_format_i18n($height)
                     );
                     return $valid;
                 }
@@ -840,9 +881,9 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
                 if ($file_size_mb < $min_size) {
                     $valid = sprintf(
                         __('%s: El archivo debe tener al menos %sMB. El archivo actual tiene %sMB.', 'acf-pro-features-free'),
-                        $field['label'],
-                        number_format($min_size, 2),
-                        number_format($file_size_mb, 2)
+                        $field_label,
+                        number_format_i18n($min_size, 2),
+                        number_format_i18n($file_size_mb, 2)
                     );
                     return $valid;
                 }
@@ -855,19 +896,25 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
                 if ($file_size_mb > $max_size) {
                     $valid = sprintf(
                         __('%s: El archivo no debe exceder %sMB. El archivo actual tiene %sMB.', 'acf-pro-features-free'),
-                        $field['label'],
-                        number_format($max_size, 2),
-                        number_format($file_size_mb, 2)
+                        $field_label,
+                        number_format_i18n($max_size, 2),
+                        number_format_i18n($file_size_mb, 2)
                     );
                     return $valid;
                 }
             }
             
             // Validar tipos MIME
-            $mime_types = isset($field['mime_types']) ? trim($field['mime_types']) : '';
+            $mime_types = isset($field['mime_types']) ? sanitize_text_field(trim($field['mime_types'])) : '';
             if (!empty($mime_types)) {
                 $allowed_types = array_map('trim', explode(',', $mime_types));
+                $allowed_types = array_map('sanitize_text_field', $allowed_types);
+                $allowed_types = array_filter($allowed_types);
+                
                 $file_mime = get_post_mime_type($image_id);
+                if (!$file_mime) {
+                    continue;
+                }
                 
                 // Convertir extensiones a tipos MIME si es necesario
                 $mime_map = array(
@@ -885,15 +932,18 @@ class ACF_Pro_Features_Gallery_Field extends acf_field {
                     if (isset($mime_map[$type])) {
                         $allowed_mimes[] = $mime_map[$type];
                     } else {
-                        $allowed_mimes[] = $type;
+                        // Si ya es un tipo MIME válido, usarlo directamente
+                        if (preg_match('/^[a-z]+\/[a-z0-9\-\+\.]+$/i', $type)) {
+                            $allowed_mimes[] = $type;
+                        }
                     }
                 }
                 
-                if (!empty($allowed_mimes) && !in_array($file_mime, $allowed_mimes)) {
+                if (!empty($allowed_mimes) && !in_array($file_mime, $allowed_mimes, true)) {
                     $valid = sprintf(
                         __('%s: El tipo de archivo no está permitido. Tipos permitidos: %s', 'acf-pro-features-free'),
-                        $field['label'],
-                        implode(', ', $allowed_types)
+                        $field_label,
+                        esc_html(implode(', ', $allowed_types))
                     );
                     return $valid;
                 }
