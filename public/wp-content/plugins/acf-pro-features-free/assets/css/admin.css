@@ -211,18 +211,105 @@
     font-size: 12px;
 }
 
+.acf-flexible-content .acf-layout-controls .acf-layout-remove {
+    background: #dc3232;
+    color: #fff;
+}
+
+.acf-flexible-content .acf-layout-controls .acf-layout-remove:hover {
+    background: #b32d2e;
+}
+
+.acf-flexible-content .acf-layouts-container {
+    padding: 15px;
+}
+
+.acf-flexible-content .acf-layout-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.acf-flexible-content .acf-button-add-layout.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.acf-flexible-content .acf-notice-min {
+    padding: 10px 15px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 15px;
+    color: #856404;
+}
+
+.acf-flexible-content .acf-layout-template {
+    display: none;
+}
+
 /* Clone Field Styles */
-.acf-field-clone {
+.acf-clone-field {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 15px;
     background: #fafafa;
 }
 
-.acf-field-clone[data-display="seamless"] {
+.acf-clone-field.acf-clone-seamless {
     border: none;
     padding: 0;
     background: transparent;
+}
+
+.acf-clone-field.acf-clone-group {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background: #fafafa;
+}
+
+.acf-clone-field .acf-clone-header {
+    background: #2271b1;
+    color: #fff;
+    padding: 10px 15px;
+    margin: -15px -15px 15px -15px;
+    border-radius: 4px 4px 0 0;
+}
+
+.acf-clone-field .acf-clone-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.acf-clone-field .acf-clone-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.acf-clone-field .acf-clone-field-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.acf-clone-field .acf-clone-field-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.acf-clone-field.acf-clone-empty {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.acf-clone-field .acf-notice {
+    padding: 10px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    margin-bottom: 15px;
 }
 
 /* Estados de carga */

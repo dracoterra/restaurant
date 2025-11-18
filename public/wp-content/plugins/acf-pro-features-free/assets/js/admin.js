@@ -215,7 +215,7 @@
             }
             
             // Agregar evento a botones de layout
-            $flexible.on('click', '.acf-layouts .acf-button', function(e) {
+            $flexible.on('click', '.acf-button-add-layout', function(e) {
                 e.preventDefault();
                 var layoutName = $(this).data('layout');
                 addFlexibleLayout($flexible, layoutName);
@@ -224,14 +224,25 @@
             // Agregar evento a botón de eliminar
             $flexible.on('click', '.acf-layout-remove', function(e) {
                 e.preventDefault();
-                removeFlexibleLayout($(this).closest('.acf-layout'));
+                removeFlexibleLayout($(this).closest('.acf-layout'), $flexible);
             });
             
             // Hacer layouts ordenables
-            $flexible.find('.acf-layouts-container').sortable({
-                handle: '.acf-layout-handle',
-                axis: 'y',
-                opacity: 0.6
+            var $container = $flexible.find('.acf-layouts-container');
+            if ($container.length > 0 && typeof $.fn.sortable !== 'undefined') {
+                $container.sortable({
+                    handle: '.acf-layout-handle',
+                    axis: 'y',
+                    opacity: 0.6,
+                    update: function() {
+                        updateFlexibleLayoutIndices($flexible);
+                    }
+                });
+            }
+            
+            // Inicializar campos de imagen en layouts existentes
+            $flexible.find('.acf-field-image').each(function() {
+                initImageField($(this));
             });
         });
     }
@@ -240,29 +251,189 @@
      * Agregar layout a flexible content
      */
     function addFlexibleLayout($flexible, layoutName) {
-        // Implementar lógica para agregar layout
-        console.log('Agregar layout:', layoutName);
+        var $container = $flexible.find('.acf-layouts-container');
+        var $template = $flexible.find('.acf-layout-template[data-layout="' + layoutName + '"]');
+        
+        if ($template.length === 0) {
+            console.error('Template no encontrado para layout:', layoutName);
+            return;
+        }
+        
+        // Obtener el siguiente índice
+        var nextIndex = $container.find('.acf-layout').length;
+        
+        // Clonar template
+        var $newLayout = $($template.html());
+        $newLayout.removeClass('acf-layout-template acf-clone');
+        $newLayout.addClass('acf-layout');
+        $newLayout.attr('data-index', nextIndex);
+        
+        // Reemplazar placeholders en el HTML
+        var layoutHtml = $newLayout[0].outerHTML;
+        layoutHtml = layoutHtml.replace(/\{\{layout_index\}\}/g, nextIndex);
+        $newLayout = $(layoutHtml);
+        
+        // Agregar al contenedor
+        $container.append($newLayout);
+        
+        // Actualizar índices
+        updateFlexibleLayoutIndices($flexible);
+        
+        // Inicializar campos en el nuevo layout
+        var $newLayoutElement = $container.find('.acf-layout').last();
+        initLayoutFields($newLayoutElement);
+        
+        // Verificar límites
+        checkFlexibleContentLimits($flexible);
+        
+        // Trigger evento personalizado
+        $flexible.trigger('acf/add_layout', [$newLayoutElement, layoutName]);
     }
     
     /**
      * Eliminar layout de flexible content
      */
-    function removeFlexibleLayout($layout) {
-        if (!confirm(acfProFeatures.strings.confirmDelete)) {
+    function removeFlexibleLayout($layout, $flexible) {
+        if (!confirm(acfProFeatures.strings.confirmDelete || '¿Eliminar este layout?')) {
             return;
         }
         
         $layout.fadeOut(300, function() {
             $(this).remove();
+            updateFlexibleLayoutIndices($flexible);
+            checkFlexibleContentLimits($flexible);
+            $flexible.trigger('acf/remove_layout');
         });
+    }
+    
+    /**
+     * Actualizar índices de layouts
+     */
+    function updateFlexibleLayoutIndices($flexible) {
+        var $container = $flexible.find('.acf-layouts-container');
+        var fieldKey = $flexible.data('key');
+        
+        $container.find('.acf-layout').each(function(index) {
+            var $layout = $(this);
+            $layout.attr('data-index', index);
+            
+            // Actualizar nombres de campos
+            $layout.find('input, textarea, select').each(function() {
+                var $field = $(this);
+                var name = $field.attr('name');
+                
+                if (name) {
+                    // Reemplazar índice en el nombre del campo
+                    name = name.replace(/\[(\d+)\]/, '[' + index + ']');
+                    $field.attr('name', name);
+                }
+            });
+            
+            // Actualizar IDs de editores WYSIWYG
+            $layout.find('textarea.wp-editor-area').each(function() {
+                var $textarea = $(this);
+                var id = $textarea.attr('id');
+                if (id) {
+                    var newId = id.replace(/_(\d+)_/, '_' + index + '_');
+                    $textarea.attr('id', newId);
+                    
+                    // Si existe el editor, actualizarlo
+                    if (typeof tinyMCE !== 'undefined' && tinyMCE.get(id)) {
+                        var editor = tinyMCE.get(id);
+                        editor.id = newId;
+                        editor.settings.id = newId;
+                    }
+                }
+            });
+        });
+    }
+    
+    /**
+     * Inicializar campos de un layout
+     */
+    function initLayoutFields($layout) {
+        // Inicializar selector de medios para campos de imagen
+        $layout.find('.acf-field-image').each(function() {
+            initImageField($(this));
+        });
+        
+        // Inicializar editores WYSIWYG si están disponibles
+        if (typeof tinyMCE !== 'undefined') {
+            $layout.find('textarea.wp-editor-area').each(function() {
+                var $textarea = $(this);
+                var id = $textarea.attr('id');
+                if (id && !tinyMCE.get(id)) {
+                    // Inicializar editor si no existe
+                    if (typeof quicktags !== 'undefined') {
+                        quicktags({id: id});
+                    }
+                    if (typeof wp !== 'undefined' && wp.editor) {
+                        wp.editor.initialize(id, {
+                            tinymce: true,
+                            quicktags: true
+                        });
+                    }
+                }
+            });
+        }
+    }
+    
+    /**
+     * Verificar límites de flexible content
+     */
+    function checkFlexibleContentLimits($flexible) {
+        var min = parseInt($flexible.data('min')) || 0;
+        var max = parseInt($flexible.data('max')) || 0;
+        var $container = $flexible.find('.acf-layouts-container');
+        var currentCount = $container.find('.acf-layout').length;
+        
+        // Ocultar/mostrar botones según límites
+        if (max > 0 && currentCount >= max) {
+            $flexible.find('.acf-button-add-layout').prop('disabled', true).addClass('disabled');
+        } else {
+            $flexible.find('.acf-button-add-layout').prop('disabled', false).removeClass('disabled');
+        }
+        
+        // Mostrar mensaje si está por debajo del mínimo
+        if (min > 0 && currentCount < min) {
+            var $notice = $flexible.find('.acf-notice-min');
+            if ($notice.length === 0) {
+                $notice = $('<div class="acf-notice acf-notice-min">Se requieren al menos ' + min + ' layouts.</div>');
+                $flexible.prepend($notice);
+            }
+        } else {
+            $flexible.find('.acf-notice-min').remove();
+        }
     }
     
     /**
      * Inicializar campos Clone
      */
     function initCloneFields() {
-        // Los campos clone se expanden automáticamente en el servidor
-        // No se necesita JavaScript adicional
+        $('.acf-clone-field').each(function() {
+            var $field = $(this);
+            
+            // Inicializar campos de imagen dentro de clone
+            $field.find('.acf-field-image').each(function() {
+                initImageField($(this));
+            });
+            
+            // Inicializar editores WYSIWYG si están disponibles
+            if (typeof tinyMCE !== 'undefined') {
+                $field.find('textarea.wp-editor-area').each(function() {
+                    var $textarea = $(this);
+                    var id = $textarea.attr('id');
+                    if (id && !tinyMCE.get(id)) {
+                        if (typeof wp !== 'undefined' && wp.editor) {
+                            wp.editor.initialize(id, {
+                                tinymce: true,
+                                quicktags: true
+                            });
+                        }
+                    }
+                });
+            }
+        });
     }
     
     /**

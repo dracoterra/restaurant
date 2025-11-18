@@ -64,6 +64,11 @@ class ACF_Pro_Features_GraphQL_Integration {
             return $this->format_flexible_content_for_graphql($value, $field);
         }
         
+        // Si es un campo clone
+        if ($field['type'] === 'clone' && is_array($value)) {
+            return $this->format_clone_for_graphql($value, $field);
+        }
+        
         return $value;
     }
     
@@ -136,11 +141,69 @@ class ACF_Pro_Features_GraphQL_Integration {
     }
     
     /**
+     * Formatear clone para GraphQL
+     */
+    private function format_clone_for_graphql($value, $field) {
+        $formatted = array();
+        
+        // Obtener campos clonados
+        $clone = isset($field['clone']) ? $field['clone'] : array();
+        if (empty($clone) || !is_array($clone)) {
+            return $formatted;
+        }
+        
+        // Obtener configuración de campos clonados
+        $cloned_fields = $this->get_cloned_fields_config($clone);
+        
+        foreach ($cloned_fields as $cloned_field) {
+            $field_name = $cloned_field['name'];
+            
+            if (isset($value[$field_name])) {
+                $formatted[$field_name] = $this->format_field_value($value[$field_name], $cloned_field);
+            }
+        }
+        
+        return $formatted;
+    }
+    
+    /**
+     * Obtener configuración de campos clonados
+     */
+    private function get_cloned_fields_config($clone_selectors) {
+        $fields = array();
+        
+        foreach ($clone_selectors as $selector) {
+            // Intentar obtener campo por key
+            if (function_exists('acf_get_field')) {
+                $field = acf_get_field($selector);
+                if ($field) {
+                    $fields[] = $field;
+                    continue;
+                }
+            }
+            
+            // Intentar obtener grupo de campos
+            if (function_exists('acf_get_field_group')) {
+                $group = acf_get_field_group($selector);
+                if ($group && function_exists('acf_get_fields')) {
+                    $group_fields = acf_get_fields($group);
+                    if (!empty($group_fields)) {
+                        $fields = array_merge($fields, $group_fields);
+                    }
+                }
+            }
+        }
+        
+        return $fields;
+    }
+    
+    /**
      * Formatear valor de campo
      */
     private function format_field_value($value, $field) {
         switch ($field['type']) {
             case 'image':
+            case 'file':
                 if (is_numeric($value)) {
                     $image = wp_get_attachment_image_src($value, 'full');
                     return array(
@@ -151,6 +214,24 @@ class ACF_Pro_Features_GraphQL_Integration {
                     );
                 }
                 return null;
+                
+            case 'repeater':
+                if (is_array($value)) {
+                    return $this->format_repeater_for_graphql($value, $field);
+                }
+                return array();
+                
+            case 'flexible_content':
+                if (is_array($value)) {
+                    return $this->format_flexible_content_for_graphql($value, $field);
+                }
+                return array();
+                
+            case 'clone':
+                if (is_array($value)) {
+                    return $this->format_clone_for_graphql($value, $field);
+                }
+                return array();
                 
             case 'number':
                 return floatval($value);
