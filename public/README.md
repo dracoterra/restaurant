@@ -123,4 +123,11 @@ Toda la documentación histórica y técnica del proyecto se encuentra en la car
 - El backend usa Basic Auth para autenticarse con WordPress
 - Las credenciales se configuran en `backend/.env`
 - El frontend solo se comunica con el backend, nunca directamente con WordPress
+- **IMPORTANTE**: Nunca commitees archivos `.env` con credenciales reales
+
+## Documentación Adicional
+
+- [Arquitectura del Proyecto](docs/ARCHITECTURE.md) - Descripción detallada de la arquitectura
+- [Guía de Configuración](docs/SETUP.md) - Instrucciones paso a paso para configurar el proyecto
+- [Backend README](backend/README.md) - Documentación específica del backend
 

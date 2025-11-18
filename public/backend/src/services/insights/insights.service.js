@@ -10,7 +10,7 @@ class InsightsService {
     this.wpGraphQLUrl = process.env.WP_GRAPHQL_URL || 'http://restaurant.local/graphql';
     this.wpRestUrl = process.env.WP_REST_URL || 'http://restaurant.local/wp-json/wp/v2';
     this.wpUser = process.env.WP_USER || 'admin';
-    this.wpPassword = process.env.WP_PASSWORD || 'root';
+    this.wpPassword = process.env.WP_PASSWORD || '';
     
     // Create Basic Auth header
     const credentials = Buffer.from(`${this.wpUser}:${this.wpPassword}`).toString('base64');

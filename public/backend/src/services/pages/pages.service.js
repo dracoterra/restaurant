@@ -9,7 +9,7 @@ class PagesService {
     this.options = options || {};
     this.wpGraphQLUrl = process.env.WP_GRAPHQL_URL || 'http://restaurant.local/graphql';
     this.wpUser = process.env.WP_USER || 'admin';
-    this.wpPassword = process.env.WP_PASSWORD || '9203166sa';
+    this.wpPassword = process.env.WP_PASSWORD || '';
     
     // Create Basic Auth header
     const credentials = Buffer.from(`${this.wpUser}:${this.wpPassword}`).toString('base64');
