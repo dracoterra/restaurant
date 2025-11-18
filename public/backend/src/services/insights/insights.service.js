@@ -3,6 +3,7 @@ const axios = require('axios');
 const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
+const cache = require('../../utils/cache');
 
 class InsightsService {
   constructor(options) {

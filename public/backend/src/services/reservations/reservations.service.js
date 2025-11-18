@@ -1,4 +1,5 @@
 const logger = require('../../logger');
+const { validate, formSchemas } = require('../../utils/validation');
 
 class ReservationsService {
   constructor(options) {
@@ -7,18 +8,9 @@ class ReservationsService {
 
   async create(data, params) {
     try {
-      const { name, email, phone, date, time, person } = data;
-
-      // Validar datos requeridos
-      if (!name || !email || !phone || !date || !time || !person) {
-        throw new Error('Todos los campos son requeridos');
-      }
-
-      // Validar formato de email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        throw new Error('Email inválido');
-      }
+      // Validar y sanitizar datos de entrada
+      const validatedData = validate(data, formSchemas.reservation);
+      const { name, email, phone, date, time, person } = validatedData;
 
       // Validar fecha (debe ser futura)
       const reservationDate = new Date(date);
@@ -26,7 +18,9 @@ class ReservationsService {
       today.setHours(0, 0, 0, 0);
       
       if (reservationDate < today) {
-        throw new Error('La fecha de reserva debe ser futura');
+        const dateError = new Error('La fecha de reserva debe ser futura');
+        dateError.statusCode = 400;
+        throw dateError;
       }
 
       // Aquí puedes implementar la lógica de reserva

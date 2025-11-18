@@ -37,7 +37,9 @@ export default defineNuxtPlugin({
           try {
             new (window as any).WOW().init()
           } catch (e) {
-            console.warn('Error inicializando WOW.js:', e)
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('Error inicializando WOW.js:', e)
+            }
           }
         }
 
@@ -52,7 +54,9 @@ export default defineNuxtPlugin({
                   prependTo: '.responsive-menu'
                 })
               } catch (e) {
-                console.warn('Error inicializando SlickNav:', e)
+                if (process.env.NODE_ENV === 'development') {
+                  console.warn('Error inicializando SlickNav:', e)
+                }
               }
             }
           }, 500)
@@ -67,7 +71,9 @@ export default defineNuxtPlugin({
                 time: 3000
               })
             } catch (e) {
-              console.warn('Error inicializando counterUp:', e)
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('Error inicializando counterUp:', e)
+              }
             }
           }, 1000)
         }
@@ -84,7 +90,9 @@ export default defineNuxtPlugin({
                 })
               }
             } catch (e) {
-              console.warn('Error inicializando parallaxie:', e)
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('Error inicializando parallaxie:', e)
+              }
             }
           }, 500)
         }
@@ -101,7 +109,9 @@ export default defineNuxtPlugin({
                 fixedContentPos: true
               })
             } catch (e) {
-              console.warn('Error inicializando magnificPopup:', e)
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('Error inicializando magnificPopup:', e)
+              }
             }
           }, 500)
         }

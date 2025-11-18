@@ -2,6 +2,7 @@ const { GraphQLClient } = require('graphql-request');
 const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
+const cache = require('../../utils/cache');
 
 class MenusService {
   constructor(options) {
@@ -26,20 +27,35 @@ class MenusService {
     try {
       const { query = {} } = params;
       const { location = 'primary', slug = null } = query;
+      
+      // Generar clave de caché
+      const cacheKey = `menu:${location}:${slug || 'default'}`;
+      
+      // Intentar obtener del caché (caché largo porque los menús raramente cambian)
+      const cached = cache.get(cacheKey, cache.TYPES.LONG);
+      if (cached) {
+        return cached;
+      }
 
       // Estrategia 1: Si hay slug, obtener directamente por slug
       if (slug) {
-        return await this.getMenuBySlug(slug);
+        const result = await this.getMenuBySlug(slug);
+        if (result) {
+          cache.set(cacheKey, result, cache.TYPES.LONG);
+        }
+        return result;
       }
 
       // Estrategia 2: Intentar obtener por location usando menuItems
       try {
         const menuItems = await this.getMenuItemsByLocation(location);
         if (menuItems && menuItems.length > 0) {
-          return {
+          const result = {
             data: this.transformMenuItems(menuItems),
             total: menuItems.length
           };
+          cache.set(cacheKey, result, cache.TYPES.LONG);
+          return result;
         }
       } catch (locationError) {
         logger.info('No se pudo obtener menú por location, intentando obtener todos los menús:', locationError.message);
@@ -48,28 +64,35 @@ class MenusService {
       // Estrategia 3: Obtener todos los menús y filtrar por location
       const menu = await this.getMenuByLocationFromAllMenus(location);
       if (menu && menu.menuItems?.nodes && menu.menuItems.nodes.length > 0) {
-        return {
+        const result = {
           data: this.transformMenuItems(menu.menuItems.nodes),
           total: menu.menuItems.nodes.length
         };
+        cache.set(cacheKey, result, cache.TYPES.LONG);
+        return result;
       }
 
       // Estrategia 4: Si no hay menú asignado a la location, obtener el primer menú disponible
       const firstMenu = await this.getFirstAvailableMenu();
       if (firstMenu && firstMenu.menuItems?.nodes && firstMenu.menuItems.nodes.length > 0) {
         logger.info(`No se encontró menú asignado a location '${location}', usando el primer menú disponible: ${firstMenu.name}`);
-        return {
+        const result = {
           data: this.transformMenuItems(firstMenu.menuItems.nodes),
           total: firstMenu.menuItems.nodes.length
         };
+        cache.set(cacheKey, result, cache.TYPES.LONG);
+        return result;
       }
 
       // Si no hay menús disponibles, retornar array vacío
       logger.warn('No se encontraron menús en WordPress');
-      return {
+      const emptyResult = {
         data: [],
         total: 0
       };
+      // Guardar resultado vacío en caché por menos tiempo (5 minutos)
+      cache.set(cacheKey, emptyResult, cache.TYPES.SHORT);
+      return emptyResult;
 
     } catch (error) {
       logger.error('Error al obtener menú de WordPress:', error.message);

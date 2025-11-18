@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useApi } from '~/composables/useApi'
+import { useCache, CACHE_TTL } from '~/composables/useCache'
 
 export interface MenuItem {
   id: string
@@ -23,6 +24,17 @@ export const useMenuStore = defineStore('menu', {
       this.error = null
 
       try {
+        const cache = useCache()
+        const cacheKey = `menu:${location}:${slug || 'default'}`
+        
+        // Intentar obtener del caché primero
+        const cached = cache.get<MenuItem[]>(cacheKey)
+        if (cached) {
+          this.items = cached
+          this.loading = false
+          return
+        }
+        
         const api = useApi()
         
         // Primero intentar obtener por location
@@ -61,6 +73,9 @@ export const useMenuStore = defineStore('menu', {
         }
         
         this.items = menuData || []
+        
+        // Guardar en caché (1 hora - los menús raramente cambian)
+        cache.set(cacheKey, this.items, CACHE_TTL.LONG)
       } catch (error: any) {
         // Silenciar el error - no mostrar mensaje en el header
         // El skeleton loader se mostrará mientras no haya items

@@ -3,6 +3,7 @@ const axios = require('axios');
 const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
+const cache = require('../../utils/cache');
 
 class SettingsService {
   constructor(options) {
@@ -25,6 +26,14 @@ class SettingsService {
   }
 
   async find(params) {
+    const cacheKey = 'settings:all';
+    
+    // Intentar obtener del caché primero
+    const cached = cache.get(cacheKey, cache.TYPES.LONG);
+    if (cached) {
+      return cached;
+    }
+    
     try {
       const baseUrl = this.wpRestUrl.replace('/wp/v2', '');
       
@@ -165,16 +174,24 @@ class SettingsService {
         if (customSettings.copyright) settings.copyright = customSettings.copyright;
       }
 
-      return {
+      const result = {
         data: settings,
         total: 1
       };
+      
+      // Guardar en caché (1 hora)
+      cache.set(cacheKey, result, cache.TYPES.LONG);
+      
+      return result;
     } catch (error) {
       logger.warn('Error al obtener configuración, usando valores por defecto:', error.message);
-      return {
+      const defaultResult = {
         data: this.getDefaultSettings(),
         total: 1
       };
+      // Guardar valores por defecto en caché por menos tiempo (5 minutos)
+      cache.set(cacheKey, defaultResult, cache.TYPES.SHORT);
+      return defaultResult;
     }
   }
 

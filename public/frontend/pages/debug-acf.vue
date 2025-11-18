@@ -237,7 +237,10 @@ const loadPage = async (pageType: string) => {
     } else {
       error.value = err.message || 'Error al cargar la página'
     }
-    console.error('Error loading page:', err)
+        // Solo loggear en desarrollo
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error loading page:', err)
+        }
   } finally {
     loading.value = false
   }

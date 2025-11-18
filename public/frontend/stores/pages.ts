@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useApi } from '~/composables/useApi'
+import { useCache, CACHE_TTL } from '~/composables/useCache'
 
 export interface Page {
   id: string
@@ -154,9 +155,24 @@ export const usePagesStore = defineStore('pages', {
       this.error = null
 
       try {
+        const cache = useCache()
+        const cacheKey = `page:${slug}`
+        
+        // Intentar obtener del caché primero
+        const cached = cache.get<Page>(cacheKey)
+        if (cached) {
+          this.currentPage = cached
+          this.loading = false
+          return cached
+        }
+        
         const api = useApi()
         const response = await api.get<Page>(`/pages/${slug}`)
         this.currentPage = response.data
+        
+        // Guardar en caché (15 minutos)
+        cache.set(cacheKey, response.data, CACHE_TTL.MEDIUM)
+        
         return response.data
       } catch (error: any) {
         this.error = error.message || 'Error al cargar la página'

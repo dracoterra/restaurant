@@ -1,4 +1,5 @@
 const logger = require('../../logger');
+const { validate, formSchemas } = require('../../utils/validation');
 // nodemailer es opcional - solo se usa si está disponible
 let nodemailer = null;
 try {
@@ -14,18 +15,9 @@ class ContactService {
 
   async create(data, params) {
     try {
-      const { name, email, phone, message, type = 'contact' } = data;
-
-      // Validar datos requeridos
-      if (!name || !email || !message) {
-        throw new Error('Nombre, email y mensaje son requeridos');
-      }
-
-      // Validar formato de email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        throw new Error('Email inválido');
-      }
+      // Validar y sanitizar datos de entrada
+      const validatedData = validate(data, formSchemas.contact);
+      const { name, email, phone, message, type = 'contact' } = validatedData;
 
       // Aquí puedes implementar el envío de email
       // Por ahora, solo logueamos y guardamos en la respuesta

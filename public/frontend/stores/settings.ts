@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useApi } from '~/composables/useApi'
+import { useCache, CACHE_TTL } from '~/composables/useCache'
 
 export interface ThemeSettings {
   logo: string
@@ -64,6 +65,17 @@ export const useSettingsStore = defineStore('settings', {
       this.error = null
 
       try {
+        const cache = useCache()
+        const cacheKey = 'settings:all'
+        
+        // Intentar obtener del caché primero
+        const cached = cache.get<ThemeSettings>(cacheKey)
+        if (cached) {
+          this.settings = { ...this.settings, ...cached }
+          this.loading = false
+          return
+        }
+        
         const api = useApi()
         const response = await api.get('/settings')
         
@@ -74,6 +86,8 @@ export const useSettingsStore = defineStore('settings', {
         
         if (settingsData) {
           this.settings = { ...this.settings, ...settingsData }
+          // Guardar en caché (1 hora)
+          cache.set(cacheKey, this.settings, CACHE_TTL.LONG)
         }
       } catch (error: any) {
         this.error = error.message || 'Error al cargar configuración'

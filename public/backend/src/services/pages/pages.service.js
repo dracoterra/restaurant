@@ -4,6 +4,7 @@ const { NotFound } = require('@feathersjs/errors');
 const logger = require('../../logger');
 const retry = require('../../utils/retry');
 const timeout = require('../../utils/timeout');
+const cache = require('../../utils/cache');
 
 class PagesService {
   constructor(options) {

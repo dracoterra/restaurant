@@ -171,9 +171,12 @@ export function useAcfDebug() {
     if (process.client) {
       const report = generateReport(page, pageType)
       console.group(`🔍 ACF Debug - ${pageType.toUpperCase()}`)
-      console.log(report)
-      console.log('Full Page Data:', page)
-      console.log('ACF Data:', page?.acf)
+      // Solo loggear en desarrollo
+      if (process.env.NODE_ENV === 'development') {
+        console.log(report)
+        console.log('Full Page Data:', page)
+        console.log('ACF Data:', page?.acf)
+      }
       console.groupEnd()
     }
   }
