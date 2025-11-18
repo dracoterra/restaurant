@@ -82,7 +82,7 @@ onMounted(async () => {
       settingsStore.fetchSettings()
     ])
   } catch (error) {
-    console.error('Error loading menu or settings:', error)
+    // Error loading menu or settings
   }
 
   // Manejar scroll para sticky header

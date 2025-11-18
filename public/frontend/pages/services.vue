@@ -141,7 +141,7 @@ onMounted(async () => {
       }, 500)
     }
   } catch (error) {
-    console.error('Error loading services page:', error)
+    // Error loading services page
   }
 })
 </script>

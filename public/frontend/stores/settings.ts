@@ -51,7 +51,6 @@ export const useSettingsStore = defineStore('settings', {
         }
       } catch (error: any) {
         this.error = error.message || 'Error al cargar configuración'
-        console.error('Error fetching settings:', error)
         // Mantener valores por defecto en caso de error
       } finally {
         this.loading = false

@@ -142,7 +142,6 @@ const form = ref({
 
 const handleReservation = () => {
   // TODO: Implementar envío de formulario
-  console.log('Reservation submitted:', form.value)
   alert('Reservation submitted! (This is a placeholder)')
 }
 

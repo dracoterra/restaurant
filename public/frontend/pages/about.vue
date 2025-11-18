@@ -373,7 +373,7 @@ onMounted(async () => {
       }, 500)
     }
   } catch (error) {
-    console.error('Error loading page:', error)
+    // Error loading page
   }
 })
 </script>

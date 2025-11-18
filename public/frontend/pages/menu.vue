@@ -202,7 +202,7 @@ onMounted(async () => {
       }, 500)
     }
   } catch (error) {
-    console.error('Error loading menu page:', error)
+    // Error loading menu page
   }
 })
 </script>

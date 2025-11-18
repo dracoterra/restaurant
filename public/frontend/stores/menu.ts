@@ -49,7 +49,6 @@ export const useMenuStore = defineStore('menu', {
         
         // Si no se encontró menú por location y no hay slug, intentar obtener todos los menús
         if (menuData.length === 0 && !slug) {
-          console.log('No se encontró menú por location, intentando obtener todos los menús...')
           response = await api.get('/menus', { params: {} })
           
           if (response.data) {
@@ -64,7 +63,6 @@ export const useMenuStore = defineStore('menu', {
         this.items = menuData || []
       } catch (error: any) {
         this.error = error.message || 'Error al cargar el menú'
-        console.error('Error fetching menu:', error)
         // No usar menú hardcodeado - mantener items vacío
         // El backend ahora retorna array vacío en lugar de menú por defecto
         if (this.items.length === 0) {

@@ -51,7 +51,6 @@ export const useProductsStore = defineStore('products', {
         this.total = response.data.total || 0
       } catch (error: any) {
         this.error = error.message || 'Error al cargar productos'
-        console.error('Error fetching products:', error)
         this.products = []
       } finally {
         this.loading = false
@@ -79,7 +78,6 @@ export const useProductsStore = defineStore('products', {
         
         this.categories = Array.from(categoriesMap.values())
       } catch (error: any) {
-        console.error('Error fetching categories:', error)
         this.categories = []
       }
     }

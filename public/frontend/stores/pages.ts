@@ -142,7 +142,6 @@ export const usePagesStore = defineStore('pages', {
         this.total = response.data.total
       } catch (error: any) {
         this.error = error.message || 'Error al cargar páginas'
-        console.error('Error fetching pages:', error)
       } finally {
         this.loading = false
       }
@@ -159,7 +158,6 @@ export const usePagesStore = defineStore('pages', {
         return response.data
       } catch (error: any) {
         this.error = error.message || 'Error al cargar la página'
-        console.error('Error fetching page:', error)
         throw error
       } finally {
         this.loading = false

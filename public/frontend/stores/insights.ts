@@ -87,7 +87,6 @@ export const useInsightsStore = defineStore('insights', {
         }
       } catch (error: any) {
         this.error = error.message || 'Error al cargar insights'
-        console.error('Error fetching insights:', error)
       } finally {
         this.loading = false
       }
@@ -104,7 +103,6 @@ export const useInsightsStore = defineStore('insights', {
         return response.data
       } catch (error: any) {
         this.error = error.message || 'Error al cargar el insight'
-        console.error('Error fetching insight:', error)
         throw error
       } finally {
         this.loading = false

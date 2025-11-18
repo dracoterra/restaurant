@@ -134,7 +134,7 @@ onMounted(async () => {
     await Promise.all([
       pagesStore.fetchPageBySlug('home').catch(() => null).then(p => { page.value = p }),
       insightsStore.fetchInsights({ limit: 3 }).catch(() => {
-        console.warn('Error loading insights, using empty array')
+        // Error loading insights, using empty array
       })
     ])
     
@@ -158,7 +158,6 @@ onMounted(async () => {
     // Inicializar scripts
     initScripts()
   } catch (error) {
-    console.error('Error loading home page:', error)
     useHead({
       title: 'Home - Restaurant',
       meta: [

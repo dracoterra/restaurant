@@ -413,7 +413,7 @@ onMounted(async () => {
       }, 500)
     }
   } catch (error) {
-    console.error('Error loading contact page:', error)
+    // Error loading contact page
   }
 })
 </script>
