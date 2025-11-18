@@ -3,6 +3,13 @@ import { useApi } from '~/composables/useApi'
 
 export interface ThemeSettings {
   logo: string
+  logoData?: {
+    url: string
+    width: number
+    height: number
+    alt: string
+    title: string
+  } | null
   address: string
   phone: string
   email: string
@@ -12,6 +19,25 @@ export interface ThemeSettings {
     dribbble?: string
   }
   copyright: string
+  siteInfo?: {
+    name: string
+    description: string
+    url: string
+    admin_email: string
+    language: string
+    timezone: string
+    date_format: string
+    time_format: string
+    posts_per_page: number
+    theme: {
+      name: string
+      version: string
+      template: string
+      stylesheet: string
+    }
+  }
+  background_color?: string
+  background_image?: string
 }
 
 export const useSettingsStore = defineStore('settings', {

@@ -7,7 +7,12 @@
           <div class="footer-content">
             <!-- Footer Logo Start -->
             <div class="footer-logo">
-              <img :src="settings.logo" alt="Logo">
+              <img 
+                :src="settings.logo" 
+                :alt="settings.logoData?.alt || 'Logo'"
+                :width="settings.logoData?.width"
+                :height="settings.logoData?.height"
+              >
             </div>
             <!-- Footer Logo End -->
 

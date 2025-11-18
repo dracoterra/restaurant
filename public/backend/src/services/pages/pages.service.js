@@ -352,6 +352,28 @@ class PagesService {
       // Transformar página
       let transformedPage = this.transformPage(data.page);
       
+      // Obtener body classes para esta página (solo si el plugin está activo)
+      try {
+        const baseUrl = this.wpRestUrl.replace('/wp/v2', '');
+        const bodyClassesResponse = await axios.get(`${baseUrl}/restaurant/v1/body-classes`, {
+          headers: { 'Authorization': this.authHeader },
+          params: {
+            slug: id,
+            post_type: 'page'
+          }
+        }, { timeout: 3000 });
+        
+        if (bodyClassesResponse.data && bodyClassesResponse.data.classes) {
+          transformedPage.bodyClasses = bodyClassesResponse.data.classes;
+          transformedPage.bodyClassesString = bodyClassesResponse.data.classes_string;
+        }
+      } catch (error) {
+        // Si falla, generar clases básicas basadas en el slug (sin hardcode)
+        const slug = transformedPage.slug || id;
+        transformedPage.bodyClasses = ['page', `page-${slug}`];
+        transformedPage.bodyClassesString = transformedPage.bodyClasses.join(' ');
+      }
+      
       // Log después de transformar
       logger.info('After Transform - Has ACF:', !!transformedPage.acf);
       if (transformedPage.acf) {

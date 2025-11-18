@@ -21,6 +21,8 @@ export interface Page {
     metaDesc?: string
     canonical?: string
   }
+  bodyClasses?: string[]
+  bodyClassesString?: string
   acf?: {
     aboutPageSections?: {
       aboutContentSubtitle?: string

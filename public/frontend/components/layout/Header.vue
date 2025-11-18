@@ -5,7 +5,12 @@
         <div class="container">
           <!-- Logo Start -->
           <NuxtLink class="navbar-brand" to="/">
-            <img :src="settings?.logo || '/images/logo.svg'" alt="Logo">
+            <img 
+              :src="settings?.logo || '/images/logo.svg'" 
+              :alt="settings?.logoData?.alt || 'Logo'"
+              :width="settings?.logoData?.width"
+              :height="settings?.logoData?.height"
+            >
           </NuxtLink>
           <!-- Logo End -->
 
