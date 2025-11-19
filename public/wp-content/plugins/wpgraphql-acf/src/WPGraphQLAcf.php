@@ -46,6 +46,9 @@ class WPGraphQLAcf {
 
 		add_filter( 'graphql_resolve_revision_meta_from_parent', [ $this, 'preview_support' ], 10, 4 );
 
+		// Usar el nuevo hook graphql_data_loader_classes en lugar del deprecado graphql_data_loaders
+		add_filter( 'graphql_data_loader_classes', [ $this, 'register_loader_classes' ], 10, 2 );
+		// Mantener el hook deprecado por compatibilidad (se eliminará en futuras versiones)
 		add_filter( 'graphql_data_loaders', [ $this, 'register_loaders' ], 10, 2 );
 		add_filter( 'graphql_resolve_node_type', [ $this, 'resolve_acf_options_page_node' ], 10, 2 );
 		/**
@@ -270,6 +273,22 @@ class WPGraphQLAcf {
 	}
 
 	/**
+	 * Registra las clases de loaders usando el nuevo hook graphql_data_loader_classes
+	 *
+	 * @param array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>> $loader_classes
+	 * @param \WPGraphQL\AppContext                                                  $context
+	 *
+	 * @return array<string,class-string<\WPGraphQL\Data\Loader\AbstractDataLoader>>
+	 */
+	public function register_loader_classes( array $loader_classes, \WPGraphQL\AppContext $context ): array {
+		$loader_classes['acf_options_page'] = \WPGraphQL\Acf\Data\Loader\AcfOptionsPageLoader::class;
+		return $loader_classes;
+	}
+
+	/**
+	 * Registra los loaders usando el hook deprecado (mantenido por compatibilidad)
+	 *
+	 * @deprecated Este método se mantiene solo por compatibilidad. Usar register_loader_classes en su lugar.
 	 * @param array<mixed>          $loaders
 	 * @param \WPGraphQL\AppContext $context
 	 *
